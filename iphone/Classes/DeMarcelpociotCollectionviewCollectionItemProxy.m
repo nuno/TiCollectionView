@@ -88,6 +88,12 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 	return _listItem.contentView;
 }
 
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_
+{
+
+}
+
+
 - (void)unarchiveFromTemplate:(id)viewTemplate
 {
 	[super unarchiveFromTemplate:viewTemplate];
