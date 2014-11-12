@@ -4,6 +4,31 @@ TiCollectionView
 **Work in Progress**
 
 ## Usage
+
+Alloy:
+
+        <ListView id="listView" backgroundColor="white" defaultItemTemplate="template" module="de.marcelpociot.collectionview" method="createCollectionView">
+
+        <Templates>
+            <ItemTemplate name="template">
+                <View id="container">
+                    <Label bindId="info" id="title" />
+                    <Label bindId="es_info" id="subtitle" />
+                </View>
+            </ItemTemplate>
+
+        </Templates>
+
+        <ListSection module="de.marcelpociot.collectionview" method="createCollectionSection">
+
+            <ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" width="150" height="200" info:text="Apple" es_info:text="Manzana" />
+            <ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" width="150" height="200" info:text="Banana" es_info:text="Banana" />
+            <ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" width="150" height="200" info:text="Apple" es_info:text="Manzana" />
+            <ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" width="150" height="200" info:text="Banana" es_info:text="Banana" />
+        </ListSection>
+    </ListView>
+Vanilla JS:
+
 	var collectionView = require("de.marcelpociot.collectionview");
 
 	var win = Ti.UI.createWindow({backgroundColor: 'white'});
