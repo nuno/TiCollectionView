@@ -1,0 +1,17 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 1.0.0
+apiversion: 2
+description: TiCollectionView
+author: Your Name
+license: Specify your license
+copyright: Copyright (c) 2014 by Your Company
+
+# these should not be edited
+name: TiCollectionView
+moduleid: de.marcelpociot.collectionview
+guid: eef8bad5-aef3-49fb-bb8d-7cb781e9e7f5
+platform: iphone
+minsdk: 3.4.0.GA
