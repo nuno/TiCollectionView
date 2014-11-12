@@ -25,7 +25,7 @@ enum {
 @property (nonatomic, readonly) DeMarcelpociotCollectionviewCollectionItemProxy *proxy;
 @property (nonatomic, readwrite, retain) NSDictionary *dataItem;
 
-- (id)initWithProxy:(DeMarcelpociotCollectionviewCollectionItemProxy *)proxy reuseIdentifier:(NSString *)reuseIdentifier;
+- (void)initWithProxy:(DeMarcelpociotCollectionviewCollectionItemProxy *)proxy;
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
 - (void)setPosition:(int)position isGrouped:(BOOL)grouped;

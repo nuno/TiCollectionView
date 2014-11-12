@@ -175,7 +175,6 @@
 
 - (void)willShow
 {
-	[self.listView deselectAll:YES];
 	[super willShow];
 }
 

@@ -150,11 +150,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (UICollectionView *)collectionView
 {
     if (_collectionView == nil) {
-        _collectionView = [[UICollectionView alloc] initWithFrame:self.bounds];
+        UICollectionViewFlowLayout* layout = [[UICollectionViewFlowLayout alloc] init];
+
+        _collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
         _collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+        _collectionView.bounces = YES;
         _collectionView.delegate = self;
         _collectionView.dataSource = self;
-        [_collectionView setCollectionViewLayout:[[UICollectionViewFlowLayout alloc] init]];
 
         id backgroundColor = [self.proxy valueForKey:@"backgroundColor"];
         _collectionView.backgroundColor = [[TiUtils colorValue:backgroundColor] color];
@@ -242,12 +244,18 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         id template = [_templates objectForKey:key];
         if (template != nil) {
             DeMarcelpociotCollectionviewCollectionItemProxy *theProxy = [[DeMarcelpociotCollectionviewCollectionItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:self.listViewProxy.pageContext];
+            
+            NSString *cellIdentifier = [key isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUIListView__internal%@", key]: [key description];
+            NSLog(@"[INFO] Registering class for identifier %@", cellIdentifier);
+            [_collectionView registerClass:[DeMarcelpociotCollectionviewCollectionItem class] forCellWithReuseIdentifier:cellIdentifier];
+            /**
             DeMarcelpociotCollectionviewCollectionItem* cell = [[DeMarcelpociotCollectionviewCollectionItem alloc] initWithProxy:theProxy reuseIdentifier:@"__measurementCell__"];
             [theProxy unarchiveFromTemplate:template];
             [_measureProxies setObject:cell forKey:key];
             [theProxy setIndexPath:[NSIndexPath indexPathForRow:-1 inSection:-1]];
             [cell release];
             [theProxy release];
+             */
         }
     }
 	if (_collectionView != nil) {
@@ -378,13 +386,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	}	
 }
 
-- (void)setRowHeight_:(id)height
-{
-	_rowHeight = [TiUtils dimensionValue:height];
-	if (TiDimensionIsDip(_rowHeight)) {
-		[_collectionView setRowHeight:_rowHeight.value];
-	}
-}
 
 - (void)setBackgroundColor_:(id)arg
 {
@@ -429,7 +430,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     NSUInteger sectionCount = 0;
     
     sectionCount = [self.listViewProxy.sectionCount unsignedIntegerValue];
-    
+    NSLog(@"[INFO] Section count: %i", sectionCount);
     return MAX(0,sectionCount);
 }
 
@@ -437,8 +438,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     DeMarcelpociotCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
     if (theSection != nil) {
+    NSLog(@"[INFO] Item count: %i", theSection.itemCount);
         return theSection.itemCount;
     }
+    NSLog(@"[INFO] Item count: 0");
     return 0;
 }
 
@@ -456,24 +459,28 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         templateId = _defaultItemTemplate;
     }
     NSString *cellIdentifier = [templateId isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUIListView__internal%@", templateId]: [templateId description];
-    
+    NSLog(@"[INFO] Loading cell (Identifier: %@) section: %i - item %i", cellIdentifier, indexPath.section, indexPath.item);
     DeMarcelpociotCollectionviewCollectionItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
     
-    if (cell == nil) {
+    if( cell.proxy == nil )
+    {
+        NSLog(@"[INFO] Loading proxy for cell");
         id<TiEvaluator> context = self.listViewProxy.executionContext;
         if (context == nil) {
             context = self.listViewProxy.pageContext;
         }
         DeMarcelpociotCollectionviewCollectionItemProxy *cellProxy = [[DeMarcelpociotCollectionviewCollectionItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:context];
-        cell = [[DeMarcelpociotCollectionviewCollectionItem alloc] initWithProxy:cellProxy reuseIdentifier:cellIdentifier];
+        [cell initWithProxy:cellProxy];
+
         id template = [_templates objectForKey:templateId];
         if (template != nil) {
-            [cellProxy unarchiveFromTemplate:template];
+                NSLog(@"[INFO] Template found");
+                [cellProxy unarchiveFromTemplate:template];
         }
         [cellProxy release];
         [cell autorelease];
     }
-
+        //cellProxy = nil;
     cell.dataItem = item;
     cell.proxy.indexPath = realIndexPath;
     return cell;
@@ -519,10 +526,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     id widthValue = [self valueWithKey:@"width" atIndexPath:realPath];
     CGFloat width = 100.0f;
-    if (heightValue != nil) {
-        height = [TiUtils dimensionValue:widthValue].value;
+    if (widthValue != nil) {
+        width = [TiUtils dimensionValue:widthValue].value;
     }
-    
+    NSLog(@"[INFO] Size: %@",NSStringFromCGSize(CGSizeMake(width, height)));
     return CGSizeMake(width, height);
 }
 

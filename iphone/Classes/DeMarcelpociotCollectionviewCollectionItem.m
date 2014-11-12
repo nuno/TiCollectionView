@@ -27,19 +27,14 @@
 @synthesize proxy = _proxy;
 @synthesize dataItem = _dataItem;
 
-- (id)initWithProxy:(DeMarcelpociotCollectionviewCollectionItemProxy *)proxy reuseIdentifier:(NSString *)reuseIdentifier
+- (void)initWithProxy:(DeMarcelpociotCollectionviewCollectionItemProxy *)proxy
 {
-    self = [super initWithFrame:<#(CGRect)#>]
-    self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
-    if (self) {
 		_templateStyle = TiUIListItemTemplateStyleCustom;
 		_initialValues = [[NSMutableDictionary alloc] initWithCapacity:10];
 		_currentValues = [[NSMutableDictionary alloc] initWithCapacity:10];
 		_resetKeys = [[NSMutableSet alloc] initWithCapacity:10];
 		_proxy = [proxy retain];
 		_proxy.listItem = self;
-    }
-    return self;
 }
 
 - (void)dealloc
