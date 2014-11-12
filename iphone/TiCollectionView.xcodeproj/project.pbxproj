@@ -30,6 +30,8 @@
 		1E65CF631A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E65CF5F1A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionView.m */; };
 		1E65CF641A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E65CF601A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.h */; };
 		1E65CF651A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E65CF611A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m */; };
+		1E65CF681A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E65CF661A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m */; };
+		1E65CF691A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E65CF671A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.h */; };
 		24DD6CF91134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DD6CF71134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h */; };
 		24DD6CFA1134B3F500162E58 /* DeMarcelpociotCollectionviewModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD6CF81134B3F500162E58 /* DeMarcelpociotCollectionviewModule.m */; };
 		24DE9E1111C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DE9E0F11C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.h */; };
@@ -57,6 +59,8 @@
 		1E65CF5F1A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcelpociotCollectionviewCollectionView.m; path = Classes/DeMarcelpociotCollectionviewCollectionView.m; sourceTree = "<group>"; };
 		1E65CF601A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcelpociotCollectionviewCollectionViewProxy.h; path = Classes/DeMarcelpociotCollectionviewCollectionViewProxy.h; sourceTree = "<group>"; };
 		1E65CF611A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcelpociotCollectionviewCollectionViewProxy.m; path = Classes/DeMarcelpociotCollectionviewCollectionViewProxy.m; sourceTree = "<group>"; };
+		1E65CF661A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcelpociotCollectionviewCollectionSectionProxy.m; path = Classes/DeMarcelpociotCollectionviewCollectionSectionProxy.m; sourceTree = "<group>"; };
+		1E65CF671A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcelpociotCollectionviewCollectionSectionProxy.h; path = Classes/DeMarcelpociotCollectionviewCollectionSectionProxy.h; sourceTree = "<group>"; };
 		24DD6CF71134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcelpociotCollectionviewModule.h; path = Classes/DeMarcelpociotCollectionviewModule.h; sourceTree = "<group>"; };
 		24DD6CF81134B3F500162E58 /* DeMarcelpociotCollectionviewModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcelpociotCollectionviewModule.m; path = Classes/DeMarcelpociotCollectionviewModule.m; sourceTree = "<group>"; };
 		24DD6D1B1134B66800162E58 /* titanium.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = titanium.xcconfig; sourceTree = "<group>"; };
@@ -121,6 +125,8 @@
 				24DE9E1011C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.m */,
 				24DD6CF71134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h */,
 				24DD6CF81134B3F500162E58 /* DeMarcelpociotCollectionviewModule.m */,
+				1E65CF661A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m */,
+				1E65CF671A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -148,6 +154,7 @@
 				24DE9E1111C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.h in Headers */,
 				1E65CF581A12BDF800187D0B /* DeMarcelpociotCollectionviewCollectionItem.h in Headers */,
 				1E65CF621A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionView.h in Headers */,
+				1E65CF691A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,6 +231,7 @@
 				24DD6CFA1134B3F500162E58 /* DeMarcelpociotCollectionviewModule.m in Sources */,
 				1E65CF591A12BDF800187D0B /* DeMarcelpociotCollectionviewCollectionItem.m in Sources */,
 				1E65CF651A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m in Sources */,
+				1E65CF681A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m in Sources */,
 				1E65CF5D1A12C0DF00187D0B /* DeMarcelpociotCollectionviewCollectionItemProxy.m in Sources */,
 				24DE9E1211C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.m in Sources */,
 			);
@@ -300,7 +308,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
@@ -335,6 +343,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = (
 					"-DDEBUG",
 					"-DTI_POST_1_2",
@@ -372,7 +381,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = DeMarcelpociotCollectionview;
