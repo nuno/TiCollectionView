@@ -478,7 +478,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 [cellProxy unarchiveFromTemplate:template];
         }
         [cellProxy release];
-        [cell autorelease];
     }
         //cellProxy = nil;
     cell.dataItem = item;
