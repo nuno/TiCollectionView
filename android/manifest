@@ -1,0 +1,18 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 1.0.0
+apiversion: 2
+description: androidcollectionview
+author: Your Name
+license: Specify your license
+copyright: Copyright (c) 2015 by Your Company
+
+# these should not be edited
+name: androidcollectionview
+moduleid: de.marcelpociot.collectionview
+guid: 304bc7f8-ad6c-4348-9d32-658adf6f61f4
+platform: android
+minsdk: 3.4.1.GA
+commonjs: true
