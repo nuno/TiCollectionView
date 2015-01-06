@@ -1,13 +1,32 @@
 TiCollectionView
 ===
 
-**Work in Progress**
+This module allows you to use a collection / grid view with the Appcelerator Titanium SDK.
+
+It uses the Titanium `ItemTemplate` objects for the best performance.
+
+### Important notes for Android
+In order to make this module work for Android, you need to use the provided "CollectionView.js" CommonJS library.
+
+## API
+
+This module uses the [Ti.UI.ListView API](docs.appcelerator.com/titanium/3.0/#!/api/Titanium.UI.ListView).
+
+Additional parameters are:
+
+*Android only*
+
+* columnWidth `(integer)` - Defines the width of each column. The Android module will fit as many columns in a row as possible
+* verticalSpacing `(integer)` - Defines the vertical column spacing
+* horizontalSpacing `(integer)` - Defines the horizontal column spacing
+
+
 
 ## Usage
 
 Alloy:
 
-        <ListView id="listView" backgroundColor="white" defaultItemTemplate="template" module="de.marcelpociot.collectionview" method="createCollectionView">
+        <ListView id="listView" backgroundColor="white" defaultItemTemplate="template" module="CollectionView" method="createCollectionView">
 
         <Templates>
             <ItemTemplate name="template">
@@ -58,7 +77,7 @@ Vanilla JS:
 	    ]
 	};
 
-	var listView = collectionView.createCollectionView({
+	var listView = require("CollectionView")".createCollectionView({
 		backgroundColor: "white",
 		top: 0,
 		left: 0,
@@ -68,7 +87,11 @@ Vanilla JS:
 	    templates: { 'template': myTemplate },
 	    // Use 'template', that is, the myTemplate dict created earlier
 	    // for all items as long as the template property is not defined for an item.
-	    defaultItemTemplate: 'template'
+	    defaultItemTemplate: 'template',
+	    // ANDROID ONLY
+	    columnWidth: 150,
+	    verticalSpacing: 10,
+	    horizontalSpacing: 10
 	});
 	var sections = [];
 
@@ -86,3 +109,8 @@ Vanilla JS:
 	listView.setSections(sections);
 	win.add(listView);
 	win.open();
+	
+## Changelog
+
+* v1.0.0  
+  * Initial release with Android support added
