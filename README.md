@@ -10,7 +10,7 @@ In order to make this module work for Android, you need to use the provided "Col
 
 ## API
 
-This module uses the [Ti.UI.ListView API](docs.appcelerator.com/titanium/3.0/#!/api/Titanium.UI.ListView).
+This module uses the [Ti.UI.ListView API](http://docs.appcelerator.com/titanium/3.0/#!/api/Titanium.UI.ListView).
 
 Additional parameters are:
 
