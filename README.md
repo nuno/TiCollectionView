@@ -142,7 +142,7 @@ Vanilla JS:
 	win.open();
 	
 ## Changelog
-* v1.2.0
+* v1.1.0
 	* Added waterfall layout for iOS
 * v1.0.0  
   * Initial release with Android support added
