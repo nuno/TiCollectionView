@@ -5,15 +5,19 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#import "DeMarcelpociotCollectionviewModule.h"
 #import "DeMarcelpociotCollectionviewCollectionView.h"
 #import "TiUIListSectionProxy.h"
 #import "DeMarcelpociotCollectionviewCollectionItem.h"
 #import "DeMarcelpociotCollectionviewCollectionItemProxy.h"
 #import "TiUILabelProxy.h"
 #import "TiUISearchBarProxy.h"
+
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
+
+
 
 @interface DeMarcelpociotCollectionviewCollectionView ()
 @property (nonatomic, readonly) DeMarcelpociotCollectionviewCollectionViewProxy *listViewProxy;
@@ -149,10 +153,21 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (UICollectionView *)collectionView
 {
+    LayoutType layoutType = [TiUtils intValue:[[self proxy] valueForKey:@"layout"] def:kLayoutTypeGrid];
     if (_collectionView == nil) {
-        UICollectionViewFlowLayout* layout = [[UICollectionViewFlowLayout alloc] init];
-
-        _collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
+        
+        if( layoutType == kLayoutTypeWaterfall )
+        {
+            CHTCollectionViewWaterfallLayout* layout = [[CHTCollectionViewWaterfallLayout alloc] init];
+            layout.columnCount = [TiUtils intValue:[self.proxy valueForUndefinedKey:@"columnCount"] def:2];
+            layout.minimumColumnSpacing = [TiUtils intValue:[self.proxy valueForUndefinedKey:@"minimumColumnSpacing"] def:2];
+            layout.minimumInteritemSpacing = [TiUtils intValue:[self.proxy valueForUndefinedKey:@"minimumInteritemSpacing"] def:2];
+            layout.itemRenderDirection = [TiUtils intValue:[self.proxy valueForUndefinedKey:@"renderDirection"] def:CHTCollectionViewWaterfallLayoutItemRenderDirectionLeftToRight];
+            _collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
+        } else {
+            UICollectionViewFlowLayout* layout = [[UICollectionViewFlowLayout alloc] init];
+            _collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
+        }
         _collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         _collectionView.bounces = YES;
         _collectionView.delegate = self;
