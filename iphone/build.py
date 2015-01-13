@@ -145,7 +145,7 @@ def validate_manifest():
 			if curvalue==defvalue: warn("please update the manifest key: '%s' to a non-default value" % key)
 	return manifest,path
 
-ignoreFiles = ['.DS_Store','.gitignore','libTitanium.a','titanium.jar','README']
+ignoreFiles = ['.DS_Store','.gitignore','libTitanium.a','titanium.jar','README','grid.png','waterfall.png']
 ignoreDirs = ['.DS_Store','.svn','.git','CVSROOT']
 
 def zip_dir(zf,dir,basepath,ignore=[],includeJSFiles=False):

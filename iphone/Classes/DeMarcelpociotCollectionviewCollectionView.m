@@ -209,6 +209,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 }
 
 -(void)proxyDidRelayout:(id)sender
+{
 	TiThreadPerformOnMainThread(^{
 		if (sender == _pullViewProxy) { 
 			pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height); 
@@ -242,6 +243,74 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }];
 }
 
+-(void)setRefreshControl_:(id)args
+{
+#ifdef USE_TI_UIREFRESHCONTROL
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiUIRefreshControlProxy);
+    [[_refreshControlProxy control] removeFromSuperview];
+    RELEASE_TO_NIL(_refreshControlProxy);
+    [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
+    if (args != nil) {
+        _refreshControlProxy = [args retain];
+        [[self collectionView] addSubview:[_refreshControlProxy control]];
+    }
+#endif
+}
+
+-(void)setPullView_:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+    if (args == nil) {
+        [_pullViewProxy setProxyObserver:nil];
+        [_pullViewProxy windowWillClose];
+        [_pullViewWrapper removeFromSuperview];
+        [_pullViewProxy windowDidClose];
+        RELEASE_TO_NIL(_pullViewWrapper);
+        RELEASE_TO_NIL(_pullViewProxy);
+    } else {
+        if ([self collectionView].bounds.size.width==0)
+        {
+            [self performSelector:@selector(setPullView_:) withObject:args afterDelay:0.1];
+            return;
+        }
+        if (_pullViewProxy != nil) {
+            [_pullViewProxy setProxyObserver:nil];
+            [_pullViewProxy windowWillClose];
+            [_pullViewProxy windowDidClose];
+            RELEASE_TO_NIL(_pullViewProxy);
+        }
+        if (_pullViewWrapper == nil) {
+            _pullViewWrapper = [[UIView alloc] init];
+            [_collectionView addSubview:_pullViewWrapper];
+        }
+        CGSize refSize = _collectionView.bounds.size;
+        [_pullViewWrapper setFrame:CGRectMake(0.0, 0.0 - refSize.height, refSize.width, refSize.height)];
+        _pullViewProxy = [args retain];
+        TiColor* pullBgColor = [TiUtils colorValue:[_pullViewProxy valueForUndefinedKey:@"pullBackgroundColor"]];
+        _pullViewWrapper.backgroundColor = ((pullBgColor == nil) ? [UIColor lightGrayColor] : [pullBgColor color]);
+        LayoutConstraint *viewLayout = [_pullViewProxy layoutProperties];
+        //If height is not dip, explicitly set it to SIZE
+        if (viewLayout->height.type != TiDimensionTypeDip) {
+            viewLayout->height = TiDimensionAutoSize;
+        }
+        //If bottom is not dip set it to 0
+        if (viewLayout->bottom.type != TiDimensionTypeDip) {
+            viewLayout->bottom = TiDimensionZero;
+        }
+        //Remove other vertical positioning constraints
+        viewLayout->top = TiDimensionUndefined;
+        viewLayout->centerY = TiDimensionUndefined;
+        
+        [_pullViewProxy setProxyObserver:self];
+        [_pullViewProxy windowWillOpen];
+        [_pullViewWrapper addSubview:[_pullViewProxy view]];
+        _pullViewProxy.parentVisible = YES;
+        [_pullViewProxy refreshSize];
+        [_pullViewProxy willChangeSize];
+        [_pullViewProxy windowDidOpen];
+    }
+    
+}
 
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
@@ -599,6 +668,55 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
 }
 
+#pragma mark - ScrollView Delegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    //Events - pull (maybe scroll later)
+    if (![self.proxy _hasListeners:@"pull"]) {
+        return;
+    }
+    
+    if ( (_pullViewProxy != nil) && ([scrollView isTracking]) ) {
+        if ( (scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO) ) {
+            pullActive = YES;
+            [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        } else if ( (scrollView.contentOffset.y > pullThreshhold) && (pullActive == YES) ) {
+            pullActive = NO;
+            [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        }
+    }
+    
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    //Events - None (maybe dragstart later)
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    //Events - pullend (maybe dragend later)
+    if (![self.proxy _hasListeners:@"pullend"]) {
+        return;
+    }
+    if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
+        pullActive = NO;
+        
+        [self.proxy fireEvent:@"pullend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO
+                    errorCode:0 message:nil];
+    }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    //Events - none (maybe scrollend later)
+}
+
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
+{
+    //Events none (maybe scroll later)
+}
 
 #pragma mark - Internal Methods
 
