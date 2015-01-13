@@ -200,6 +200,20 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (_footerViewProxy != nil) {
         [_footerViewProxy parentSizeWillChange];
     }
+    
+    if (_pullViewWrapper != nil) { 
+        _pullViewWrapper.frame = CGRectMake(0.0f, 0.0f - bounds.size.height, bounds.size.width, bounds.size.height); 
+        [_pullViewProxy parentSizeWillChange]; 
+    } 
+    
+}
+
+-(void)proxyDidRelayout:(id)sender
+	TiThreadPerformOnMainThread(^{
+		if (sender == _pullViewProxy) { 
+			pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height); 
+		} 
+	},NO);
 }
 
 - (id)accessibilityElement
