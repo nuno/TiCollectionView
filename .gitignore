@@ -22,7 +22,6 @@ xcshareddata
 
 #Python modules
 MANIFEST
-dist/
 build/
 
 # Backup files

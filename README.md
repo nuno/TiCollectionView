@@ -142,6 +142,8 @@ Vanilla JS:
 	win.open();
 	
 ## Changelog
+* v1.1.1
+	* Added support for Pull To Refresh
 * v1.1.0
 	* Added waterfall layout for iOS
 * v1.0.0  
