@@ -18,6 +18,11 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 @synthesize listItem = _listItem;
 @synthesize indexPath = _indexPath;
 
+-(NSString*)apiName
+{
+    return @"de.marcelpociot.CollectionItem";
+}
+
 - (id)initWithListViewProxy:(DeMarcelpociotCollectionviewCollectionViewProxy *)listViewProxy inContext:(id<TiEvaluator>)context
 {
     self = [self _initWithPageContext:context];

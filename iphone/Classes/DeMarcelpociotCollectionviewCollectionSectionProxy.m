@@ -23,6 +23,11 @@
 @synthesize headerTitle = _headerTitle;
 @synthesize footerTitle = _footerTitle;
 
+-(NSString*)apiName
+{
+    return @"de.marcelpociot.CollectionSection";
+}
+
 - (id)init
 {
     self = [super init];
