@@ -2,6 +2,30 @@ tmp
 bin
 build
 *.class
-*.pyc
 *.pyo
 .DS_Store
+
+# Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+project.xcworkspace/
+xcuserdata/
+xcshareddata
+
+# Generated files
+*.o
+*.pyc
+
+
+#Python modules
+MANIFEST
+build/
+
+# Backup files
+*~.nib
+
+*/titanium.xcconfig
+*/build.py

@@ -22,6 +22,11 @@
 	NSIndexPath *marker;
 }
 
+-(NSString*)apiName
+{
+    return @"de.marcelpociot.CollectionView";
+}
+
 - (id)init
 {
     self = [super init];

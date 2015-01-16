@@ -1,9 +1,27 @@
-TiCollectionView
-===
+#TiCollectionView
+[![gittio](http://img.shields.io/badge/gittio-1.1.0-00B4CC.svg)](http://gitt.io/component/de.marcelpociot.collectionview)
+[![License](http://img.shields.io/badge/license-MIT-orange.svg)](http://mit-license.org)
+[![issues](http://img.shields.io/github/issues/mpociot/TiCollectionView.svg)](https://github.com/ricardoalcocer/actionbarextras/issues)
+
+
+## Overview
 
 This module allows you to use a collection / grid view with the Appcelerator Titanium SDK.
 
 It uses the Titanium `ItemTemplate` objects for the best performance.
+
+### Grid layout
+![example](documentation/grid.png)
+
+### Waterfall layout
+![example](documentation/waterfall.png)
+
+
+## Installation
+### Get it [![gitTio](http://gitt.io/badge.png)](http://gitt.io/component/de.marcelpociot.collectionview)
+Download the latest distribution ZIP-file and consult the [Titanium Documentation](http://docs.appcelerator.com/titanium/latest/#!/guide/Using_a_Module) on how install it, or simply use the [gitTio CLI](http://gitt.io/cli):
+
+`$ gittio install de.marcelpociot.collectionview`
 
 ### Important notes for Android
 In order to make this module work for Android, you need to use the provided "CollectionView.js" CommonJS library.
@@ -12,13 +30,26 @@ In order to make this module work for Android, you need to use the provided "Col
 
 This module uses the [Ti.UI.ListView API](http://docs.appcelerator.com/titanium/3.0/#!/api/Titanium.UI.ListView).
 
-Additional parameters are:
+## Additional parameters
 
-*Android only*
+The ListView API gets extended by these custom parameters:
 
-* columnWidth `(integer)` - Defines the width of each column. The Android module will fit as many columns in a row as possible
-* verticalSpacing `(integer)` - Defines the vertical column spacing
-* horizontalSpacing `(integer)` - Defines the horizontal column spacing
+
+* `layout` _(LAYOUT_WATERFALL | LAYOUT_GRID)_ - sets the layout to use for the collection view. You can select between the waterfall layout (like Pinterest) or the standard grid layout which is the default value.
+
+### Waterfall layout specific configuration
+
+* `columnCount` _(Number)_ The number of columns to use. Default: 3
+* `minimumColumnSpacing` _(Number)_ The minimum spacing between each columns
+* `minimumInteritemSpacing` _(Number)_ The minimum spacing between each items (vertically)
+* `renderDirection` _(DIRECTION_LEFT_TO_RIGHT | DIRECTION_RIGHT_TO_LEFT | DIRECTION_SHORTEST_FIRST)_ The render direction to use. Default: DIRECTION_LEFT_TO_RIGHT
+
+
+### Android specific configuration
+
+* `columnWidth` _(Number)_ - Defines the width of each column. The Android module will fit as many columns in a row as possible
+* `verticalSpacing` _(Number)_ - Defines the vertical column spacing
+* `horizontalSpacing` _(Number)_ - Defines the horizontal column spacing
 
 
 
@@ -111,6 +142,9 @@ Vanilla JS:
 	win.open();
 	
 ## Changelog
-
+* v1.1.1
+	* Added support for Pull To Refresh
+* v1.1.0
+	* Added waterfall layout for iOS
 * v1.0.0  
   * Initial release with Android support added

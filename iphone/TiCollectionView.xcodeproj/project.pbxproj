@@ -32,6 +32,8 @@
 		1E65CF651A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E65CF611A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m */; };
 		1E65CF681A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E65CF661A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m */; };
 		1E65CF691A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E65CF671A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.h */; };
+		1EA7FA0F1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 1EA7FA0D1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.h */; };
+		1EA7FA101A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA7FA0E1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		24DD6CF91134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DD6CF71134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h */; };
 		24DD6CFA1134B3F500162E58 /* DeMarcelpociotCollectionviewModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD6CF81134B3F500162E58 /* DeMarcelpociotCollectionviewModule.m */; };
 		24DE9E1111C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DE9E0F11C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.h */; };
@@ -61,6 +63,8 @@
 		1E65CF611A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcelpociotCollectionviewCollectionViewProxy.m; path = Classes/DeMarcelpociotCollectionviewCollectionViewProxy.m; sourceTree = "<group>"; };
 		1E65CF661A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcelpociotCollectionviewCollectionSectionProxy.m; path = Classes/DeMarcelpociotCollectionviewCollectionSectionProxy.m; sourceTree = "<group>"; };
 		1E65CF671A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcelpociotCollectionviewCollectionSectionProxy.h; path = Classes/DeMarcelpociotCollectionviewCollectionSectionProxy.h; sourceTree = "<group>"; };
+		1EA7FA0D1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHTCollectionViewWaterfallLayout.h; sourceTree = "<group>"; };
+		1EA7FA0E1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CHTCollectionViewWaterfallLayout.m; sourceTree = "<group>"; };
 		24DD6CF71134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcelpociotCollectionviewModule.h; path = Classes/DeMarcelpociotCollectionviewModule.h; sourceTree = "<group>"; };
 		24DD6CF81134B3F500162E58 /* DeMarcelpociotCollectionviewModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcelpociotCollectionviewModule.m; path = Classes/DeMarcelpociotCollectionviewModule.m; sourceTree = "<group>"; };
 		24DD6D1B1134B66800162E58 /* titanium.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = titanium.xcconfig; sourceTree = "<group>"; };
@@ -94,6 +98,7 @@
 		0867D691FE84028FC02AAC07 /* TiCollectionView */ = {
 			isa = PBXGroup;
 			children = (
+				1EA7FA0C1A632C170090A8C4 /* lib */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
@@ -131,6 +136,15 @@
 			name = Classes;
 			sourceTree = "<group>";
 		};
+		1EA7FA0C1A632C170090A8C4 /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				1EA7FA0D1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.h */,
+				1EA7FA0E1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.m */,
+			);
+			path = lib;
+			sourceTree = "<group>";
+		};
 		32C88DFF0371C24200C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -150,6 +164,7 @@
 				1E65CF641A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.h in Headers */,
 				AA747D9F0F9514B9006C5449 /* DeMarcelpociotCollectionview_Prefix.pch in Headers */,
 				24DD6CF91134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h in Headers */,
+				1EA7FA0F1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.h in Headers */,
 				1E65CF5C1A12C0DF00187D0B /* DeMarcelpociotCollectionviewCollectionItemProxy.h in Headers */,
 				24DE9E1111C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.h in Headers */,
 				1E65CF581A12BDF800187D0B /* DeMarcelpociotCollectionviewCollectionItem.h in Headers */,
@@ -234,6 +249,7 @@
 				1E65CF681A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m in Sources */,
 				1E65CF5D1A12C0DF00187D0B /* DeMarcelpociotCollectionviewCollectionItemProxy.m in Sources */,
 				24DE9E1211C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.m in Sources */,
+				1EA7FA101A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,6 +268,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DSTROOT = /tmp/DeMarcelpociotCollectionview.dst;
@@ -291,6 +308,7 @@
 			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				DSTROOT = /tmp/DeMarcelpociotCollectionview.dst;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_MODEL_TUNING = G5;
@@ -324,6 +342,7 @@
 			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LIBRARY = "libstdc++";
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DSTROOT = /tmp/DeMarcelpociotCollectionview.dst;
@@ -364,6 +383,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LIBRARY = "libstdc++";
+				CLANG_ENABLE_OBJC_ARC = NO;
 				DSTROOT = /tmp/DeMarcelpociotCollectionview.dst;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_MODEL_TUNING = G5;
@@ -395,6 +415,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -406,6 +427,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;

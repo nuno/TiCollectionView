@@ -407,4 +407,9 @@ public class CollectionViewProxy extends TiViewProxy {
 		return preloadedSections.toArray(new CollectionSectionProxy[preloadedSections.size()]);
 	}
 
+	@Override
+	public String getApiName()
+	{
+		return "de.marcelpociot.CollectionView";
+	}
 }

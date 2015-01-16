@@ -9,8 +9,11 @@
 #import "TiBase.h"
 #import "TiHost.h"
 #import "TiUtils.h"
+#import "DeMarcelpociotCollectionviewCollectionView.h"
+#import "CHTCollectionViewWaterfallLayout.h"
 
 @implementation DeMarcelpociotCollectionviewModule
+
 
 #pragma mark Internal
 
@@ -85,23 +88,12 @@
 	}
 }
 
-#pragma Public APIs
+MAKE_SYSTEM_PROP(LAYOUT_GRID, kLayoutTypeGrid);
+MAKE_SYSTEM_PROP(LAYOUT_WATERFALL, kLayoutTypeWaterfall );
 
--(id)example:(id)args
-{
-	// example method
-	return @"hello world";
-}
+MAKE_SYSTEM_PROP(DIRECTION_LEFT_TO_RIGHT,CHTCollectionViewWaterfallLayoutItemRenderDirectionLeftToRight);
+MAKE_SYSTEM_PROP(DIRECTION_RIGHT_TO_LEFT, CHTCollectionViewWaterfallLayoutItemRenderDirectionRightToLeft);
+MAKE_SYSTEM_PROP(DIRECTION_SHORTEST_FIRST, CHTCollectionViewWaterfallLayoutItemRenderDirectionShortestFirst);
 
--(id)exampleProp
-{
-	// example property getter
-	return @"hello world";
-}
-
--(void)setExampleProp:(id)value
-{
-	// example property setter
-}
 
 @end

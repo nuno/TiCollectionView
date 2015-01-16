@@ -775,4 +775,10 @@ public class CollectionSectionProxy extends TiViewProxy{
 	{
 		listView = null;
 	}
+	
+	@Override
+	public String getApiName()
+	{
+		return "de.marcelpociot.CollectionSection";
+	}
 }

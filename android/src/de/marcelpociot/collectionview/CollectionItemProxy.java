@@ -73,4 +73,9 @@ public class CollectionItemProxy extends TiViewProxy
 		}
 	}
 
+	@Override
+	public String getApiName()
+	{
+		return "de.marcelpociot.CollectionItem";
+	}
 }
