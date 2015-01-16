@@ -174,9 +174,20 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     return _collectionView;
 }
 
+- (UIEdgeInsets)collectionView:(UICollectionView*)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
+    return UIEdgeInsetsMake([TiUtils intValue:[self.proxy valueForKey:@"topInset"] def:0], [TiUtils intValue:[self.proxy valueForKey:@"leftInset"] def:0], [TiUtils intValue:[self.proxy valueForKey:@"bottomInset"] def:0], [TiUtils intValue:[self.proxy valueForKey:@"rightInset"] def:0]); // top, left, bottom, right
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    [_collectionView reloadData];
+    [UIView setAnimationsEnabled:NO];
+
+    [_collectionView performBatchUpdates:^{
+        [_collectionView reloadData];
+    } completion:^(BOOL finished) {
+        [UIView setAnimationsEnabled:YES];
+    }];
+    
     [super frameSizeChanged:frame bounds:bounds];
     
     if (_headerViewProxy != nil) {
