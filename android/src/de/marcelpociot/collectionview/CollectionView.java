@@ -249,6 +249,8 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 	public CollectionView(TiViewProxy proxy, Activity activity) {
 		super(proxy);
 		
+        final TiViewProxy viewProxy = proxy;
+		
 		//initializing variables
 		sections = new ArrayList<CollectionSectionProxy>();
 		itemTypeCount = new AtomicInteger(CUSTOM_TEMPLATE_ITEM_TYPE);
