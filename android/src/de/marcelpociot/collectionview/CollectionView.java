@@ -47,6 +47,9 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import de.marcelpociot.collectionview.SwipeRefreshLayout.OnRefreshListener;
+
+
 public class CollectionView extends TiUIView implements OnSearchChangeListener {
 
 	private GridView listView;
@@ -68,6 +71,16 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 	private boolean caseInsensitive;
 	private RelativeLayout searchLayout;
 	private static final String TAG = "CollectionView";
+	
+	private CollectionSwipeRefreshLayout layout;
+	public static final String PROPERTY_COLOR_SCHEME = "colorScheme";
+	
+	int color1 = 0;
+	int color2 = 0;
+	int color3 = 0;
+	int color4 = 0;
+	int layout_swipe_refresh = 0;
+	private Boolean useSwipe = false;
 	
 	/* We cache properties that already applied to the recycled list tiem in ViewItem.java
 	 * However, since Android randomly selects a cached view to recycle, our cached properties
@@ -251,6 +264,47 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 			resetMarker();
 		}
 		
+		if (proxy.getProperty("swipeRefresh") != null) {
+			useSwipe = TiConvert.toBoolean(proxy.getProperty("swipeRefresh"));
+		}
+		
+		//init inflater
+		if (inflater == null) {
+			inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		}
+		
+		try {
+			if (useSwipe) {
+				layout_swipe_refresh = TiRHelper.getResource("layout.swipe_refresh");
+				color1 = TiRHelper.getResource("color.color1"); 
+				color2 = TiRHelper.getResource("color.color2"); 
+				color3 = TiRHelper.getResource("color.color3"); 
+				color4 = TiRHelper.getResource("color.color4"); 
+	
+				layout = (CollectionSwipeRefreshLayout) inflater.inflate(layout_swipe_refresh, null, false);
+				layout.setOnRefreshListener(new OnRefreshListener() {
+					@Override
+					public void onRefresh() {
+						if (viewProxy.hasListeners("refreshing")) {
+							viewProxy.fireEvent("refreshing", null);
+						}
+					}
+				});
+			}
+
+			
+			listItemId = TiRHelper.getResource("layout.titanium_ui_collection_item");
+			listContentId = TiRHelper.getResource("id.titanium_ui_collection_item_content");
+			isCheck = TiRHelper.getResource("drawable.btn_check_buttonless_on_64");
+			hasChild = TiRHelper.getResource("drawable.btn_more_64");
+			disclosure = TiRHelper.getResource("drawable.disclosure_64");
+			accessory = TiRHelper.getResource("id.titanium_ui_collection_item_accessoryType");
+		} 
+		catch (ResourceNotFoundException e) {
+			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
+		}
+		
+		
 		//initializing listView and adapter
 		ListViewWrapper wrapper = new ListViewWrapper(activity);
 		wrapper.setFocusable(false);
@@ -261,35 +315,42 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 		listView.setVerticalSpacing( TiConvert.toInt( proxy.getProperty("verticalSpacing") ) );
 		listView.setHorizontalSpacing( TiConvert.toInt( proxy.getProperty("horizontalSpacing") ) );
 		listView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		
+		
 		wrapper.addView(listView);
 		adapter = new TiBaseAdapter(activity);
 		
-		//init inflater
-		if (inflater == null) {
-			inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		}
-		
+			
 		listView.setCacheColorHint(Color.TRANSPARENT);
 		getLayoutParams().autoFillsHeight = true;
 		getLayoutParams().autoFillsWidth = true;
 		listView.setFocusable(true);
 		listView.setFocusableInTouchMode(true);
 		listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-
-		try {
-			listItemId = TiRHelper.getResource("layout.titanium_ui_collection_item");
-			listContentId = TiRHelper.getResource("id.titanium_ui_collection_item_content");
-			isCheck = TiRHelper.getResource("drawable.btn_check_buttonless_on_64");
-			hasChild = TiRHelper.getResource("drawable.btn_more_64");
-			disclosure = TiRHelper.getResource("drawable.disclosure_64");
-			accessory = TiRHelper.getResource("id.titanium_ui_collection_item_accessoryType");
-		} catch (ResourceNotFoundException e) {
-			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
-		}
 		
 		this.wrapper = wrapper;
-		setNativeView(wrapper);
+		
+		if (useSwipe) {
+			layout.setNativeView(wrapper);
+			layout.addView(wrapper);
+			
+			setNativeView(layout);
+		}
+		else {
+			setNativeView(wrapper);
+		}
 	}
+	
+	public boolean isRefreshing() {
+		return useSwipe && this.layout.isRefreshing();
+	}
+	
+	public void setRefreshing(boolean refreshing) {
+		if (useSwipe) {
+			this.layout.setRefreshing(refreshing);		
+		}
+	}
+
 	
 	public String getSearchText() {
 		return searchText;
