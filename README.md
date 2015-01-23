@@ -1,5 +1,5 @@
 #TiCollectionView
-[![gittio](http://img.shields.io/badge/gittio-1.1.0-00B4CC.svg)](http://gitt.io/component/de.marcelpociot.collectionview)
+[![gittio](http://img.shields.io/badge/gittio-1.2.0-00B4CC.svg)](http://gitt.io/component/de.marcelpociot.collectionview)
 [![License](http://img.shields.io/badge/license-MIT-orange.svg)](http://mit-license.org)
 [![issues](http://img.shields.io/github/issues/mpociot/TiCollectionView.svg)](https://github.com/ricardoalcocer/actionbarextras/issues)
 
@@ -15,6 +15,9 @@ It uses the Titanium `ItemTemplate` objects for the best performance.
 
 ### Waterfall layout
 ![example](documentation/waterfall.png)
+
+### Context menu
+![example](documentation/contextmenu.gif)
 
 
 ## Installation
@@ -44,6 +47,25 @@ The ListView API gets extended by these custom parameters:
 * `minimumInteritemSpacing` _(Number)_ The minimum spacing between each items (vertically)
 * `renderDirection` _(DIRECTION_LEFT_TO_RIGHT | DIRECTION_RIGHT_TO_LEFT | DIRECTION_SHORTEST_FIRST)_ The render direction to use. Default: DIRECTION_LEFT_TO_RIGHT
 
+
+### iOS specific configuration (Creation Only!)
+* `showContextMenu` _Boolean_ - Should we show a contextual menu on longpress? Default: NO
+* `contextMenuStrokeColor` _Color_ - The stroke color of the context Menu indicator
+* `contextMenuItems` _Array_ - An array of context menu items each item is an object with the following attributes
+	* `tintColor` _Color_ - The color used to tint the icon
+	* `selected` _Image_ - The image for the selected state
+	* `unselected` _Image_ - The image for the unselected state
+
+#### Events
+* `contextMenuClick` - Fired when a context menu item gets selected
+	* `index` _Number_ - The selected menu item index
+	* `itemIndex` _Number_ - The selected collection view item index
+	* `sectionIndex` _Number_ - The selected collection view section index
+
+---
+
+	
+	
 
 ### Android specific configuration
 
@@ -119,6 +141,23 @@ Vanilla JS:
 	    // Use 'template', that is, the myTemplate dict created earlier
 	    // for all items as long as the template property is not defined for an item.
 	    defaultItemTemplate: 'template',
+	    
+	    // Context menu options
+	    showContextMenu : true,
+		contextMenuStrokeColor : "red",
+		contextMenuItems : [
+			{
+				tintColor: "red",
+				selected: "/images/UploadIconSelected.png",
+				unselected:"/images/UploadIcon.png",
+			},
+			{
+				tintColor: "red",
+				selected: "/images/TrashIconSelected.png",
+				unselected:"/images/TrashIcon.png",
+			}
+		],
+	    
 	    // ANDROID ONLY
 	    columnWidth: 150,
 	    verticalSpacing: 10,
@@ -141,10 +180,33 @@ Vanilla JS:
 	win.add(listView);
 	win.open();
 	
+	
 ## Changelog
+* v1.2.0
+	* _iOS only_ Added support for longtouch context menus
 * v1.1.1
 	* Added support for Pull To Refresh
 * v1.1.0
 	* Added waterfall layout for iOS
 * v1.0.0  
   * Initial release with Android support added
+  
+  
+## License
+
+Copyright 2014-2015 Marcel Pociot
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## Contextmenu License
+Copyright 2014 Brandon McQuilkin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

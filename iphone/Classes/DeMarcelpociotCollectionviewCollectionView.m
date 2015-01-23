@@ -12,6 +12,7 @@
 #import "DeMarcelpociotCollectionviewCollectionItemProxy.h"
 #import "TiUILabelProxy.h"
 #import "TiUISearchBarProxy.h"
+#import "M13ContextMenuItemIOS7.h"
 
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
@@ -44,7 +45,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     TiUISearchBarProxy *searchViewProxy;
     UICollectionViewController *tableController;
     UISearchDisplayController *searchController;
-
+    
+    M13ContextMenu * contextMenu;
+    
     NSMutableArray * sectionTitles;
     NSMutableArray * sectionIndices;
     NSMutableArray * filteredTitles;
@@ -57,6 +60,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     CGPoint tapPoint;
     BOOL editing;
     BOOL pruneSections;
+    
+    BOOL showContextMenu;
 
     BOOL caseInsensitiveSearch;
     NSString* _searchString;
@@ -64,6 +69,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     BOOL keepSectionsInSearch;
     NSMutableArray* _searchResults;
     UIEdgeInsets _defaultSeparatorInsets;
+    
+    UILongPressGestureRecognizer *longPress;
     
     NSMutableDictionary* _measureProxies;
 }
@@ -107,6 +114,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 #ifdef USE_TI_UIREFRESHCONTROL
     RELEASE_TO_NIL(_refreshControlProxy);
 #endif
+    
+    contextMenu.delegate = nil;
+    RELEASE_TO_NIL(contextMenu);
+    
+    RELEASE_TO_NIL(longPress);
     [super dealloc];
 }
 
@@ -182,6 +194,36 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [tapGestureRecognizer release];
 
         [self configureHeaders];
+        
+        // Create context menu
+        showContextMenu = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"showContextMenu"]];
+        
+        //Create the items
+        NSMutableArray *contextMenuItems = [[NSMutableArray alloc] init];
+        if( showContextMenu  )
+        {
+
+            NSArray *_menuItems = [self.proxy valueForUndefinedKey:@"contextMenuItems"];
+            ENSURE_ARRAY( _menuItems );
+            for( NSDictionary* contextItem in _menuItems )
+            {
+                UIImage* unselectedIcon = [TiUtils image:[contextItem valueForKey:@"unselected"] proxy:self.proxy];
+                UIImage* selectedIcon   = [TiUtils image:[contextItem valueForKey:@"selected"] proxy:self.proxy];
+                M13ContextMenuItemIOS7 *menuItem = [[M13ContextMenuItemIOS7 alloc] initWithUnselectedIcon:unselectedIcon selectedIcon:selectedIcon];
+                menuItem.tintColor  = [[TiUtils colorValue:[contextItem valueForKey:@"tintColor"]] color];
+                [contextMenuItems addObject:menuItem];
+            }
+        }
+        
+        contextMenu = [[M13ContextMenu alloc] initWithMenuItems:contextMenuItems];
+        contextMenu.delegate = self;
+        if( showContextMenu )
+        {
+            contextMenu.originationCircleStrokeColor = [[TiUtils colorValue:[self.proxy valueForKey:@"contextMenuStrokeColor"]] color];
+            //Create the gesture recognizer
+            longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:contextMenu action:@selector(showMenuUponActivationOfGetsure:)];
+            [_collectionView addGestureRecognizer:longPress];
+        }
     }
     if ([_collectionView superview] != self) {
         [self addSubview:_collectionView];
@@ -397,6 +439,29 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     return nil;
 }
+
+#pragma mark - M13ContextMenuDelegate
+
+- (BOOL)shouldShowContextMenu:(M13ContextMenu *)contextMenu atPoint:(CGPoint)point
+{
+    if( showContextMenu == NO )
+    {
+        return NO;
+    }
+    
+    NSIndexPath* indexPath = [self.collectionView indexPathForItemAtPoint:point];
+    UICollectionViewCell* cell = [self.collectionView cellForItemAtIndexPath:indexPath];
+    
+    return cell != nil;
+}
+
+- (void)contextMenu:(M13ContextMenu *)contextMenu atPoint:(CGPoint)point didSelectItemAtIndex:(NSInteger)index
+{
+    NSIndexPath* indexPath = [self.collectionView indexPathForItemAtPoint:point];
+    
+    [self.proxy fireEvent:@"contextMenuClick" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMINT(index),@"index",NUMINT(indexPath.row),@"itemIndex",NUMINT(indexPath.section), @"sectionIndex",nil]];
+}
+
 
 #pragma mark - Helper Methods
 
