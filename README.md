@@ -27,7 +27,7 @@ Download the latest distribution ZIP-file and consult the [Titanium Documentatio
 `$ gittio install de.marcelpociot.collectionview`
 
 ### Important notes for Android
-In order to make this module work for Android, you need to use the provided "CollectionView.js" CommonJS library.
+In order to make this module work for Android, you need to use the provided "[CollectionView.js](lib/CollectionView.js)" CommonJS library.
 
 ## API
 
