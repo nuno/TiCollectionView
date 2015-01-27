@@ -278,10 +278,10 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 		try {
 			if (useSwipe) {
 				layout_swipe_refresh = TiRHelper.getResource("layout.swipe_refresh");
-				color1 = TiRHelper.getResource("color.color1"); 
-				color2 = TiRHelper.getResource("color.color2"); 
-				color3 = TiRHelper.getResource("color.color3"); 
-				color4 = TiRHelper.getResource("color.color4"); 
+				color1 = TiRHelper.getResource("color.swipe_color1"); 
+				color2 = TiRHelper.getResource("color.swipe_color2"); 
+				color3 = TiRHelper.getResource("color.swipe_color3"); 
+				color4 = TiRHelper.getResource("color.swipe_color4"); 
 	
 				layout = (CollectionSwipeRefreshLayout) inflater.inflate(layout_swipe_refresh, null, false);
 				layout.setOnRefreshListener(new OnRefreshListener() {
