@@ -2,12 +2,13 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 1.1.2
-apiversion: 2
+version: 1.2.0
+apiversion: 3
 description: TiCollectionView
 author: Marcel Pociot
 license: MIT
 copyright: Copyright (c) 2014-2015 by Marcel Pociot
+architectures: armv7 i386 x86_64 arm64
 
 # these should not be edited
 name: TiCollectionView
