@@ -52,7 +52,7 @@ import de.marcelpociot.collectionview.SwipeRefreshLayout.OnRefreshListener;
 
 public class CollectionView extends TiUIView implements OnSearchChangeListener {
 
-	private GridView listView;
+	private TiGridView listView;
 	private TiBaseAdapter adapter;
 	private ArrayList<CollectionSectionProxy> sections;
 	private AtomicInteger itemTypeCount;
@@ -65,7 +65,12 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 	public static int hasChild;
 	public static int disclosure;
 	public static int accessory;
+	private int headerFooterId;
 	public static LayoutInflater inflater;
+	private int titleId;
+	private View headerView;
+	private View footerView;
+
 	private int[] marker = new int[2];
 	private String searchText;
 	private boolean caseInsensitive;
@@ -93,6 +98,9 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 	
 	public static final String MIN_SEARCH_HEIGHT = "50dp";
 	public static final String MIN_ROW_HEIGHT = "30dp";
+	public static final int HEADER_FOOTER_WRAP_ID = 12345;
+	public static final int HEADER_FOOTER_VIEW_TYPE = 0;
+	public static final int HEADER_FOOTER_TITLE_TYPE = 1;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 2;
 	public static final int CUSTOM_TEMPLATE_ITEM_TYPE = 3;
 
@@ -196,7 +204,7 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 			return position;
 		}
 		
-		//One type for built-in template, and one type per custom template.
+		//One type for header/footer title, one for header/footer view, one for built-in template, and one type per custom template.
 		@Override
 		public int getViewTypeCount() {
 			return 3 + templatesByBinding.size();
@@ -207,6 +215,13 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 			Pair<CollectionSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
 			CollectionSectionProxy section = info.first;
 			int sectionItemIndex = info.second.second;
+			
+			if (section.isHeaderTitle(sectionItemIndex) || section.isFooterTitle(sectionItemIndex))
+				return HEADER_FOOTER_TITLE_TYPE;
+			if (section.isHeaderView(sectionItemIndex) || section.isFooterView(sectionItemIndex)) {
+				return HEADER_FOOTER_VIEW_TYPE;
+			}
+
 			return section.getTemplateByIndex(sectionItemIndex).getType();			
 		}
 
@@ -225,6 +240,19 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 
 			View content = convertView;
 			
+			//Handles header/footer views and titles.
+			if (section.isHeaderView(sectionItemIndex) || section.isFooterView(sectionItemIndex)) {
+				return section.getHeaderOrFooterView(sectionItemIndex);
+			} else if (section.isHeaderTitle(sectionItemIndex) || section.isFooterTitle(sectionItemIndex)) {
+				//No content to reuse, so we create a new view
+				if (content == null) {
+					content = inflater.inflate(headerFooterId, null);
+				}
+				TextView title = (TextView)content.findViewById(titleId);
+				title.setText(section.getHeaderOrFooterTitle(sectionItemIndex));
+				return content;
+			}
+
 			//Handling templates
 			KrollDict data = section.getCollectionItemData(sectionItemIndex);
 			CollectionViewTemplate template = section.getTemplateByIndex(sectionItemIndex);
@@ -278,10 +306,10 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 		try {
 			if (useSwipe) {
 				layout_swipe_refresh = TiRHelper.getResource("layout.swipe_refresh");
-				color1 = TiRHelper.getResource("color.color1"); 
-				color2 = TiRHelper.getResource("color.color2"); 
-				color3 = TiRHelper.getResource("color.color3"); 
-				color4 = TiRHelper.getResource("color.color4"); 
+				color1 = TiRHelper.getResource("color.swipe_color1"); 
+				color2 = TiRHelper.getResource("color.swipe_color2"); 
+				color3 = TiRHelper.getResource("color.swipe_color3"); 
+				color4 = TiRHelper.getResource("color.swipe_color4"); 
 	
 				layout = (CollectionSwipeRefreshLayout) inflater.inflate(layout_swipe_refresh, null, false);
 				layout.setOnRefreshListener(new OnRefreshListener() {
@@ -294,8 +322,9 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 				});
 			}
 
-			
+			headerFooterId = TiRHelper.getResource("layout.ticollection_ui_list_header_or_footer");
 			listItemId = TiRHelper.getResource("layout.titanium_ui_collection_item");
+			titleId = TiRHelper.getResource("id.ticollection_ui_list_header_or_footer_title");
 			listContentId = TiRHelper.getResource("id.titanium_ui_collection_item_content");
 			isCheck = TiRHelper.getResource("drawable.btn_check_buttonless_on_64");
 			hasChild = TiRHelper.getResource("drawable.btn_more_64");
@@ -311,7 +340,7 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 		ListViewWrapper wrapper = new ListViewWrapper(activity);
 		wrapper.setFocusable(false);
 		wrapper.setFocusableInTouchMode(false);
-		listView = new GridView(activity);
+		listView = new TiGridView(activity);
 		listView.setNumColumns( GridView.AUTO_FIT );
 		listView.setColumnWidth( TiConvert.toInt( proxy.getProperty("columnWidth") ) );
 		listView.setVerticalSpacing( TiConvert.toInt( proxy.getProperty("verticalSpacing") ) );
@@ -368,6 +397,23 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 		marker[1] = Integer.MAX_VALUE;
 	}
 	
+	public void setHeaderTitle(String title) {
+		TextView textView = (TextView) headerView.findViewById(titleId);
+		textView.setText(title);
+		if (textView.getVisibility() == View.GONE) {
+			textView.setVisibility(View.VISIBLE);
+		}
+	}
+	
+	public void setFooterTitle(String title) {
+		TextView textView = (TextView) footerView.findViewById(titleId);
+		textView.setText(title);
+		if (textView.getVisibility() == View.GONE) {
+			textView.setVisibility(View.VISIBLE);
+		}
+	}
+
+	
 	@Override
 	public void registerForTouch()
 	{
@@ -413,7 +459,6 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 			String color = TiConvert.toString(d, TiC.PROPERTY_SEPARATOR_COLOR);
 			setSeparatorColor(color);
 		}
-
 		
 		if (d.containsKey(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
 			listView.setVerticalScrollBarEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR, true));
@@ -441,6 +486,37 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 
 		listProxy.clearPreloadSections();
 		listProxy.setPreload(false);
+
+		if (d.containsKey(TiC.PROPERTY_HEADER_VIEW)) {
+			Object viewObj = d.get(TiC.PROPERTY_HEADER_VIEW);
+			setHeaderOrFooterView(viewObj, true);
+		} else if (d.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
+			headerView = inflater.inflate(headerFooterId, null);
+			setHeaderTitle(TiConvert.toString(d, TiC.PROPERTY_HEADER_TITLE));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
+			Object viewObj = d.get(TiC.PROPERTY_FOOTER_VIEW);
+			setHeaderOrFooterView(viewObj, false);	
+		} else if (d.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
+			footerView = inflater.inflate(headerFooterId, null);
+			setFooterTitle(TiConvert.toString(d, TiC.PROPERTY_FOOTER_TITLE));
+		}
+
+		//Check to see if headerView and footerView are specified. If not, we hide the views
+		if (headerView == null) {
+			headerView = inflater.inflate(headerFooterId, null);
+			headerView.findViewById(titleId).setVisibility(View.GONE);
+		}
+		
+		if (footerView == null) {
+			footerView = inflater.inflate(headerFooterId, null);
+			footerView.findViewById(titleId).setVisibility(View.GONE);
+		}
+
+		//Have to add header and footer before setting adapter
+		listView.addHeaderView(headerView, null, false);
+		listView.addFooterView(footerView, null, false);
 
 		listView.setAdapter(adapter);
 		super.processProperties(d);
@@ -497,6 +573,21 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 		p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 		return p;
 	}
+	
+	private void setHeaderOrFooterView (Object viewObj, boolean isHeader) {
+		if (viewObj instanceof TiViewProxy) {
+			TiViewProxy viewProxy = (TiViewProxy)viewObj;
+			View view = layoutHeaderOrFooterView(viewProxy);
+			if (view != null) {
+				if (isHeader) {
+					headerView = view;
+				} else {
+					footerView = view;
+				}
+			}
+		}
+	}
+
 
 	private void reFilter(String searchText) {
 		if (searchText != null) {
@@ -520,7 +611,11 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 	
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 
-		if (key.equals(TiC.PROPERTY_SECTIONS) && newValue instanceof Object[] ) {
+		if (key.equals(TiC.PROPERTY_HEADER_TITLE)) {
+			setHeaderTitle(TiConvert.toString(newValue));
+		} else if (key.equals(TiC.PROPERTY_FOOTER_TITLE)) {
+			setFooterTitle(TiConvert.toString(newValue));
+		} else if (key.equals(TiC.PROPERTY_SECTIONS) && newValue instanceof Object[] ) {
 			processSectionsAndNotify((Object[])newValue);
 		} else if (key.equals(TiC.PROPERTY_SEARCH_TEXT)) {
 			this.searchText = TiConvert.toString(newValue);
@@ -592,6 +687,37 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 			template.setRootParent(proxy);
 		}
 	}
+	
+	public View layoutHeaderOrFooterView (TiViewProxy viewProxy) {
+		TiUIView tiView = viewProxy.peekView();
+		if (tiView != null) {
+			TiViewProxy parentProxy = viewProxy.getParent();
+			//Remove parent view if possible
+			if (parentProxy != null) {
+				TiUIView parentView = parentProxy.peekView();
+				if (parentView != null) {
+					parentView.remove(tiView);
+				}
+			}
+		} else {
+			tiView = viewProxy.forceCreateView();
+		}
+		View outerView = tiView.getOuterView();
+		ViewGroup parentView = (ViewGroup) outerView.getParent();
+		if (parentView != null && parentView.getId() == HEADER_FOOTER_WRAP_ID) {
+			return parentView;
+		} else {
+			//add a wrapper so layout params such as height, width takes in effect.
+			TiCompositeLayout wrapper = new TiCompositeLayout(viewProxy.getActivity(), LayoutArrangement.DEFAULT, null);
+			AbsListView.LayoutParams params = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,  AbsListView.LayoutParams.WRAP_CONTENT);
+			wrapper.setLayoutParams(params);
+			outerView = tiView.getOuterView();
+			wrapper.addView(outerView, tiView.getLayoutParams());
+			wrapper.setId(HEADER_FOOTER_WRAP_ID);
+			return wrapper;
+		}
+	}
+
 
 	protected void processSections(Object[] sections) {
 		
@@ -760,6 +886,14 @@ public class CollectionView extends TiUIView implements OnSearchChangeListener {
 			listView.setAdapter(null);
 			listView = null;
 		}
+		
+		if (headerView != null) {
+			headerView = null;
+		}
+		if (footerView != null) {
+			footerView = null;
+		}
+
 
 		super.release();
 	}

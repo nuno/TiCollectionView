@@ -32,6 +32,10 @@
 		1E65CF651A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E65CF611A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m */; };
 		1E65CF681A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E65CF661A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m */; };
 		1E65CF691A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E65CF671A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.h */; };
+		1E8D6F391A7275AF00B22D80 /* M13ContextMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E8D6F351A7275AF00B22D80 /* M13ContextMenu.h */; };
+		1E8D6F3A1A7275AF00B22D80 /* M13ContextMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E8D6F361A7275AF00B22D80 /* M13ContextMenu.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1E8D6F3B1A7275AF00B22D80 /* M13ContextMenuItemIOS7.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E8D6F371A7275AF00B22D80 /* M13ContextMenuItemIOS7.h */; };
+		1E8D6F3C1A7275AF00B22D80 /* M13ContextMenuItemIOS7.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E8D6F381A7275AF00B22D80 /* M13ContextMenuItemIOS7.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		1EA7FA0F1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 1EA7FA0D1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.h */; };
 		1EA7FA101A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA7FA0E1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		24DD6CF91134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DD6CF71134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h */; };
@@ -63,6 +67,10 @@
 		1E65CF611A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcelpociotCollectionviewCollectionViewProxy.m; path = Classes/DeMarcelpociotCollectionviewCollectionViewProxy.m; sourceTree = "<group>"; };
 		1E65CF661A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeMarcelpociotCollectionviewCollectionSectionProxy.m; path = Classes/DeMarcelpociotCollectionviewCollectionSectionProxy.m; sourceTree = "<group>"; };
 		1E65CF671A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcelpociotCollectionviewCollectionSectionProxy.h; path = Classes/DeMarcelpociotCollectionviewCollectionSectionProxy.h; sourceTree = "<group>"; };
+		1E8D6F351A7275AF00B22D80 /* M13ContextMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = M13ContextMenu.h; sourceTree = "<group>"; };
+		1E8D6F361A7275AF00B22D80 /* M13ContextMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = M13ContextMenu.m; sourceTree = "<group>"; };
+		1E8D6F371A7275AF00B22D80 /* M13ContextMenuItemIOS7.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = M13ContextMenuItemIOS7.h; sourceTree = "<group>"; };
+		1E8D6F381A7275AF00B22D80 /* M13ContextMenuItemIOS7.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = M13ContextMenuItemIOS7.m; sourceTree = "<group>"; };
 		1EA7FA0D1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHTCollectionViewWaterfallLayout.h; sourceTree = "<group>"; };
 		1EA7FA0E1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CHTCollectionViewWaterfallLayout.m; sourceTree = "<group>"; };
 		24DD6CF71134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeMarcelpociotCollectionviewModule.h; path = Classes/DeMarcelpociotCollectionviewModule.h; sourceTree = "<group>"; };
@@ -136,9 +144,21 @@
 			name = Classes;
 			sourceTree = "<group>";
 		};
+		1E8D6F341A7275AF00B22D80 /* M13ContextMenu */ = {
+			isa = PBXGroup;
+			children = (
+				1E8D6F351A7275AF00B22D80 /* M13ContextMenu.h */,
+				1E8D6F361A7275AF00B22D80 /* M13ContextMenu.m */,
+				1E8D6F371A7275AF00B22D80 /* M13ContextMenuItemIOS7.h */,
+				1E8D6F381A7275AF00B22D80 /* M13ContextMenuItemIOS7.m */,
+			);
+			path = M13ContextMenu;
+			sourceTree = "<group>";
+		};
 		1EA7FA0C1A632C170090A8C4 /* lib */ = {
 			isa = PBXGroup;
 			children = (
+				1E8D6F341A7275AF00B22D80 /* M13ContextMenu */,
 				1EA7FA0D1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.h */,
 				1EA7FA0E1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.m */,
 			);
@@ -168,6 +188,8 @@
 				1E65CF5C1A12C0DF00187D0B /* DeMarcelpociotCollectionviewCollectionItemProxy.h in Headers */,
 				24DE9E1111C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.h in Headers */,
 				1E65CF581A12BDF800187D0B /* DeMarcelpociotCollectionviewCollectionItem.h in Headers */,
+				1E8D6F391A7275AF00B22D80 /* M13ContextMenu.h in Headers */,
+				1E8D6F3B1A7275AF00B22D80 /* M13ContextMenuItemIOS7.h in Headers */,
 				1E65CF621A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionView.h in Headers */,
 				1E65CF691A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.h in Headers */,
 			);
@@ -247,6 +269,8 @@
 				1E65CF591A12BDF800187D0B /* DeMarcelpociotCollectionviewCollectionItem.m in Sources */,
 				1E65CF651A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m in Sources */,
 				1E65CF681A13E98B00187D0B /* DeMarcelpociotCollectionviewCollectionSectionProxy.m in Sources */,
+				1E8D6F3C1A7275AF00B22D80 /* M13ContextMenuItemIOS7.m in Sources */,
+				1E8D6F3A1A7275AF00B22D80 /* M13ContextMenu.m in Sources */,
 				1E65CF5D1A12C0DF00187D0B /* DeMarcelpociotCollectionviewCollectionItemProxy.m in Sources */,
 				24DE9E1211C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.m in Sources */,
 				1EA7FA101A632C170090A8C4 /* CHTCollectionViewWaterfallLayout.m in Sources */,

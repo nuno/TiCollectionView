@@ -40,11 +40,32 @@ var listView = require("CollectionView").createCollectionView({
     // Use 'template', that is, the myTemplate dict created earlier
     // for all items as long as the template property is not defined for an item.
     defaultItemTemplate: 'template',
-    
+
+    // Context menu options
+    showContextMenu : true,
+    contextMenuStrokeColor : "red",
+    contextMenuItems : [
+        {
+            tintColor: "red",
+            selected: "/images/UploadIconSelected.png",
+            unselected:"/images/UploadIcon.png",
+        },
+        {
+            tintColor: "red",
+            selected: "/images/TrashIconSelected.png",
+            unselected:"/images/TrashIcon.png",
+        }
+    ],
+
     // ANDROID ONLY
     columnWidth: 150,
     verticalSpacing: 10,
     horizontalSpacing: 10
+});
+
+listView.addEventListener("contextMenuClick", function(e)
+{
+    alert( "You clicked on menu item " + e.index + " - CollectionView item " + e.itemIndex );
 });
 
 var sections = [];

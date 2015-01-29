@@ -1,0 +1,14 @@
+
+"Label": {
+	width: Ti.UI.SIZE,
+	height: Ti.UI.SIZE,
+	color: "#000",
+	font: {
+		fontSize: 12
+	}
+}
+
+"ListSection":{
+	itemSpacing: 40,
+	lineSpacing: 14
+}

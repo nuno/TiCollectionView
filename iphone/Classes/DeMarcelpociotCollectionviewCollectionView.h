@@ -8,13 +8,14 @@
 #import "TiUIView.h"
 #import "DeMarcelpociotCollectionviewCollectionViewProxy.h"
 #import "CHTCollectionViewWaterfallLayout.h"
+#import "M13ContextMenu.h"
 
 typedef enum {
     kLayoutTypeGrid,
     kLayoutTypeWaterfall
 } LayoutType;
 
-@interface DeMarcelpociotCollectionviewCollectionView : TiUIView <UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, CHTCollectionViewDelegateWaterfallLayout >
+@interface DeMarcelpociotCollectionviewCollectionView : TiUIView <UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, CHTCollectionViewDelegateWaterfallLayout, M13ContextMenuDelegate >
 
 #pragma mark - Private APIs
 

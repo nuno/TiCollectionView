@@ -31,3 +31,4 @@ build/
 */build.py
 android/dist/
 android/build.properties
+android/libs/
