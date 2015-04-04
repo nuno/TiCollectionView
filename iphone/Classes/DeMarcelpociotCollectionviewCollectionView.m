@@ -13,12 +13,14 @@
 #import "TiUILabelProxy.h"
 #import "TiUISearchBarProxy.h"
 #import "M13ContextMenuItemIOS7.h"
-
+#import "DeMarcelpociotCollectionviewHeaderFooterReusableView.h"
+#import "ImageLoader.h"
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
+
 #endif
 
-
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 40.0
 
 @interface DeMarcelpociotCollectionviewCollectionView ()
 @property (nonatomic, readonly) DeMarcelpociotCollectionviewCollectionViewProxy *listViewProxy;
@@ -38,13 +40,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     TiViewProxy *_headerWrapper;
     TiViewProxy *_footerViewProxy;
     TiViewProxy *_pullViewProxy;
+    
 #ifdef USE_TI_UIREFRESHCONTROL
     TiUIRefreshControlProxy* _refreshControlProxy;
 #endif
 
     TiUISearchBarProxy *searchViewProxy;
-    UICollectionViewController *tableController;
-    UISearchDisplayController *searchController;
+    UICollectionViewController *collectionController;
+    DeMarcelpociotSearchDisplayController *searchController;
     
     M13ContextMenu * contextMenu;
     
@@ -104,7 +107,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     RELEASE_TO_NIL(_headerWrapper)
     RELEASE_TO_NIL(_footerViewProxy);
     RELEASE_TO_NIL(searchViewProxy);
-    RELEASE_TO_NIL(tableController);
+    RELEASE_TO_NIL(collectionController);
     RELEASE_TO_NIL(searchController);
     RELEASE_TO_NIL(sectionTitles);
     RELEASE_TO_NIL(sectionIndices);
@@ -133,7 +136,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setHeaderFooter:(TiViewProxy*)theProxy isHeader:(BOOL)header
 {
+    NSLog(@"[INFO] setHeaderFooter called");
     [theProxy setProxyObserver:self];
+    
     [theProxy windowWillOpen];
     [theProxy setParentVisible:YES];
     [theProxy windowDidOpen];
@@ -150,6 +155,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)configureHeaders
 {
+    NSLog(@"[INFO] configureHeaders called");
+    
     _headerViewProxy = [self initWrapperProxy];
     LayoutConstraint* viewLayout = [_headerViewProxy layoutProperties];
     viewLayout->layoutStyle = TiLayoutRuleVertical;
@@ -184,6 +191,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         _collectionView.bounces = YES;
         _collectionView.delegate = self;
         _collectionView.dataSource = self;
+        
+        [_collectionView registerClass:[DeMarcelpociotCollectionviewHeaderFooterReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView"];
+        
+        [_collectionView registerClass:[DeMarcelpociotCollectionviewHeaderFooterReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView"];
 
         id backgroundColor = [self.proxy valueForKey:@"backgroundColor"];
         _collectionView.backgroundColor = [[TiUtils colorValue:backgroundColor] color];
@@ -225,9 +236,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [_collectionView addGestureRecognizer:longPress];
         }
     }
+    
     if ([_collectionView superview] != self) {
         [self addSubview:_collectionView];
     }
+    
     return _collectionView;
 }
 
@@ -237,13 +250,27 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    [UIView setAnimationsEnabled:NO];
-
-    [_collectionView performBatchUpdates:^{
-        [_collectionView reloadData];
-    } completion:^(BOOL finished) {
-        [UIView setAnimationsEnabled:YES];
-    }];
+    NSLog(@"[INFO] frameSizeChanged");
+    if (![searchController isActive]) {
+        NSLog(@"[INFO] frameSizeChanged:search !isActive");
+        [searchViewProxy ensureSearchBarHeirarchy];
+        if (_searchWrapper != nil) {
+            CGFloat rowWidth = [self computeRowWidth:_collectionView];
+            if (rowWidth > 0) {
+                CGFloat right = _collectionView.bounds.size.width - rowWidth;
+                [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
+            }
+        }
+    }
+    else {
+        NSLog(@"[INFO] frameSizeChanged:search isActive");
+        [UIView setAnimationsEnabled:NO];
+        [_collectionView performBatchUpdates:^{
+            [_collectionView reloadData];
+        } completion:^(BOOL finished) {
+            [UIView setAnimationsEnabled:YES];
+        }];
+    }
     
     [super frameSizeChanged:frame bounds:bounds];
     
@@ -261,15 +288,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
 }
 
--(void)proxyDidRelayout:(id)sender
-{
-	TiThreadPerformOnMainThread(^{
-		if (sender == _pullViewProxy) { 
-			pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height); 
-		} 
-	},NO);
-}
-
 - (id)accessibilityElement
 {
 	return self.collectionView;
@@ -283,6 +301,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void) updateIndicesForVisibleRows
 {
+    NSLog(@"[INFO] updateIndicesForVisibleRows");
     if (_collectionView == nil || [self isSearchActive]) {
         return;
     }
@@ -295,6 +314,241 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
     }];
 }
+
+-(void)proxyDidRelayout:(id)sender
+{
+    TiThreadPerformOnMainThread(^{
+        if (sender == _headerViewProxy) {
+            //UIView* headerView = [[self tableView] tableHeaderView];
+            //[headerView setFrame:[headerView bounds]];
+            //[[self tableView] setTableHeaderView:headerView];
+            [((DeMarcelpociotCollectionviewCollectionViewProxy*)[self proxy]) contentsWillChange];
+        }
+        else if (sender == _footerViewProxy) {
+            //UIView *footerView = [[self tableView] tableFooterView];
+            //[footerView setFrame:[footerView bounds]];
+            //[[self tableView] setTableFooterView:footerView];
+            [((DeMarcelpociotCollectionviewCollectionViewProxy*)[self proxy]) contentsWillChange];
+        }
+        else if (sender == _pullViewProxy) {
+            pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
+        } 
+    },NO);
+}
+
+-(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(DeMarcelpociotCollectionviewCollectionSectionProxy**)sectionResult
+{
+    DeMarcelpociotCollectionviewCollectionSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
+    //In the event that proxy is nil, this all flows out to returning nil safely anyways.
+    if (sectionResult!=nil) {
+        *sectionResult = proxy;
+    }
+    TiViewProxy* viewproxy = [proxy valueForKey:location];
+    if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]]) {
+        LayoutConstraint *viewLayout = [viewproxy layoutProperties];
+        //If height is not dip, explicitly set it to SIZE
+        if (viewLayout->height.type != TiDimensionTypeDip) {
+            viewLayout->height = TiDimensionAutoSize;
+        }
+        
+        TiUIView* theView = [viewproxy view];
+        if (![viewproxy viewAttached]) {
+            [viewproxy windowWillOpen];
+            [viewproxy willShow];
+            [viewproxy windowDidOpen];
+        }
+        return theView;
+    }
+    return nil;
+}
+
+#pragma mark - M13ContextMenuDelegate
+
+- (BOOL)shouldShowContextMenu:(M13ContextMenu *)contextMenu atPoint:(CGPoint)point
+{
+    if( showContextMenu == NO )
+    {
+        return NO;
+    }
+    
+    NSIndexPath* indexPath = [self.collectionView indexPathForItemAtPoint:point];
+    UICollectionViewCell* cell = [self.collectionView cellForItemAtIndexPath:indexPath];
+    
+    return cell != nil;
+}
+
+- (void)contextMenu:(M13ContextMenu *)contextMenu atPoint:(CGPoint)point didSelectItemAtIndex:(NSInteger)index
+{
+    NSIndexPath* indexPath = [self.collectionView indexPathForItemAtPoint:point];
+    
+    [self.proxy fireEvent:@"contextMenuClick" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMINT(index),@"index",NUMINT(indexPath.row),@"itemIndex",NUMINT(indexPath.section), @"sectionIndex",nil]];
+}
+
+
+#pragma mark - Helper Methods
+
+-(CGFloat)computeRowWidth:(UICollectionView*)collectionView
+{
+    if (collectionView == nil) {
+        return 0;
+    }
+    CGFloat rowWidth = collectionView.bounds.size.width;
+    
+    // Apple does not provide a good way to get information about the index sidebar size
+    // in the event that it exists - it silently resizes row content which is "flexible width"
+    // but this is not useful for us. This is a problem when we have Ti.UI.SIZE/FILL behavior
+    // on row contents, which rely on the height of the row to be accurately precomputed.
+    //
+    // The following is unreliable since it uses a private API name, but one which has existed
+    // since iOS 3.0. The alternative is to grab a specific subview of the tableview itself,
+    // which is more fragile.
+    if ((sectionTitles == nil) || (collectionView != _collectionView) ) {
+        return rowWidth;
+    }
+    NSArray* subviews = [collectionView subviews];
+    if ([subviews count] > 0) {
+        // Obfuscate private class name
+        Class indexview = NSClassFromString([@"UICollectionView" stringByAppendingString:@"Index"]);
+        for (UIView* view in subviews) {
+            if ([view isKindOfClass:indexview]) {
+                rowWidth -= [view frame].size.width;
+            }
+        }
+    }
+    
+    return floorf(rowWidth);
+}
+
+-(id)valueWithKey:(NSString*)key atIndexPath:(NSIndexPath*)indexPath
+{
+    NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
+    id propertiesValue = [item objectForKey:@"properties"];
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    id theValue = [properties objectForKey:key];
+    if (theValue == nil) {
+        id templateId = [item objectForKey:@"template"];
+        if (templateId == nil) {
+            templateId = _defaultItemTemplate;
+        }
+        if (![templateId isKindOfClass:[NSNumber class]]) {
+            TiViewTemplate *template = [_templates objectForKey:templateId];
+            theValue = [template.properties objectForKey:key];
+        }
+    }
+    
+    return theValue;
+}
+
+-(void)buildResultsForSearchText
+{
+    NSLog(@"[INFO] buildResultsForSearchText");
+    searchActive = ([self.searchString length] > 0);
+    RELEASE_TO_NIL(filteredIndices);
+    RELEASE_TO_NIL(filteredTitles);
+    if (searchActive) {
+        BOOL hasResults = NO;
+        //Initialize
+        if(_searchResults == nil) {
+            _searchResults = [[NSMutableArray alloc] init];
+        }
+        //Clear Out
+        [_searchResults removeAllObjects];
+        
+        //Search Options
+        NSStringCompareOptions searchOpts = (caseInsensitiveSearch ? NSCaseInsensitiveSearch : 0);
+        
+        NSUInteger maxSection = [[self.listViewProxy sectionCount] unsignedIntegerValue];
+        NSMutableArray* singleSection = keepSectionsInSearch ? nil : [[NSMutableArray alloc] init];
+        for (int i = 0; i < maxSection; i++) {
+            NSMutableArray* thisSection = keepSectionsInSearch ? [[NSMutableArray alloc] init] : nil;
+            NSUInteger maxItems = [[self.listViewProxy sectionForIndex:i] itemCount];
+            for (int j = 0; j < maxItems; j++) {
+                NSIndexPath* thePath = [NSIndexPath indexPathForRow:j inSection:i];
+                id theValue = [self valueWithKey:@"searchableText" atIndexPath:thePath];
+                if (theValue!=nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
+                    (thisSection != nil) ? [thisSection addObject:thePath] : [singleSection addObject:thePath];
+                    hasResults = YES;
+                }
+            }
+            if (thisSection != nil) {
+                if ([thisSection count] > 0) {
+                    [_searchResults addObject:thisSection];
+                    
+                    if (sectionTitles != nil && sectionIndices != nil) {
+                        NSNumber* theIndex = [NSNumber numberWithInt:i];
+                        if ([sectionIndices containsObject:theIndex]) {
+                            id theTitle = [sectionTitles objectAtIndex:[sectionIndices indexOfObject:theIndex]];
+                            if (filteredTitles == nil) {
+                                filteredTitles = [[NSMutableArray alloc] init];
+                            }
+                            if (filteredIndices == nil) {
+                                filteredIndices = [[NSMutableArray alloc] init];
+                            }
+                            [filteredTitles addObject:theTitle];
+                            [filteredIndices addObject:[NSNumber numberWithUnsignedInteger:([_searchResults count] -1)] ];
+                        }
+                    }
+                }
+                [thisSection release];
+            }
+        }
+        if (singleSection != nil) {
+            if ([singleSection count] > 0) {
+                [_searchResults addObject:singleSection];
+            }
+            [singleSection release];
+        }
+        if (!hasResults) {
+            if ([(TiViewProxy*)self.proxy _hasListeners:@"noresults" checkParent:NO]) {
+                [self.proxy fireEvent:@"noresults" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            }
+        }
+        NSString* res = hasResults ? @"YES" : @"FALSE";
+        NSLog(@"[INFO] buildResultsForSearchText:Results -> %@", res);
+    } else {
+        RELEASE_TO_NIL(_searchResults);
+    }
+}
+
+-(BOOL) isSearchActive
+{
+    return searchActive || [searchController isActive];
+}
+
+- (void)updateSearchResults:(id)unused
+{
+    if (searchActive) {
+        [self buildResultsForSearchText];
+    }
+    [_collectionView reloadData];
+    if ([searchController isActive]) {
+        [[searchController searchResultsTableView] reloadData];
+    }
+}
+
+-(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
+{
+    if (_searchResults != nil) {
+        NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
+        
+        if([sectionResults count] > indexPath.row) {
+            return [sectionResults objectAtIndex:indexPath.row];
+        }
+    }
+    return indexPath;
+}
+
+-(NSInteger)sectionForSearchSection:(NSInteger)section
+{
+    if (_searchResults != nil) {
+        NSArray* sectionResults = [_searchResults objectAtIndex:section];
+        NSIndexPath* thePath = [sectionResults objectAtIndex:0];
+        return thePath.section;
+    }
+    return section;
+}
+
+#pragma mark - Public API
 
 -(void)setRefreshControl_:(id)args
 {
@@ -365,6 +619,19 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
 }
 
+-(void)setKeepSectionsInSearch_:(id)args
+{
+    if (searchViewProxy == nil) {
+        keepSectionsInSearch = [TiUtils boolValue:args def:NO];
+        if (searchActive) {
+            [self buildResultsForSearchText];
+            [_collectionView reloadData];
+        }
+    } else {
+        keepSectionsInSearch = NO;
+    }
+}
+
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
     UIEdgeInsets insets = [TiUtils contentInsets:value];
@@ -383,10 +650,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)setDictTemplates_:(id)args
 {
-	ENSURE_TYPE_OR_NIL(args,NSDictionary);
-	[[self proxy] replaceValue:args forKey:@"dictTemplates" notification:NO];
-	[_templates release];
-	_templates = [args copy];
+    ENSURE_TYPE_OR_NIL(args,NSDictionary);
+    [[self proxy] replaceValue:args forKey:@"dictTemplates" notification:NO];
+    [_templates release];
+    _templates = [args copy];
     RELEASE_TO_NIL(_measureProxies);
     _measureProxies = [[NSMutableDictionary alloc] init];
     NSEnumerator *enumerator = [_templates keyEnumerator];
@@ -400,142 +667,20 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             NSLog(@"[INFO] Registering class for identifier %@", cellIdentifier);
             [_collectionView registerClass:[DeMarcelpociotCollectionviewCollectionItem class] forCellWithReuseIdentifier:cellIdentifier];
             /**
-            DeMarcelpociotCollectionviewCollectionItem* cell = [[DeMarcelpociotCollectionviewCollectionItem alloc] initWithProxy:theProxy reuseIdentifier:@"__measurementCell__"];
-            [theProxy unarchiveFromTemplate:template];
-            [_measureProxies setObject:cell forKey:key];
-            [theProxy setIndexPath:[NSIndexPath indexPathForRow:-1 inSection:-1]];
-            [cell release];
-            [theProxy release];
+             DeMarcelpociotCollectionviewCollectionItem* cell = [[DeMarcelpociotCollectionviewCollectionItem alloc] initWithProxy:theProxy reuseIdentifier:@"__measurementCell__"];
+             [theProxy unarchiveFromTemplate:template];
+             [_measureProxies setObject:cell forKey:key];
+             [theProxy setIndexPath:[NSIndexPath indexPathForRow:-1 inSection:-1]];
+             [cell release];
+             [theProxy release];
              */
         }
     }
-	if (_collectionView != nil) {
-		[_collectionView reloadData];
-	}
+    if (_collectionView != nil) {
+        [_collectionView reloadData];
+    }
 }
 
--(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(DeMarcelpociotCollectionviewCollectionSectionProxy**)sectionResult
-{
-    DeMarcelpociotCollectionviewCollectionSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
-    //In the event that proxy is nil, this all flows out to returning nil safely anyways.
-    if (sectionResult!=nil) {
-        *sectionResult = proxy;
-    }
-    TiViewProxy* viewproxy = [proxy valueForKey:location];
-    if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]]) {
-        LayoutConstraint *viewLayout = [viewproxy layoutProperties];
-        //If height is not dip, explicitly set it to SIZE
-        if (viewLayout->height.type != TiDimensionTypeDip) {
-            viewLayout->height = TiDimensionAutoSize;
-        }
-        
-        TiUIView* theView = [viewproxy view];
-        if (![viewproxy viewAttached]) {
-            [viewproxy windowWillOpen];
-            [viewproxy willShow];
-            [viewproxy windowDidOpen];
-        }
-        return theView;
-    }
-    return nil;
-}
-
-#pragma mark - M13ContextMenuDelegate
-
-- (BOOL)shouldShowContextMenu:(M13ContextMenu *)contextMenu atPoint:(CGPoint)point
-{
-    if( showContextMenu == NO )
-    {
-        return NO;
-    }
-    
-    NSIndexPath* indexPath = [self.collectionView indexPathForItemAtPoint:point];
-    UICollectionViewCell* cell = [self.collectionView cellForItemAtIndexPath:indexPath];
-    
-    return cell != nil;
-}
-
-- (void)contextMenu:(M13ContextMenu *)contextMenu atPoint:(CGPoint)point didSelectItemAtIndex:(NSInteger)index
-{
-    NSIndexPath* indexPath = [self.collectionView indexPathForItemAtPoint:point];
-    
-    [self.proxy fireEvent:@"contextMenuClick" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMINT(index),@"index",NUMINT(indexPath.row),@"itemIndex",NUMINT(indexPath.section), @"sectionIndex",nil]];
-}
-
-
-#pragma mark - Helper Methods
-
--(CGFloat)computeRowWidth:(UICollectionView*)tableView
-{
-    if (tableView == nil) {
-        return 0;
-    }
-    CGFloat rowWidth = tableView.bounds.size.width;
-    
-    // Apple does not provide a good way to get information about the index sidebar size
-    // in the event that it exists - it silently resizes row content which is "flexible width"
-    // but this is not useful for us. This is a problem when we have Ti.UI.SIZE/FILL behavior
-    // on row contents, which rely on the height of the row to be accurately precomputed.
-    //
-    // The following is unreliable since it uses a private API name, but one which has existed
-    // since iOS 3.0. The alternative is to grab a specific subview of the tableview itself,
-    // which is more fragile.
-    if ((sectionTitles == nil) || (tableView != _collectionView) ) {
-        return rowWidth;
-    }
-    NSArray* subviews = [tableView subviews];
-    if ([subviews count] > 0) {
-        // Obfuscate private class name
-        Class indexview = NSClassFromString([@"UITableView" stringByAppendingString:@"Index"]);
-        for (UIView* view in subviews) {
-            if ([view isKindOfClass:indexview]) {
-                rowWidth -= [view frame].size.width;
-            }
-        }
-    }
-    
-    return floorf(rowWidth);
-}
-
--(id)valueWithKey:(NSString*)key atIndexPath:(NSIndexPath*)indexPath
-{
-    NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
-    id propertiesValue = [item objectForKey:@"properties"];
-    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-    id theValue = [properties objectForKey:key];
-    if (theValue == nil) {
-        id templateId = [item objectForKey:@"template"];
-        if (templateId == nil) {
-            templateId = _defaultItemTemplate;
-        }
-        if (![templateId isKindOfClass:[NSNumber class]]) {
-            TiViewTemplate *template = [_templates objectForKey:templateId];
-            theValue = [template.properties objectForKey:key];
-        }
-    }
-    
-    return theValue;
-}
--(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
-{
-    if (_searchResults != nil) {
-        NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
-        return [sectionResults objectAtIndex:indexPath.row];
-    }
-    return indexPath;
-}
-
--(NSInteger)sectionForSearchSection:(NSInteger)section
-{
-    if (_searchResults != nil) {
-        NSArray* sectionResults = [_searchResults objectAtIndex:section];
-        NSIndexPath* thePath = [sectionResults objectAtIndex:0];
-        return thePath.section;
-    }
-    return section;
-}
-
-#pragma mark - Public API
 
 -(void)setPruneSectionsOnEdit_:(id)args
 {
@@ -570,11 +715,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setHeaderView_:(id)args
 {
+    
     ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
     [self collectionView];
     [_headerWrapper removeAllChildren:nil];
     if (args!=nil) {
         [_headerWrapper add:(TiViewProxy*) args];
+        NSLog(@"[INFO] setHeaderView_ called: %@", ((TiViewProxy*) args).view);
     }
 }
 
@@ -598,25 +745,98 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [[self collectionView] setAllowsSelection:[TiUtils boolValue:value]];
 }
 
+#pragma mark - Search Support
+-(void)setCaseInsensitiveSearch_:(id)args
+{
+    caseInsensitiveSearch = [TiUtils boolValue:args def:YES];
+    if (searchActive) {
+        //[self buildResultsForSearchText];
+        if ([searchController isActive]) {
+            [[searchController searchResultsCollectionView] reloadData];
+        } else {
+            [_collectionView reloadData];
+        }
+    }
+}
+
+-(void)setSearchText_:(id)args
+{
+    id searchView = [self.proxy valueForKey:@"searchView"];
+    if (!IS_NULL_OR_NIL(searchView)) {
+        DebugLog(@"Can not use searchText with searchView. Ignoring call.");
+        return;
+    }
+    self.searchString = [TiUtils stringValue:args];
+    [self buildResultsForSearchText];
+    [_collectionView reloadData];
+}
+
+-(void)setSearchView_:(id)args
+{
+    ENSURE_TYPE_OR_NIL(args,TiUISearchBarProxy);
+    [self collectionView];
+    [searchViewProxy setDelegate:nil];
+    RELEASE_TO_NIL(searchViewProxy);
+    RELEASE_TO_NIL(collectionController);
+    RELEASE_TO_NIL(searchController);
+    [_searchWrapper removeAllChildren:nil];
+    
+    if (args != nil) {
+        searchViewProxy = [args retain];
+        [searchViewProxy setDelegate:self];
+        [_searchWrapper add:searchViewProxy];
+        NSLog(@"[INFO] setSearchView_ called: %@", searchViewProxy.view);
+        if ([TiUtils isIOS7OrGreater]) {
+            NSString *curPlaceHolder = [[searchViewProxy searchBar] placeholder];
+            if (curPlaceHolder == nil) {
+                [[searchViewProxy searchBar] setPlaceholder:@"Search"];
+            }
+        } else {
+            [self initSearchController:self];
+        }
+        keepSectionsInSearch = NO;
+    } else {
+        keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];
+    }
+    
+}
+
+
+
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
     NSUInteger sectionCount = 0;
     
-    sectionCount = [self.listViewProxy.sectionCount unsignedIntegerValue];
+    if (_searchResults != nil) {
+        sectionCount = [_searchResults count];
+    } else {
+        sectionCount = [self.listViewProxy.sectionCount unsignedIntegerValue];
+    }
+
     NSLog(@"[INFO] Section count: %i", sectionCount);
     return MAX(0,sectionCount);
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    DeMarcelpociotCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
-    if (theSection != nil) {
-    NSLog(@"[INFO] Item count: %i", theSection.itemCount);
-        return theSection.itemCount;
+    if (_searchResults != nil) {
+        if ([_searchResults count] <= section) {
+            return 0;
+        }
+        NSArray* theSection = [_searchResults objectAtIndex:section];
+        return [theSection count];
+        
     }
-    NSLog(@"[INFO] Item count: 0");
-    return 0;
+    else {
+        DeMarcelpociotCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
+        if (theSection != nil) {
+            NSLog(@"[INFO] Item count: %i", theSection.itemCount);
+            return theSection.itemCount;
+        }
+        NSLog(@"[INFO] Item count: 0");
+        return 0;
+    }
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -625,7 +845,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     DeMarcelpociotCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
     NSInteger maxItem = 0;
     
-    maxItem = theSection.itemCount;
+    if (_searchResults != nil && [_searchResults count] > indexPath.section) {
+        NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
+        maxItem = [sectionResults count];
+    } else {
+        maxItem = theSection.itemCount;
+    }
     
     NSDictionary *item = [theSection itemAtIndex:realIndexPath.row];
     id templateId = [item objectForKey:@"template"];
@@ -659,6 +884,61 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     return cell;
 }
 
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"[INFO] Process viewForSupplementaryElementOfKind: %@", kind);
+    NSLog(@"[INFO] Test: %@", UICollectionElementKindSectionHeader);
+    UICollectionReusableView *reusableview = nil;
+    
+    if ([kind isEqualToString:UICollectionElementKindSectionHeader]) {
+        DeMarcelpociotCollectionviewHeaderFooterReusableView* headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView" forIndexPath:indexPath];
+        
+        CGFloat height = 0.0;
+        CGFloat width = [self.collectionView bounds].size.width;
+        TiViewProxy* viewProxy = (TiViewProxy*) _headerViewProxy;
+        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+        
+        switch (viewLayout->height.type)
+        {
+            case TiDimensionTypeDip:
+                NSLog(@"[INFO] height.type: %@", @"TiDimensionTypeDip");
+                height += viewLayout->height.value;
+                break;
+            case TiDimensionTypeAuto:
+            case TiDimensionTypeAutoSize:
+                NSLog(@"[INFO] height.type: %@", @"TiDimensionTypeAutoSize");
+                height += [viewProxy autoHeightForSize:[self.collectionView bounds].size];
+                break;
+            default:
+                NSLog(@"[INFO] height.type: %@", @"Default");
+                height+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+                break;
+        }
+
+        NSLog(@"[INFO] _headerViewProxy HSize: %f", height);
+        NSLog(@"[INFO] _headerViewProxy WSize: %f", width);
+
+        [headerView setBounds:CGRectMake(0, 0, width, height)];
+        
+        [headerView addSubview:_headerViewProxy.view];
+        //[_headerView.view setFrame:CGRectMake(0, 0, width, height)];
+        
+        NSLog(@"[INFO] reusableview frame: %@", headerView);
+        
+        reusableview = headerView;
+        
+    }
+    
+    if ([kind isEqualToString:UICollectionElementKindSectionFooter]) {
+        DeMarcelpociotCollectionviewHeaderFooterReusableView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView" forIndexPath:indexPath];
+        
+        [reusableview addSubview:_footerViewProxy.view];
+        reusableview = footerview;
+    }
+    
+    return reusableview;
+}
+
 #pragma mark - UICollectionViewDelegate
 
 - (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
@@ -686,8 +966,96 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark UICollectionViewDelegateFlowLayout
 
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section
+{
+    NSLog(@"[INFO] referenceSizeForHeaderInSection");
+    NSInteger realSection = section;
+    
+    if (searchActive) {
+        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
+            realSection = [self sectionForSearchSection:section];
+        } else {
+            return CGSizeZero;
+        }
+    }
+    
+    DeMarcelpociotCollectionviewCollectionSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
+    TiUIView *view = [self sectionView:realSection forLocation:@"headerView" section:nil];
+    
+    CGFloat height = 0.0;
+    CGFloat width = 0.0;
+    if (view != nil) {
+        NSLog(@"[INFO] original section header size: %@", view);
+        TiViewProxy* viewProxy = (TiViewProxy*) [view proxy];
+        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+        //NSLog(@"[INFO] viewLayout: %@", viewLayout);
+        switch (viewLayout->height.type)
+        {
+            case TiDimensionTypeDip:
+                height += viewLayout->height.value;
+                break;
+            case TiDimensionTypeAuto:
+            case TiDimensionTypeAutoSize:
+                height += [viewProxy autoHeightForSize:[self.collectionView bounds].size];
+                break;
+            default:
+                height+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+                break;
+        }
+        width = [self.collectionView bounds].size.width;
+        
+        NSLog(@"[INFO] HSize: %f", height);
+        NSLog(@"[INFO] WSize: %f", width);
+        [view setBounds:CGRectMake(0, 0, width, height)];
+        //[view setFrame:CGRectMake(0, 0, width, height)];
+        NSLog(@"[INFO] section header size: %@", view);
+        
+        return CGSizeMake(width, height);
+    }
+    else {
+        TiViewProxy* viewProxy = (TiViewProxy*) _headerViewProxy;
+        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+        switch (viewLayout->height.type)
+        {
+            case TiDimensionTypeDip:
+                height += viewLayout->height.value;
+                break;
+            case TiDimensionTypeAuto:
+            case TiDimensionTypeAutoSize:
+                height += [viewProxy autoHeightForSize:[self.collectionView bounds].size];
+                break;
+            default:
+                height+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+                break;
+        }
+
+    }
+    NSLog(@"[INFO] header height: %f", height);
+    NSLog(@"[INFO] header height: %f", [_headerViewProxy autoHeightForSize:[self.collectionView bounds].size]);
+    NSLog(@"[INFO] header height: %f", [_headerViewProxy autoHeightForSize:[_headerViewProxy.view bounds].size]);
+    NSLog(@"[INFO] header size: %@", _headerViewProxy.view);
+    return CGSizeMake(self.collectionView.bounds.size.width, height);
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section
+{
+    NSLog(@"[INFO] referenceSizeForFooterInSection");
+    NSInteger realSection = section;
+    
+    if (searchActive) {
+        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
+            realSection = [self sectionForSearchSection:section];
+        } else {
+            return CGSizeZero;
+        }
+    }
+    return _footerViewProxy.view.frame.size;
+}
+
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath;
 {
+    NSLog(@"[INFO] sizeForItemAtIndexPath");
     NSIndexPath* realPath = [self pathForSearchPath:indexPath];
     
     id heightValue = [self valueWithKey:@"height" atIndexPath:realPath];
@@ -726,12 +1094,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
+    NSLog(@"[INFO] keyboardDidShowAtHeight");
     CGRect minimumContentRect = [_collectionView bounds];
     InsetScrollViewForKeyboard(_collectionView,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
+    NSLog(@"[INFO] scrollToShowView");
     if ([_collectionView isScrollEnabled]) {
         CGRect minimumContentRect = [_collectionView bounds];
         
@@ -794,6 +1164,109 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     //Events none (maybe scroll later)
 }
 
+#pragma mark - UISearchBarDelegate Methods
+- (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
+{
+    NSLog(@"[INFO] searchBarShouldBeginEditing");
+    if (_searchWrapper != nil) {
+        [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
+        [_searchWrapper refreshView:nil];
+        if ([TiUtils isIOS7OrGreater]) {
+            [self initSearchController:self];
+        }
+    }
+}
+
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
+{
+    NSLog(@"[INFO] searchBarTextDidBeginEditing");
+    self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
+    [self buildResultsForSearchText];
+    [[searchController searchResultsCollectionView] reloadData];
+}
+
+- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
+{
+    NSLog(@"[INFO] searchBarTextDidEndEditing");
+    if ([searchBar.text length] == 0) {
+        self.searchString = @"";
+        [self buildResultsForSearchText];
+        if ([searchController isActive]) {
+            [searchController setActive:NO animated:YES];
+        }
+    }
+}
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+{
+    NSLog(@"[INFO] searchBar:textDidChange");
+    self.searchString = (searchText == nil) ? @"" : searchText;
+    [self buildResultsForSearchText];
+}
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
+{
+    NSLog(@"[INFO] searchBarSearchButtonClicked");
+    [searchBar resignFirstResponder];
+    [self makeRootViewFirstResponder];
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
+{
+    NSLog(@"[INFO] searchBarCancelButtonClicked");
+    self.searchString = @"";
+    [searchBar setText:self.searchString];
+    [self buildResultsForSearchText];
+}
+
+#pragma mark - UISearchDisplayDelegate Methods
+
+- (void)textDidChange:(NSString *)searchText
+{
+    NSLog(@"[INFO] textDidChange");
+}
+
+- (void)searchDisplayControllerWillBeginSearch:(DeMarcelpociotSearchDisplayController *)controller
+{
+    NSLog(@"[INFO] searchDisplayControllerWillBeginSearch");
+    
+}
+
+- (void)searchDisplayControllerDidBeginSearch:(DeMarcelpociotSearchDisplayController *)controller
+{
+    NSLog(@"[INFO] searchDisplayControllerDidBeginSearch");
+}
+
+- (void)searchDisplayControllerWillEndSearch:(DeMarcelpociotSearchDisplayController *)controller
+{
+    NSLog(@"[INFO] searchDisplayControllerWillEndSearch");
+}
+
+- (void) searchDisplayControllerDidEndSearch:(DeMarcelpociotSearchDisplayController *)controller
+{
+    NSLog(@"[INFO] searchDisplayControllerDidEndSearch");
+    self.searchString = @"";
+    [self buildResultsForSearchText];
+    if ([searchController isActive]) {
+        [searchController setActive:NO animated:YES];
+    }
+    if (_searchWrapper != nil) {
+        CGFloat rowWidth = floorf([self computeRowWidth:_collectionView]);
+        if (rowWidth > 0) {
+            CGFloat right = _collectionView.bounds.size.width - rowWidth;
+            [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
+            [_searchWrapper refreshView:nil];
+        }
+    }
+    //IOS7 DP3. TableView seems to be adding the searchView to
+    //tableView. Bug on IOS7?
+    if ([TiUtils isIOS7OrGreater]) {
+        [self clearSearchController:self];
+    }
+    [_collectionView reloadData];
+}
+
+
 #pragma mark - Internal Methods
 
 - (void)fireClickForItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UICollectionView *)tableView accessoryButtonTapped:(BOOL)accessoryButtonTapped
@@ -830,9 +1303,65 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(CGFloat)contentWidthForWidth:(CGFloat)width
 {
+    NSLog(@"[INFO] contentWidthForWidth called");
     return width;
 }
 
+-(CGFloat)contentHeightForWidth:(CGFloat)width
+{
+    NSLog(@"[INFO] contentHeightForWidth called");
+    if (_collectionView == nil) {
+        return 0;
+    }
+    
+    CGSize refSize = CGSizeMake(width, 1000);
+    
+    CGFloat resultHeight = 0;
+    
+    //Last Section rect
+    NSInteger lastSectionIndex = [self numberOfSectionsInCollectionView:_collectionView] - 1;
+    if (lastSectionIndex >= 0) {
+        //CGRect refRect = [_collectionView rectForSection:lastSectionIndex];
+        //resultHeight += refRect.size.height + refRect.origin.y;
+    } else {
+        //Header auto height when no sections
+        if (_headerViewProxy != nil) {
+            resultHeight += [_headerViewProxy autoHeightForSize:refSize];
+        }
+    }
+    
+    //Footer auto height
+    if (_footerViewProxy) {
+        resultHeight += [_footerViewProxy autoHeightForSize:refSize];
+    }
+    
+    return resultHeight;
+}
+
+-(void)clearSearchController:(id)sender
+{
+    if (sender == self) {
+        RELEASE_TO_NIL(collectionController);
+        RELEASE_TO_NIL(searchController);
+        [searchViewProxy ensureSearchBarHeirarchy];
+    }
+}
+
+-(void)initSearchController:(id)sender
+{
+    NSLog(@"[INFO] initSearchController called");
+    if (sender == self && collectionController == nil) {
+        NSLog(@"[INFO] initSearchController begins");
+        collectionController = [[UICollectionViewController alloc] init];
+        [TiUtils configureController:collectionController withObject:nil];
+        collectionController.collectionView = [self collectionView];
+        searchController = [[DeMarcelpociotSearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:collectionController];
+        searchController.searchResultsDataSource = self;
+        searchController.searchResultsDelegate = self;
+        searchController.delegate = self;
+        [searchController setActive:YES animated:YES];
+    }
+}
 
 #pragma mark - UITapGestureRecognizer
 

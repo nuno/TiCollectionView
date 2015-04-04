@@ -41,6 +41,13 @@ public class CollectionSectionProxy extends TiViewProxy{
 	private WeakReference<CollectionView> listView;
 	public DefaultCollectionViewTemplate builtInTemplate;
 	
+	private String headerTitle;
+	private String footerTitle;
+	
+	private TiViewProxy headerView;
+	private TiViewProxy footerView;
+
+	
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_SET_ITEMS = MSG_FIRST_ID + 700;
@@ -51,6 +58,12 @@ public class CollectionSectionProxy extends TiViewProxy{
 	private static final int MSG_REPLACE_ITEMS_AT = MSG_FIRST_ID + 705;
 	private static final int MSG_UPDATE_ITEM_AT = MSG_FIRST_ID + 706;
 	private static final int MSG_GET_ITEMS = MSG_FIRST_ID + 707;
+	private static final int MSG_SET_HEADER_TITLE = MSG_FIRST_ID + 708;
+	private static final int MSG_SET_FOOTER_TITLE = MSG_FIRST_ID + 709;
+	private static final int MSG_SET_HEADER_VIEW = MSG_FIRST_ID + 710;
+	private static final int MSG_SET_FOOTER_VIEW = MSG_FIRST_ID + 711;
+
+
 
 	
 	@Override
@@ -106,6 +119,26 @@ public class CollectionSectionProxy extends TiViewProxy{
 	}
 	
 	public void handleCreationDict(KrollDict dict) {
+		//getting header/footer titles from creation dictionary
+		if (dict.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
+			headerTitle = TiConvert.toString(dict, TiC.PROPERTY_HEADER_TITLE);
+		}
+		if (dict.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
+			footerTitle = TiConvert.toString(dict, TiC.PROPERTY_FOOTER_TITLE);
+		}
+		if (dict.containsKey(TiC.PROPERTY_HEADER_VIEW)) {
+			Object obj = dict.get(TiC.PROPERTY_HEADER_VIEW);
+			if (obj instanceof TiViewProxy) {
+				headerView = (TiViewProxy) obj;
+			}
+		}
+		if (dict.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
+			Object obj = dict.get(TiC.PROPERTY_FOOTER_VIEW);
+			if (obj instanceof TiViewProxy) {
+				footerView = (TiViewProxy) obj;
+			}
+		}
+
 		if (dict.containsKey(TiC.PROPERTY_ITEMS)) {
 			handleSetItems(dict.get(TiC.PROPERTY_ITEMS));
 		}
@@ -114,6 +147,81 @@ public class CollectionSectionProxy extends TiViewProxy{
 	public void setAdapter(TiBaseAdapter a) {
 		adapter = a;
 	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setHeaderView(TiViewProxy headerView) {
+		if (TiApplication.isUIThread()) {
+			handleSetHeaderView(headerView);
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_HEADER_VIEW), headerView);
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public TiViewProxy getHeaderView() {
+		return headerView;
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setFooterView(TiViewProxy footerView) {
+		if (TiApplication.isUIThread()) {
+			handleSetFooterView(footerView);
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_FOOTER_VIEW), footerView);
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public TiViewProxy getFooterView() {
+		return footerView;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setHeaderTitle(String headerTitle) {
+		if (TiApplication.isUIThread()) {
+			handleSetHeaderTitle(headerTitle);
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_HEADER_TITLE), headerTitle);
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getHeaderTitle() {
+		return headerTitle;
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setFooterTitle(String footerTitle) {
+		if (TiApplication.isUIThread()) {
+			handleSetFooterTitle(footerTitle);
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_FOOTER_TITLE), footerTitle);
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getFooterTitle() {
+		return footerTitle;
+	}
+	
+	public String getHeaderOrFooterTitle(int index) {
+		if (isHeaderTitle(index)) {
+			return headerTitle;
+		} else if (isFooterTitle(index)) {
+			return footerTitle;
+		}
+		return "";
+	}
+
+	public View getHeaderOrFooterView(int index) {
+		if (isHeaderView(index)) {
+			return getListView().layoutHeaderOrFooterView(headerView);
+		} else if (isFooterView(index)) {
+			return getListView().layoutHeaderOrFooterView(footerView);
+		}
+		return null;
+	}
+
 
 
 	@Override
@@ -127,6 +235,35 @@ public class CollectionSectionProxy extends TiViewProxy{
 				result.setResult(null);
 				return true;
 			}
+			
+			case MSG_SET_HEADER_TITLE: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetHeaderTitle(TiConvert.toString(result.getArg()));
+				result.setResult(null);
+				return true;
+			}
+
+			case MSG_SET_FOOTER_TITLE: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetFooterTitle(TiConvert.toString(result.getArg()));
+				result.setResult(null);
+				return true;
+			}
+
+			case MSG_SET_HEADER_VIEW: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetHeaderView((TiViewProxy)result.getArg());
+				result.setResult(null);
+				return true;
+			}
+
+			case MSG_SET_FOOTER_VIEW: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetFooterView((TiViewProxy)result.getArg());
+				result.setResult(null);
+				return true;
+			}
+
 
 			case MSG_GET_ITEMS: {
 				AsyncResult result = (AsyncResult) msg.obj;
@@ -372,6 +509,35 @@ public class CollectionSectionProxy extends TiViewProxy{
 			Log.e(TAG, "Invalid argument type to setData", Log.DEBUG_MODE);
 		}
 	}
+	
+	private void handleSetHeaderTitle(String headerTitle) {
+		this.headerTitle = headerTitle;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+
+	private void handleSetFooterTitle(String footerTitle) {
+		this.footerTitle = footerTitle;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+
+	private void handleSetHeaderView(TiViewProxy headerView) {
+		this.headerView = headerView;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+
+	private void handleSetFooterView(TiViewProxy footerView) {
+		this.footerView = footerView;
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+
 	
 	private void handleAppendItems(Object data) {
 		if (data instanceof Object[]) {
@@ -662,6 +828,10 @@ public class CollectionSectionProxy extends TiViewProxy{
 	}
 	
 	public CollectionViewTemplate getTemplateByIndex(int index) {
+		if (headerTitle != null || headerView != null) {
+			index -= 1;
+		}
+
 		
 		if (isFilterOn()) {
 			return listItemData.get(filterIndices.get(index)).getTemplate();
@@ -689,9 +859,42 @@ public class CollectionSectionProxy extends TiViewProxy{
 		} else { 
 			totalCount = itemCount;
 		}
+		
+		if (!hideHeaderOrFooter()) {
+			if (headerTitle != null || headerView != null) {
+				totalCount += 1;
+			}
+			if (footerTitle != null || footerView != null) {
+				totalCount +=1;
+			}
+		}
+
 
 		return totalCount;
 	}
+	
+	private boolean hideHeaderOrFooter() {
+		CollectionView listview = getListView();
+		return (listview.getSearchText() != null && filterIndices.isEmpty());
+	}
+	
+	public boolean isHeaderView(int pos) {
+		return (headerView != null && pos == 0);
+	}
+	
+	public boolean isFooterView(int pos) {
+		return (footerView != null && pos == getItemCount() - 1);
+	}
+
+	public boolean isHeaderTitle(int pos) {
+		return (headerTitle != null && pos == 0) ;
+	}
+	
+	public boolean isFooterTitle(int pos) {
+		return (footerTitle != null && pos == getItemCount() - 1);
+	}
+	
+
 	
 	public void setListView(CollectionView l) {
 		listView = new WeakReference<CollectionView>(l);
