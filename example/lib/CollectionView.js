@@ -1,3 +1,10 @@
+/**
+ * Helper library for TiCollectionView module
+ * Remember to include this file in the project
+ * @see https://github.com/mpociot/TiCollectionView
+ * @version 1.1
+ */
+
 function createCollectionView(options) {
 	if( OS_IOS )
 	{
@@ -11,9 +18,8 @@ function createCollectionView(options) {
 		//process child templates
 		processChildTemplates(currentTemplate);
 	}
-	Ti.API.info( JSON.stringify(options) );
-	var listView = require("de.marcelpociot.collectionview").createCollectionView(options);
 	
+	var listView = require("de.marcelpociot.collectionview").createCollectionView(options);
 	return listView;
 }
 
@@ -78,6 +84,17 @@ function lookup(name) {
 
 	var proxyName = name.slice(lastDotIndex + 1);
 	return proxy['create' + proxyName];
+}
+
+
+/**
+ * This method is never used. 
+ * Its only here to trigger the Titanium SDK compiler to include the SDKs needed
+ */
+function dummyMethodToTriggerTitaniumSDK(){
+	Ti.UI.createListView();
+	Ti.UI.createTableView();
+	Ti.UI.createRefreshControl();
 }
 
 exports.createCollectionView = createCollectionView;
