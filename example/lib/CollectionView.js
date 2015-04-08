@@ -1,3 +1,8 @@
+// The two following statements are required so Titanium can detect the 
+// use of ListView and RefreshControl at compile time. 
+Ti.UI.createListView();
+Ti.UI.createRefreshControl();
+
 function createCollectionView(options) {
 	if( OS_IOS )
 	{
