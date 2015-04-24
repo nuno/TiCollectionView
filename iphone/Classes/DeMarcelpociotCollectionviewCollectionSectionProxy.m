@@ -294,7 +294,7 @@
 		NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
 		BOOL forceReload = NO;
 		if (!forceReload) {
-			DeMarcelpociotCollectionviewCollectionItem *cell = (DeMarcelpociotCollectionviewCollectionItem *)[tableView cellForRowAtIndexPath:[indexPaths objectAtIndex:0]];
+			DeMarcelpociotCollectionviewCollectionItem *cell = (DeMarcelpociotCollectionviewCollectionItem *)[tableView cellForItemAtIndexPath:[indexPaths objectAtIndex:0]];
 			if ((cell != nil) && ([cell canApplyDataItem:item])) {
 				cell.dataItem = item;
 			} else {
