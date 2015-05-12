@@ -95,5 +95,8 @@ MAKE_SYSTEM_PROP(DIRECTION_LEFT_TO_RIGHT,CHTCollectionViewWaterfallLayoutItemRen
 MAKE_SYSTEM_PROP(DIRECTION_RIGHT_TO_LEFT, CHTCollectionViewWaterfallLayoutItemRenderDirectionRightToLeft);
 MAKE_SYSTEM_PROP(DIRECTION_SHORTEST_FIRST, CHTCollectionViewWaterfallLayoutItemRenderDirectionShortestFirst);
 
+MAKE_SYSTEM_PROP(SCROLL_HORIZONTAL, kScrollHorizontal);
+MAKE_SYSTEM_PROP(SCROLL_VERTICAL, kScrollVertical);
+
 
 @end

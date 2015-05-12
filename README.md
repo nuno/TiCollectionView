@@ -49,6 +49,7 @@ The ListView API gets extended by these custom parameters:
 
 
 ### iOS specific configuration (Creation Only!)
+* `scrollDirection` _(SCROLL_HORIZONTAL | SCROLL_VERTICAL )_ Default: SCROLL_VERTICAL
 * `showContextMenu` _Boolean_ - Should we show a contextual menu on longpress? Default: NO
 * `contextMenuStrokeColor` _Color_ - The stroke color of the context Menu indicator
 * `contextMenuItems` _Array_ - An array of context menu items each item is an object with the following attributes
@@ -182,6 +183,10 @@ Vanilla JS:
 	
 	
 ## Changelog
+* v1.4.0
+	* _iOS only_ Added support for horizontal scrolling
+* v1.3.0
+	* _iOS only_ Added support for header and footer views
 * v1.2.0
 	* _iOS only_ Added support for longtouch context menus
 * v1.1.1

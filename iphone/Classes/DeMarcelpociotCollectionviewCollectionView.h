@@ -16,6 +16,11 @@ typedef enum {
     kLayoutTypeWaterfall
 } LayoutType;
 
+typedef enum {
+    kScrollHorizontal,
+    kScrollVertical
+} ScrollDirection;
+
 @interface DeMarcelpociotCollectionviewCollectionView : TiUIView <UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, DeMarcelpociotSearchDisplayDelegate, TiScrolling, TiProxyObserver, CHTCollectionViewDelegateWaterfallLayout, M13ContextMenuDelegate >
 
 #pragma mark - Private APIs

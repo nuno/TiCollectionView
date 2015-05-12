@@ -131,6 +131,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     LayoutConstraint* viewLayout = [theProxy layoutProperties];
     viewLayout->width = TiDimensionAutoFill;
     viewLayout->height = TiDimensionAutoSize;
+    
     return theProxy;
 }
 
@@ -156,7 +157,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)configureHeaders
 {
     NSLog(@"[INFO] configureHeaders called");
-    
+
     _headerViewProxy = [self initWrapperProxy];
     LayoutConstraint* viewLayout = [_headerViewProxy layoutProperties];
     viewLayout->layoutStyle = TiLayoutRuleVertical;
@@ -186,6 +187,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         } else {
             UICollectionViewFlowLayout* layout = [[UICollectionViewFlowLayout alloc] init];
             _collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
+            
+            ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
+            
+            if( scrollDirection == kScrollVertical )
+            {
+                [(UICollectionViewFlowLayout*) _collectionView.collectionViewLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
+            } else {
+                [(UICollectionViewFlowLayout*) _collectionView.collectionViewLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
+            }
+            
         }
         _collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         _collectionView.bounces = YES;
@@ -890,11 +901,27 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     NSLog(@"[INFO] Test: %@", UICollectionElementKindSectionHeader);
     UICollectionReusableView *reusableview = nil;
     
+    // If we use horizontal scrolling, we don't need "header" or "footer" views
+    LayoutType layoutType = [TiUtils intValue:[[self proxy] valueForKey:@"layout"] def:kLayoutTypeGrid];
+    ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
+    if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
+    {
+        return reusableview;
+    }
+    
     if ([kind isEqualToString:UICollectionElementKindSectionHeader]) {
         DeMarcelpociotCollectionviewHeaderFooterReusableView* headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView" forIndexPath:indexPath];
         
         CGFloat height = 0.0;
         CGFloat width = [self.collectionView bounds].size.width;
+        
+        LayoutType layoutType = [TiUtils intValue:[[self proxy] valueForKey:@"layout"] def:kLayoutTypeGrid];
+        ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
+        if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
+        {
+            width = 0.0;
+        }
+        
         TiViewProxy* viewProxy = (TiViewProxy*) _headerViewProxy;
         LayoutConstraint *viewLayout = [viewProxy layoutProperties];
         
@@ -1029,13 +1056,18 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 height+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
                 break;
         }
-
     }
-    NSLog(@"[INFO] header height: %f", height);
-    NSLog(@"[INFO] header height: %f", [_headerViewProxy autoHeightForSize:[self.collectionView bounds].size]);
-    NSLog(@"[INFO] header height: %f", [_headerViewProxy autoHeightForSize:[_headerViewProxy.view bounds].size]);
-    NSLog(@"[INFO] header size: %@", _headerViewProxy.view);
-    return CGSizeMake(self.collectionView.bounds.size.width, height);
+    
+    
+    LayoutType layoutType = [TiUtils intValue:[[self proxy] valueForKey:@"layout"] def:kLayoutTypeGrid];
+    ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
+    if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
+    {
+        width = 0.0;
+    } else {
+        width = self.collectionView.bounds.size.width;
+    }
+    return CGSizeMake(width, height);
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section
