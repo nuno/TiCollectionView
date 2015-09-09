@@ -76,12 +76,18 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     UILongPressGestureRecognizer *longPress;
     
     NSMutableDictionary* _measureProxies;
+    
+    BOOL canFireScrollStart;
+    BOOL canFireScrollEnd;
+    BOOL isScrollingToTop;
 }
 
 - (id)init
 {
     self = [super init];
     if (self) {
+        canFireScrollEnd = NO;
+        canFireScrollStart = YES;
         _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleDefault] retain];
         _defaultSeparatorInsets = UIEdgeInsetsZero;
     }
@@ -1167,14 +1173,68 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
 }
 
+
+
+
+
+
+// For now, this is fired on `scrollstart` and `scrollend`
+- (void)fireScrollEvent:(NSString*)eventName forTableView:(UICollectionView*)tableView
+{
+    if([(TiViewProxy*)[self proxy] _hasListeners:eventName checkParent:NO])
+    {
+        //NSArray* indexPaths = [tableView indexPathsForVisibleRows];
+        NSArray* indexPaths = [tableView indexPathsForVisibleItems];
+        NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+        
+        NSUInteger visibleItemCount = [indexPaths count];
+        
+        DeMarcelpociotCollectionviewCollectionSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
+        NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
+        
+        
+        
+        
+        [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+        [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+        [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+        [eventArgs setValue:section forKey:@"firstVisibleSection"];
+        [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+        
+        [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
+    }
+}
+
+- (void)fireScrollEnd:(UICollectionView*)tableView
+{
+    if(canFireScrollEnd) {
+        canFireScrollEnd = NO;
+        canFireScrollStart = YES;
+        [self fireScrollEvent:@"scrollend" forTableView:tableView];
+    }
+}
+- (void)fireScrollStart:(UICollectionView *)tableView
+{
+    if(canFireScrollStart) {
+        canFireScrollStart = NO;
+        canFireScrollEnd = YES;
+        [self fireScrollEvent:@"scrollstart" forTableView:tableView];
+    }
+}
+
+
+
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     //Events - None (maybe dragstart later)
+    [self fireScrollStart: (UICollectionView*)scrollView];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    //Events - pullend (maybe dragend later)
+    if(!decelerate) {
+        [self fireScrollEnd:(UICollectionView *)scrollView];
+    }
     if (![self.proxy _hasListeners:@"pullend"]) {
         return;
     }
@@ -1188,13 +1248,28 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    //Events - none (maybe scrollend later)
+    if(isScrollingToTop) {
+        isScrollingToTop = NO;
+    } else {
+        [self fireScrollEnd:(UICollectionView *)scrollView];
+    }
+}
+
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
+{
+    //[[ImageLoader sharedLoader] suspend];
+    isScrollingToTop = YES;
+    [self fireScrollStart:(UICollectionView*) scrollView];
+    return YES;
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
+    //[[ImageLoader sharedLoader] resume];
+    [self fireScrollEnd:(UICollectionView *)scrollView];
     //Events none (maybe scroll later)
 }
+
 
 #pragma mark - UISearchBarDelegate Methods
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
