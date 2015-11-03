@@ -29,5 +29,6 @@ Initalize a menu item with the given icons.
  The tint color of the item.
  */
 @property (nonatomic, retain) UIColor *tintColor;
+@property (nonatomic, retain) UIColor *highlightedTintColor;
 
 @end

@@ -35,6 +35,7 @@
         _selectedIcon = selected;
         _unselectedIcon = unselected;
         _tintColor = [UIColor colorWithRed:0.02 green:0.47 blue:1.0 alpha:1.0];
+        _highlightedTintColor = [UIColor whiteColor];
         [self setHighlighted:NO];
     }
     return self;
@@ -48,6 +49,7 @@
         _selectedIcon = item.selectedIcon;
         _unselectedIcon = item.unselectedIcon;
         _tintColor = item.tintColor;
+        _highlightedTintColor = item.highlightedTintColor;
         [self setHighlighted:item.highlighted];
     }
     return self;
@@ -58,7 +60,7 @@
     [super drawInContext:ctx];
     
     UIImage *image = self.highlighted ? _selectedIcon : _unselectedIcon;
-    UIColor *color = self.highlighted ? [UIColor whiteColor] : _tintColor;
+    UIColor *color = self.highlighted ? _highlightedTintColor : _tintColor;
     image = [self tintedImage:image WithColor:color];
     image = [self rotatedImage:image withOrientation:[UIApplication sharedApplication].statusBarOrientation];
     
@@ -105,7 +107,6 @@
 
 - (UIImage *)rotatedImage:(UIImage *)image withOrientation:(UIInterfaceOrientation)orientation
 {
-    return image;
     if (orientation != UIInterfaceOrientationPortrait) {
         CGFloat angle;
         if (orientation == UIInterfaceOrientationLandscapeLeft) {
