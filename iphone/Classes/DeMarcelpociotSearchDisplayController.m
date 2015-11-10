@@ -38,7 +38,7 @@
 }
 
 - (void)setActive:(BOOL)visible animated:(BOOL)animated {
-    NSLog(@"[INFO] setActive called");
+    DebugLog(@"[INFO] setActive called");
     if (!visible) {
         [_searchBar resignFirstResponder];
         _searchBar.text = nil;
