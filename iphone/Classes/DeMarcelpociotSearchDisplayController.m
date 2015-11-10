@@ -39,7 +39,6 @@
 }
 
 - (void)setActive:(BOOL)visible animated:(BOOL)animated {
-    DebugLog(@"[INFO] setActive called");
     if (!visible) {
         [_searchBar resignFirstResponder];
         _searchBar.text = nil;

@@ -36,8 +36,6 @@
 	// this method is called when the module is first loaded
 	// you *must* call the superclass
 	[super startup];
-
-	DebugLog(@"[INFO] %@ loaded",self);
 }
 
 -(void)shutdown:(id)sender
