@@ -353,6 +353,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     },NO);
 }
 
+
+
+
+
 -(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(DeMarcelpociotCollectionviewCollectionSectionProxy**)sectionResult
 {
     DeMarcelpociotCollectionviewCollectionSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
@@ -398,7 +402,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     NSIndexPath* indexPath = [self.collectionView indexPathForItemAtPoint:point];
     
-    [self.proxy fireEvent:@"contextMenuClick" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMINT(index),@"index",NUMINT(indexPath.row),@"itemIndex",NUMINT(indexPath.section), @"sectionIndex",nil]];
+    [self.proxy fireEvent:@"contextMenuClick" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMUINTEGER(index),@"index",NUMUINTEGER(indexPath.row),@"itemIndex",NUMUINTEGER(indexPath.section), @"sectionIndex",nil]];
 }
 
 
@@ -539,7 +543,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     [_collectionView reloadData];
     if ([searchController isActive]) {
-        [[searchController searchResultsTableView] reloadData];
+        [[searchController searchResultsCollectionView] reloadData];
     }
 }
 
@@ -647,6 +651,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     } else {
         keepSectionsInSearch = NO;
     }
+}
+
+-(void)setContentOffset_:(id)value withObject:(id)args
+{
+    CGPoint offset = [TiUtils pointValue:value];
+    BOOL animated = [TiUtils boolValue: [args valueForKey:@"animated"] def:NO];
+    [_collectionView setContentOffset:offset animated:animated];
 }
 
 -(void)setContentInsets_:(id)value withObject:(id)props
@@ -1175,35 +1186,40 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 
 
-
-
-
-// For now, this is fired on `scrollstart` and `scrollend`
 - (void)fireScrollEvent:(NSString*)eventName forTableView:(UICollectionView*)tableView
 {
     if([(TiViewProxy*)[self proxy] _hasListeners:eventName checkParent:NO])
     {
         //NSArray* indexPaths = [tableView indexPathsForVisibleRows];
         NSArray* indexPaths = [tableView indexPathsForVisibleItems];
-        NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
-        
-        NSUInteger visibleItemCount = [indexPaths count];
-        
-        DeMarcelpociotCollectionviewCollectionSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
         NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
+        TiUIListSectionProxy* section;
         
-        
-        
-        
-        [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
-        [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
-        [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
-        [eventArgs setValue:section forKey:@"firstVisibleSection"];
-        [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+        if ([indexPaths count] > 0) {
+            NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+            
+            NSUInteger visibleItemCount = [indexPaths count];
+            DeMarcelpociotCollectionviewCollectionSectionProxy *section = [[self listViewProxy] sectionForIndex: [indexPath section]];
+            
+            [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+            [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+            [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+            [eventArgs setValue:section forKey:@"firstVisibleSection"];
+            [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+        } else {
+            DeMarcelpociotCollectionviewCollectionSectionProxy *section = [[self listViewProxy] sectionForIndex: 0];
+            
+            [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItemIndex"];
+            [eventArgs setValue:NUMUINTEGER(0) forKey:@"visibleItemCount"];
+            [eventArgs setValue:NUMINTEGER(0) forKey:@"firstVisibleSectionIndex"];
+            [eventArgs setValue:section forKey:@"firstVisibleSection"];
+            [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
+        }
         
         [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
     }
 }
+
 
 - (void)fireScrollEnd:(UICollectionView*)tableView
 {
@@ -1222,17 +1238,20 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
 }
 
-
-
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    //Events - None (maybe dragstart later)
+    if ([self isLazyLoadingEnabled]) {
+                [[ImageLoader sharedLoader] suspend];
+            }
     [self fireScrollStart: (UICollectionView*)scrollView];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    if(!decelerate) {
+    if (!decelerate) {
+               if ([self isLazyLoadingEnabled]) {
+                       [[ImageLoader sharedLoader] resume];
+                    }
         [self fireScrollEnd:(UICollectionView *)scrollView];
     }
     if (![self.proxy _hasListeners:@"pullend"]) {
@@ -1240,14 +1259,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
         pullActive = NO;
-        
-        [self.proxy fireEvent:@"pullend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO
-                    errorCode:0 message:nil];
+        [self.proxy fireEvent:@"pullend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+    if ([self isLazyLoadingEnabled]) {
+                [[ImageLoader sharedLoader] resume];
+            }
     if(isScrollingToTop) {
         isScrollingToTop = NO;
     } else {
@@ -1257,7 +1277,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
-    //[[ImageLoader sharedLoader] suspend];
+    if ([self isLazyLoadingEnabled]) {
+                [[ImageLoader sharedLoader] suspend];
+            }
     isScrollingToTop = YES;
     [self fireScrollStart:(UICollectionView*) scrollView];
     return YES;
@@ -1265,10 +1287,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
-    //[[ImageLoader sharedLoader] resume];
+    if ([self isLazyLoadingEnabled]) {
+                [[ImageLoader sharedLoader] resume];
+            }
+    
     [self fireScrollEnd:(UICollectionView *)scrollView];
     //Events none (maybe scroll later)
 }
+
 
 
 #pragma mark - UISearchBarDelegate Methods
@@ -1376,6 +1402,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark - Internal Methods
 
+-(BOOL)isLazyLoadingEnabled
+{
+        return [TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES];
+    }
+
+
 - (void)fireClickForItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UICollectionView *)tableView accessoryButtonTapped:(BOOL)accessoryButtonTapped
 {
 	NSString *eventName = @"itemclick";
@@ -1386,8 +1418,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	NSDictionary *item = [section itemAtIndex:indexPath.row];
 	NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 										section, @"section",
-										NUMINT(indexPath.section), @"sectionIndex",
-										NUMINT(indexPath.row), @"itemIndex",
+										NUMUINTEGER(indexPath.section), @"sectionIndex",
+										NUMUINTEGER(indexPath.row), @"itemIndex",
 										NUMBOOL(accessoryButtonTapped), @"accessoryClicked",
 										nil];
 	id propertiesValue = [item objectForKey:@"properties"];
@@ -1504,6 +1536,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
     return [titleProxy autorelease];
 }
+
 
 @end
 

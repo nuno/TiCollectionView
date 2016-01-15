@@ -137,9 +137,17 @@
                 [indexPaths addObject:[NSIndexPath indexPathForRow:(minCount + i) inSection:_sectionIndex]];
             }
             if (newCount > oldCount) {
-                [tableView insertItemsAtIndexPaths:indexPaths];
+                [UIView animateWithDuration:0 animations:^{
+                    [tableView insertItemsAtIndexPaths:indexPaths];
+                } completion:nil];
+                
+                //[tableView insertItemsAtIndexPaths:indexPaths];
             } else {
-                [tableView deleteItemsAtIndexPaths:indexPaths];
+                [UIView animateWithDuration:0 animations:^{
+                    [tableView deleteItemsAtIndexPaths:indexPaths];
+                } completion:nil];
+                
+                //[tableView deleteItemsAtIndexPaths:indexPaths];
             }
             [indexPaths release];
         }];
@@ -151,7 +159,10 @@
                 for (NSUInteger i = 0; i < minCount; ++i) {
                     [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:_sectionIndex]];
                 }
-                [tableView  reloadItemsAtIndexPaths:indexPaths];
+                [UIView animateWithDuration:0 animations:^{
+                    [tableView  reloadItemsAtIndexPaths:indexPaths];
+                } completion:nil];
+                //[tableView  reloadItemsAtIndexPaths:indexPaths];
                 [indexPaths release];
             }];
         }
@@ -181,7 +192,12 @@
 		for (NSUInteger i = 0; i < count; ++i) {
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
-		[tableView insertItemsAtIndexPaths:indexPaths];
+        
+        [UIView animateWithDuration:0 animations:^{
+            [tableView insertItemsAtIndexPaths:indexPaths];
+        } completion:nil];
+        
+		
 		[indexPaths release];
 	}];
 }
@@ -208,10 +224,34 @@
 		for (NSUInteger i = 0; i < count; ++i) {
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
-		[tableView insertItemsAtIndexPaths:indexPaths];
+        
+        [UIView animateWithDuration:0 animations:^{
+            [tableView insertItemsAtIndexPaths:indexPaths];
+        } completion:nil];
+
 		[indexPaths release];
 	}];
 }
+
+
+
+/*
+ 
+ [UIView animateWithDuration:0 animations:^{
+ [tableView insertItemsAtIndexPaths:indexPaths];
+ } completion:nil];
+ 
+ 
+ 
+ 
+ [UIView animateWithDuration:0 animations:^{
+ [collectionView performBatchUpdates:^{
+ [collectionView reloadItemsAtIndexPaths:indexPaths];
+ } completion:nil];
+ }];
+ 
+ */
+
 
 - (void)replaceItemsAt:(id)args
 {
