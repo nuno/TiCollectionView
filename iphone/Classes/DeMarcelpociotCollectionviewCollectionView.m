@@ -321,7 +321,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void) updateIndicesForVisibleRows
 {
-    NSLog(@"[INFO] updateIndicesForVisibleRows");
+    //NSLog(@"[INFO] updateIndicesForVisibleRows");
     if (_collectionView == nil || [self isSearchActive]) {
         return;
     }
@@ -794,7 +794,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     id searchView = [self.proxy valueForKey:@"searchView"];
     if (!IS_NULL_OR_NIL(searchView)) {
-        DebugLog(@"Can not use searchText with searchView. Ignoring call.");
+        DLog(@"Can not use searchText with searchView. Ignoring call.");
         return;
     }
     self.searchString = [TiUtils stringValue:args];
@@ -939,6 +939,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
         if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
         {
+            
             width = 0.0;
         }
         
@@ -1083,6 +1084,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
     if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
     {
+        
+        
         width = 0.0;
     } else {
         width = self.collectionView.bounds.size.width;
