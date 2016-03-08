@@ -889,7 +889,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         templateId = _defaultItemTemplate;
     }
     NSString *cellIdentifier = [templateId isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUIListView__internal%@", templateId]: [templateId description];
-    NSLog(@"[INFO] Loading cell (Identifier: %@) section: %i - item %i", cellIdentifier, indexPath.section, indexPath.item);
+    //NSLog(@"[INFO] Loading cell (Identifier: %@) section: %i - item %i", cellIdentifier, indexPath.section, indexPath.item); <-------------
     DeMarcelpociotCollectionviewCollectionItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
     
     if( cell.proxy == nil )
@@ -939,7 +939,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
         if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
         {
-            
+            //[self.collectionView.collectionViewLayout invalidateLayout];//@TODO -<<< REVIEW NUNO
             width = 0.0;
         }
         
@@ -1017,7 +1017,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section
 {
-    NSLog(@"[INFO] referenceSizeForHeaderInSection");
+    //NSLog(@"[INFO] referenceSizeForHeaderInSection"); // <-------------------------
     NSInteger realSection = section;
     
     if (searchActive) {
@@ -1085,7 +1085,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
     {
         
-        
+        //[self.collectionView.collectionViewLayout invalidateLayout]; //@TODO -<<< REVIEW NUNO
         width = 0.0;
     } else {
         width = self.collectionView.bounds.size.width;
@@ -1110,7 +1110,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath;
 {
-    NSLog(@"[INFO] sizeForItemAtIndexPath");
+    //NSLog(@"[INFO] sizeForItemAtIndexPath"); //<-------------------------nuno
     NSIndexPath* realPath = [self pathForSearchPath:indexPath];
     
     id heightValue = [self valueWithKey:@"height" atIndexPath:realPath];
@@ -1125,7 +1125,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (widthValue != nil) {
         width = [TiUtils dimensionValue:widthValue].value;
     }
-    NSLog(@"[INFO] Size: %@",NSStringFromCGSize(CGSizeMake(width, height)));
+    //NSLog(@"[INFO] Size: %@",NSStringFromCGSize(CGSizeMake(width, height)));    //<-------------------------nuno
     return CGSizeMake(width, height);
 }
 
@@ -1448,7 +1448,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(CGFloat)contentWidthForWidth:(CGFloat)width
 {
-    NSLog(@"[INFO] contentWidthForWidth called");
+    //NSLog(@"[INFO] contentWidthForWidth called"); <---------
     return width;
 }
 
