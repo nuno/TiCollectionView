@@ -67,7 +67,7 @@
 - (void) deleteItemAtIndex:(NSUInteger)index
 {
     if ([_items count] <= index) {
-        DebugLog(@"[WARN] ListSectionProxy: deleteItemAtIndex index is out of range");
+        DLog(@"[WARN] ListSectionProxy: deleteItemAtIndex index is out of range");
     } else {
         [_items removeObjectAtIndex:index];
     }
@@ -76,7 +76,7 @@
 - (void) addItem:(NSDictionary*)item atIndex:(NSUInteger)index
 {
     if (index > [_items count]) {
-        DebugLog(@"[WARN] ListSectionProxy: addItem:atIndex: index is out of range");
+        DLog(@"[WARN] ListSectionProxy: addItem:atIndex: index is out of range");
     } else {
         if (index == [_items count]) {
             [_items addObject:item];
@@ -137,9 +137,17 @@
                 [indexPaths addObject:[NSIndexPath indexPathForRow:(minCount + i) inSection:_sectionIndex]];
             }
             if (newCount > oldCount) {
-                [tableView insertItemsAtIndexPaths:indexPaths];
+                [UIView animateWithDuration:0 animations:^{
+                    [tableView insertItemsAtIndexPaths:indexPaths];
+                } completion:nil];
+                
+                //[tableView insertItemsAtIndexPaths:indexPaths];
             } else {
-                [tableView deleteItemsAtIndexPaths:indexPaths];
+                [UIView animateWithDuration:0 animations:^{
+                    [tableView deleteItemsAtIndexPaths:indexPaths];
+                } completion:nil];
+                
+                //[tableView deleteItemsAtIndexPaths:indexPaths];
             }
             [indexPaths release];
         }];
@@ -151,7 +159,10 @@
                 for (NSUInteger i = 0; i < minCount; ++i) {
                     [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:_sectionIndex]];
                 }
-                [tableView  reloadItemsAtIndexPaths:indexPaths];
+                [UIView animateWithDuration:0 animations:^{
+                    [tableView  reloadItemsAtIndexPaths:indexPaths];
+                } completion:nil];
+                //[tableView  reloadItemsAtIndexPaths:indexPaths];
                 [indexPaths release];
             }];
         }
@@ -181,7 +192,12 @@
 		for (NSUInteger i = 0; i < count; ++i) {
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
-		[tableView insertItemsAtIndexPaths:indexPaths];
+        
+        [UIView animateWithDuration:0 animations:^{
+            [tableView insertItemsAtIndexPaths:indexPaths];
+        } completion:nil];
+        
+		
 		[indexPaths release];
 	}];
 }
@@ -199,7 +215,7 @@
 
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] < insertIndex) {
-			DebugLog(@"[WARN] ListView: Insert item index is out of range");
+			DLog(@"[WARN] ListView: Insert item index is out of range");
 			return;
 		}
 		[_items replaceObjectsInRange:NSMakeRange(insertIndex, 0) withObjectsFromArray:items];
@@ -208,10 +224,34 @@
 		for (NSUInteger i = 0; i < count; ++i) {
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
-		[tableView insertItemsAtIndexPaths:indexPaths];
+        
+        [UIView animateWithDuration:0 animations:^{
+            [tableView insertItemsAtIndexPaths:indexPaths];
+        } completion:nil];
+
 		[indexPaths release];
 	}];
 }
+
+
+
+/*
+ 
+ [UIView animateWithDuration:0 animations:^{
+ [tableView insertItemsAtIndexPaths:indexPaths];
+ } completion:nil];
+ 
+ 
+ 
+ 
+ [UIView animateWithDuration:0 animations:^{
+ [collectionView performBatchUpdates:^{
+ [collectionView reloadItemsAtIndexPaths:indexPaths];
+ } completion:nil];
+ }];
+ 
+ */
+
 
 - (void)replaceItemsAt:(id)args
 {
@@ -224,7 +264,7 @@
 
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] < insertIndex) {
-			DebugLog(@"[WARN] ListView: Replace item index is out of range");
+			DLog(@"[WARN] ListView: Replace item index is out of range");
 			return;
 		}
 		NSUInteger actualReplaceCount = MIN(replaceCount, [_items count]-insertIndex);
@@ -260,7 +300,7 @@
 	
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] <= deleteIndex) {
-			DebugLog(@"[WARN] ListView: Delete item index is out of range");
+			DLog(@"[WARN] ListView: Delete item index is out of range");
 			return;
 		}
 		NSUInteger actualDeleteCount = MIN(deleteCount, [_items count]-deleteIndex);
@@ -287,7 +327,7 @@
 	
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] <= itemIndex) {
-			DebugLog(@"[WARN] ListView: Update item index is out of range");
+			DLog(@"[WARN] ListView: Update item index is out of range");
 			return;
 		}
 		[_items replaceObjectAtIndex:itemIndex withObject:item];

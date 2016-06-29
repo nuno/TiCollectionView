@@ -151,7 +151,7 @@
 - (void) deleteSectionAtIndex:(NSUInteger)index
 {
     if ([_sections count] <= index) {
-        DebugLog(@"[WARN] ListViewProxy: Delete section index is out of range");
+        DLog(@"[WARN] ListViewProxy: Delete section index is out of range");
         return;
     }
     DeMarcelpociotCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:index];
@@ -265,7 +265,7 @@
 				section.sectionIndex = insertIndex;
 				[indexSet addIndex:insertIndex];
 			} else {
-				DebugLog(@"[WARN] ListView: Attempt to append exising section");
+				DLog(@"[WARN] ListView: Attempt to append exising section");
 			}
 		}];
 		if ([indexSet count] > 0) {
@@ -282,7 +282,7 @@
 	NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
 	[self dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_sections count] <= deleteIndex) {
-			DebugLog(@"[WARN] ListView: Delete section index is out of range");
+			DLog(@"[WARN] ListView: Delete section index is out of range");
 			return;
 		}
 		DeMarcelpociotCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:deleteIndex];
@@ -312,7 +312,7 @@
 	}];
 	[self dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_sections count] < insertIndex) {
-			DebugLog(@"[WARN] ListView: Insert section index is out of range");
+			DLog(@"[WARN] ListView: Insert section index is out of range");
 			[insertSections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
 				[self forgetProxy:section];
 			}];
@@ -327,7 +327,7 @@
 				[indexSet addIndex:index];
 				++index;
 			} else {
-				DebugLog(@"[WARN] ListView: Attempt to insert exising section");
+				DLog(@"[WARN] ListView: Attempt to insert exising section");
 			}
 		}];
 		[_sections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
@@ -349,11 +349,11 @@
 	[self rememberProxy:section];
 	[self dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_sections containsObject:section]) {
-			DebugLog(@"[WARN] ListView: Attempt to insert exising section");
+			DLog(@"[WARN] ListView: Attempt to insert exising section");
 			return;
 		}
 		if ([_sections count] <= replaceIndex) {
-			DebugLog(@"[WARN] ListView: Replace section index is out of range");
+			DLog(@"[WARN] ListView: Replace section index is out of range");
 			[self forgetProxy:section];
 			return;
 		}
@@ -380,7 +380,7 @@
         BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
         TiThreadPerformOnMainThread(^{
             if ([_sections count] <= sectionIndex) {
-                DebugLog(@"[WARN] ListView: Scroll to section index is out of range");
+                DLog(@"[WARN] ListView: Scroll to section index is out of range");
                 return;
             }
             DeMarcelpociotCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:sectionIndex];
@@ -398,12 +398,12 @@
         NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
         TiThreadPerformOnMainThread(^{
             if ([_sections count] <= sectionIndex) {
-                DebugLog(@"[WARN] ListView: Select section index is out of range");
+                DLog(@"[WARN] ListView: Select section index is out of range");
                 return;
             }
             DeMarcelpociotCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:sectionIndex];
             if (section.itemCount <= itemIndex) {
-                DebugLog(@"[WARN] ListView: Select item index is out of range");
+                DLog(@"[WARN] ListView: Select item index is out of range");
                 return;
             }
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
@@ -421,18 +421,36 @@
         NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
         TiThreadPerformOnMainThread(^{
             if ([_sections count] <= sectionIndex) {
-                DebugLog(@"[WARN] ListView: Select section index is out of range");
+                DLog(@"[WARN] ListView: Select section index is out of range");
                 return;
             }
             DeMarcelpociotCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:sectionIndex];
             if (section.itemCount <= itemIndex) {
-                DebugLog(@"[WARN] ListView: Select item index is out of range");
+                DLog(@"[WARN] ListView: Select item index is out of range");
                 return;
             }
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
             [self.listView.collectionView deselectItemAtIndexPath:indexPath animated:YES];
         }, NO);
     }
+}
+
+-(void)setContentOffset:(id)args
+{
+    id arg1;
+    id arg2;
+    if ([args isKindOfClass:[NSDictionary class]]) {
+        arg1 = args;
+        arg2 = nil;
+    }
+    else {
+        arg1 = [args objectAtIndex:0];
+        arg2 = [args count] > 1 ? [args objectAtIndex:1] : nil;
+    }
+    TiThreadPerformOnMainThread(^{
+        [self.listView setContentOffset_:arg1 withObject:arg2];
+    }, NO);
+    
 }
 
 -(void)setContentInsets:(id)args

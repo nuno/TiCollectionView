@@ -29,6 +29,7 @@ typedef enum {
 @property (nonatomic, readonly) BOOL isSearchActive;
 
 - (void)setDictTemplates_:(id)args;
+- (void)setContentOffset_:(id)value withObject:(id)args;
 - (void)setContentInsets_:(id)value withObject:(id)props;
 - (void)updateIndicesForVisibleRows;
 
