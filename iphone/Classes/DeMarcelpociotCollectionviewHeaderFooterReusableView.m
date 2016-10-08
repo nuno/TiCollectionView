@@ -12,7 +12,6 @@
 
 - (id)initWithFrame:(CGRect)frame
 {
-    NSLog(@"[INFO] initWithFrame");
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
@@ -25,7 +24,6 @@
 
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
-    NSLog(@"[INFO] initWithCoder");
     self = [super initWithCoder:aDecoder];
     if (self) {
         // Initialization code

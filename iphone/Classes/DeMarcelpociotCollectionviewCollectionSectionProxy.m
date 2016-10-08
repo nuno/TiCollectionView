@@ -67,7 +67,7 @@
 - (void) deleteItemAtIndex:(NSUInteger)index
 {
     if ([_items count] <= index) {
-        DebugLog(@"[WARN] ListSectionProxy: deleteItemAtIndex index is out of range");
+        DLog(@"[WARN] ListSectionProxy: deleteItemAtIndex index is out of range");
     } else {
         [_items removeObjectAtIndex:index];
     }
@@ -76,7 +76,7 @@
 - (void) addItem:(NSDictionary*)item atIndex:(NSUInteger)index
 {
     if (index > [_items count]) {
-        DebugLog(@"[WARN] ListSectionProxy: addItem:atIndex: index is out of range");
+        DLog(@"[WARN] ListSectionProxy: addItem:atIndex: index is out of range");
     } else {
         if (index == [_items count]) {
             [_items addObject:item];
@@ -199,7 +199,7 @@
 
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] < insertIndex) {
-			DebugLog(@"[WARN] ListView: Insert item index is out of range");
+			DLog(@"[WARN] ListView: Insert item index is out of range");
 			return;
 		}
 		[_items replaceObjectsInRange:NSMakeRange(insertIndex, 0) withObjectsFromArray:items];
@@ -224,7 +224,7 @@
 
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] < insertIndex) {
-			DebugLog(@"[WARN] ListView: Replace item index is out of range");
+			DLog(@"[WARN] ListView: Replace item index is out of range");
 			return;
 		}
 		NSUInteger actualReplaceCount = MIN(replaceCount, [_items count]-insertIndex);
@@ -260,7 +260,7 @@
 	
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] <= deleteIndex) {
-			DebugLog(@"[WARN] ListView: Delete item index is out of range");
+			DLog(@"[WARN] ListView: Delete item index is out of range");
 			return;
 		}
 		NSUInteger actualDeleteCount = MIN(deleteCount, [_items count]-deleteIndex);
@@ -287,7 +287,7 @@
 	
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] <= itemIndex) {
-			DebugLog(@"[WARN] ListView: Update item index is out of range");
+			DLog(@"[WARN] ListView: Update item index is out of range");
 			return;
 		}
 		[_items replaceObjectAtIndex:itemIndex withObject:item];

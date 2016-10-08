@@ -6,6 +6,7 @@
 //
 //
 
+#import "TiBase.h"
 #import "DeMarcelpociotSearchDisplayController.h"
 
 @implementation DeMarcelpociotSearchDisplayController
@@ -38,7 +39,6 @@
 }
 
 - (void)setActive:(BOOL)visible animated:(BOOL)animated {
-    NSLog(@"[INFO] setActive called");
     if (!visible) {
         [_searchBar resignFirstResponder];
         _searchBar.text = nil;
