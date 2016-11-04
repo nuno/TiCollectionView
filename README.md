@@ -1,9 +1,7 @@
 ###NOTE.
-
 The original work was done by *Marcel [ https://github.com/mpociot] * he passed the module to me for me continue his GREAT work, he  had  not the time to continue!
-
 ####I will need all the help possible to keep that module great!*
-
+---
 
 #TiCollectionView
 [![gittio](http://img.shields.io/badge/gittio-1.2.0-00B4CC.svg)](http://gitt.io/component/de.marcelpociot.collectionview)
