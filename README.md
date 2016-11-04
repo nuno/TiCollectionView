@@ -1,4 +1,4 @@
-###NOTE.
+###IMPORTANT TO NOTE:
 The original work was done by *Marcel [ https://github.com/mpociot] * he passed the module to me for me continue his GREAT work, he  had  not the time to continue!
 ####I will need all the help possible to keep that module great!*
 ---
