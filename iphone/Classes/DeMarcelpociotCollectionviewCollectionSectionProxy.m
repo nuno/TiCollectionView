@@ -37,16 +37,6 @@
     return self;
 }
 
-- (void)dealloc
-{
-	_delegate = nil;
-	[_items release];
-	[_headerTitle release];
-	[_footerTitle release];
-	[super dealloc];
-}
-
-
 - (id<DeMarcelpociotCollectionviewCollectionViewDelegate>)dispatcher
 {
 	return _delegate != nil ? _delegate : self;
@@ -93,7 +83,7 @@
 - (NSArray *)items
 {
 	return [self.dispatcher dispatchBlockWithResult:^() {
-		return [[_items copy] autorelease];
+		return [_items copy];
 	}];
 }
 
@@ -141,7 +131,6 @@
             } else {
                 [tableView deleteItemsAtIndexPaths:indexPaths];
             }
-            [indexPaths release];
         }];
         
         //Dispatch block for common items
@@ -152,7 +141,6 @@
                     [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:_sectionIndex]];
                 }
                 [tableView  reloadItemsAtIndexPaths:indexPaths];
-                [indexPaths release];
             }];
         }
         
@@ -182,7 +170,6 @@
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
 		[tableView insertItemsAtIndexPaths:indexPaths];
-		[indexPaths release];
 	}];
 }
 
@@ -209,7 +196,6 @@
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
 		[tableView insertItemsAtIndexPaths:indexPaths];
-		[indexPaths release];
 	}];
 }
 
@@ -244,7 +230,6 @@
 		if (count > 0) {
 			[tableView insertItemsAtIndexPaths:indexPaths];
 		}
-		[indexPaths release];
 	}];
 }
 
@@ -273,7 +258,6 @@
 			[indexPaths addObject:[NSIndexPath indexPathForRow:deleteIndex+i inSection:_sectionIndex]];
 		}
 		[tableView deleteItemsAtIndexPaths:indexPaths];
-		[indexPaths release];
 	}];
 }
 
@@ -304,7 +288,6 @@
 		if (forceReload) {
 			[tableView reloadItemsAtIndexPaths:indexPaths];
 		}
-		[indexPaths release];
 	}];
 }
 

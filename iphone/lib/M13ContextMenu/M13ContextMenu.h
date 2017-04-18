@@ -38,7 +38,7 @@
 
 @end
 
-@interface M13ContextMenu : UIView
+@interface M13ContextMenu : UIView <CAAnimationDelegate>
 
 /**@name Initalization*/
 /**

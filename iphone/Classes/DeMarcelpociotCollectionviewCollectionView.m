@@ -82,7 +82,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     self = [super init];
     if (self) {
-        _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleDefault] retain];
+        _defaultItemTemplate = NUMUINTEGER(UITableViewCellStyleDefault);
         _defaultSeparatorInsets = UIEdgeInsetsZero;
     }
     return self;
@@ -92,40 +92,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     _collectionView.delegate = nil;
     _collectionView.dataSource = nil;
-    [_collectionView release];
-    [_templates release];
-    [_defaultItemTemplate release];
     [_headerViewProxy setProxyObserver:nil];
     [_footerViewProxy setProxyObserver:nil];
     [_pullViewProxy setProxyObserver:nil];
-    RELEASE_TO_NIL(_searchString);
-    RELEASE_TO_NIL(_searchResults);
-    RELEASE_TO_NIL(_pullViewWrapper);
-    RELEASE_TO_NIL(_pullViewProxy);
-    RELEASE_TO_NIL(_headerViewProxy);
-    RELEASE_TO_NIL(_searchWrapper);
-    RELEASE_TO_NIL(_headerWrapper)
-    RELEASE_TO_NIL(_footerViewProxy);
-    RELEASE_TO_NIL(searchViewProxy);
-    RELEASE_TO_NIL(collectionController);
-    RELEASE_TO_NIL(searchController);
-    RELEASE_TO_NIL(sectionTitles);
-    RELEASE_TO_NIL(sectionIndices);
-    RELEASE_TO_NIL(filteredTitles);
-    RELEASE_TO_NIL(filteredIndices);
-    RELEASE_TO_NIL(_measureProxies);
-#ifdef USE_TI_UIREFRESHCONTROL
-    RELEASE_TO_NIL(_refreshControlProxy);
-#endif
-    
+
     contextMenu.delegate = nil;
-    RELEASE_TO_NIL(contextMenu);
-    
-    RELEASE_TO_NIL(longPress);
-    [super dealloc];
 }
 
--(TiViewProxy*)initWrapperProxy
+-(TiViewProxy*)initializeWrapperProxy
 {
     TiViewProxy* theProxy = [[TiViewProxy alloc] init];
     LayoutConstraint* viewLayout = [theProxy layoutProperties];
@@ -148,7 +122,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)configureFooter
 {
     if (_footerViewProxy == nil) {
-        _footerViewProxy = [self initWrapperProxy];
+        _footerViewProxy = [self initializeWrapperProxy];
         [self setHeaderFooter:_footerViewProxy isHeader:NO];
     }
     
@@ -158,13 +132,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     DLog(@"[INFO] configureHeaders called");
 
-    _headerViewProxy = [self initWrapperProxy];
+    _headerViewProxy = [self initializeWrapperProxy];
     LayoutConstraint* viewLayout = [_headerViewProxy layoutProperties];
     viewLayout->layoutStyle = TiLayoutRuleVertical;
     [self setHeaderFooter:_headerViewProxy isHeader:YES];
     
-    _searchWrapper = [self initWrapperProxy];
-    _headerWrapper = [self initWrapperProxy];
+    _searchWrapper = [self initializeWrapperProxy];
+    _headerWrapper = [self initializeWrapperProxy];
 
     [_headerViewProxy add:_searchWrapper];
     [_headerViewProxy add:_headerWrapper];
@@ -216,7 +190,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
         tapGestureRecognizer.delegate = self;
         [_collectionView addGestureRecognizer:tapGestureRecognizer];
-        [tapGestureRecognizer release];
 
         [self configureHeaders];
         
@@ -392,7 +365,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     NSIndexPath* indexPath = [self.collectionView indexPathForItemAtPoint:point];
     
-    [self.proxy fireEvent:@"contextMenuClick" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMINT(index),@"index",NUMINT(indexPath.row),@"itemIndex",NUMINT(indexPath.section), @"sectionIndex",nil]];
+    [self.proxy fireEvent:@"contextMenuClick" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMINTEGER(index),@"index",NUMINTEGER(indexPath.row),@"itemIndex",NUMINTEGER(indexPath.section), @"sectionIndex",nil]];
 }
 
 
@@ -454,8 +427,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     DLog(@"[INFO] buildResultsForSearchText");
     searchActive = ([self.searchString length] > 0);
-    RELEASE_TO_NIL(filteredIndices);
-    RELEASE_TO_NIL(filteredTitles);
+
     if (searchActive) {
         BOOL hasResults = NO;
         //Initialize
@@ -500,14 +472,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                         }
                     }
                 }
-                [thisSection release];
             }
         }
         if (singleSection != nil) {
             if ([singleSection count] > 0) {
                 [_searchResults addObject:singleSection];
             }
-            [singleSection release];
         }
         if (!hasResults) {
             if ([(TiViewProxy*)self.proxy _hasListeners:@"noresults" checkParent:NO]) {
@@ -517,7 +487,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         NSString* res = hasResults ? @"YES" : @"FALSE";
         DLog(@"[INFO] buildResultsForSearchText:Results -> %@", res);
     } else {
-        RELEASE_TO_NIL(_searchResults);
+        _searchResults = nil;
     }
 }
 
@@ -533,7 +503,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     [_collectionView reloadData];
     if ([searchController isActive]) {
-        [[searchController searchResultsTableView] reloadData];
+        [[searchController searchResultsCollectionView] reloadData];
     }
 }
 
@@ -566,10 +536,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 #ifdef USE_TI_UIREFRESHCONTROL
     ENSURE_SINGLE_ARG_OR_NIL(args,TiUIRefreshControlProxy);
     [[_refreshControlProxy control] removeFromSuperview];
-    RELEASE_TO_NIL(_refreshControlProxy);
     [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
     if (args != nil) {
-        _refreshControlProxy = [args retain];
+        _refreshControlProxy = args;
         [[self collectionView] addSubview:[_refreshControlProxy control]];
     }
 #endif
@@ -583,8 +552,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [_pullViewProxy windowWillClose];
         [_pullViewWrapper removeFromSuperview];
         [_pullViewProxy windowDidClose];
-        RELEASE_TO_NIL(_pullViewWrapper);
-        RELEASE_TO_NIL(_pullViewProxy);
     } else {
         if ([self collectionView].bounds.size.width==0)
         {
@@ -595,7 +562,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [_pullViewProxy setProxyObserver:nil];
             [_pullViewProxy windowWillClose];
             [_pullViewProxy windowDidClose];
-            RELEASE_TO_NIL(_pullViewProxy);
         }
         if (_pullViewWrapper == nil) {
             _pullViewWrapper = [[UIView alloc] init];
@@ -603,7 +569,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
         CGSize refSize = _collectionView.bounds.size;
         [_pullViewWrapper setFrame:CGRectMake(0.0, 0.0 - refSize.height, refSize.width, refSize.height)];
-        _pullViewProxy = [args retain];
+        _pullViewProxy = args;
         TiColor* pullBgColor = [TiUtils colorValue:[_pullViewProxy valueForUndefinedKey:@"pullBackgroundColor"]];
         _pullViewWrapper.backgroundColor = ((pullBgColor == nil) ? [UIColor lightGrayColor] : [pullBgColor color]);
         LayoutConstraint *viewLayout = [_pullViewProxy layoutProperties];
@@ -663,9 +629,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     ENSURE_TYPE_OR_NIL(args,NSDictionary);
     [[self proxy] replaceValue:args forKey:@"dictTemplates" notification:NO];
-    [_templates release];
     _templates = [args copy];
-    RELEASE_TO_NIL(_measureProxies);
     _measureProxies = [[NSMutableDictionary alloc] init];
     NSEnumerator *enumerator = [_templates keyEnumerator];
     id key;
@@ -709,7 +673,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	if (![args isKindOfClass:[NSString class]] && ![args isKindOfClass:[NSNumber class]]) {
 		ENSURE_TYPE_OR_NIL(args,NSString);
 	}
-	[_defaultItemTemplate release];
 	_defaultItemTemplate = [args copy];
 	if (_collectionView != nil) {
 		[_collectionView reloadData];
@@ -787,13 +750,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     ENSURE_TYPE_OR_NIL(args,TiUISearchBarProxy);
     [self collectionView];
     [searchViewProxy setDelegate:nil];
-    RELEASE_TO_NIL(searchViewProxy);
-    RELEASE_TO_NIL(collectionController);
-    RELEASE_TO_NIL(searchController);
     [_searchWrapper removeAllChildren:nil];
     
     if (args != nil) {
-        searchViewProxy = [args retain];
+        searchViewProxy = args;
         [searchViewProxy setDelegate:self];
         [_searchWrapper add:searchViewProxy];
         DLog(@"[INFO] setSearchView_ called: %@", searchViewProxy.view);
@@ -887,7 +847,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 //DLog(@"[INFO] Template found");
                 [cellProxy unarchiveFromTemplate:template];
         }
-        [cellProxy release];
     }
         //cellProxy = nil;
     cell.dataItem = item;
@@ -1308,8 +1267,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	NSDictionary *item = [section itemAtIndex:indexPath.row];
 	NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 										section, @"section",
-										NUMINT(indexPath.section), @"sectionIndex",
-										NUMINT(indexPath.row), @"itemIndex",
+										NUMINTEGER(indexPath.section), @"sectionIndex",
+										NUMINTEGER(indexPath.row), @"itemIndex",
 										NUMBOOL(accessoryButtonTapped), @"accessoryClicked",
 										nil];
 	id propertiesValue = [item objectForKey:@"properties"];
@@ -1327,7 +1286,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		}
 	}
 	[self.proxy fireEvent:eventName withObject:eventObject];
-	[eventObject release];	
 }
 
 -(CGFloat)contentWidthForWidth:(CGFloat)width
@@ -1370,8 +1328,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)clearSearchController:(id)sender
 {
     if (sender == self) {
-        RELEASE_TO_NIL(collectionController);
-        RELEASE_TO_NIL(searchController);
         [searchViewProxy ensureSearchBarHeirarchy];
     }
 }
@@ -1424,7 +1380,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     viewLayout->left = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
     viewLayout->right = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
 
-    return [titleProxy autorelease];
+    return titleProxy;
 }
 
 @end

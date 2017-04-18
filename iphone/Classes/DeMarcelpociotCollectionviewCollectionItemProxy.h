@@ -10,7 +10,7 @@
 @class DeMarcelpociotCollectionviewCollectionItem;
 @class DeMarcelpociotCollectionviewCollectionViewProxy;
 
-@interface DeMarcelpociotCollectionviewCollectionItemProxy : TiViewProxy < TiViewEventOverrideDelegate >
+@interface DeMarcelpociotCollectionviewCollectionItemProxy : TiViewProxy <TiViewEventOverrideDelegate, TiProxyDelegate>
 
 @property (nonatomic, readwrite, assign) DeMarcelpociotCollectionviewCollectionItem *listItem;
 @property (nonatomic, readwrite, retain) NSIndexPath *indexPath;

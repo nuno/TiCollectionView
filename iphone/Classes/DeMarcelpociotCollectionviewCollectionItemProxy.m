@@ -72,12 +72,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     return self;
 }
 
--(void)dealloc
-{
-	[_indexPath release];
-	[super dealloc];
-}
-
 - (TiUIView *)view
 {
 	return nil;
@@ -115,8 +109,8 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 - (NSDictionary *)overrideEventObject:(NSDictionary *)eventObject forEvent:(NSString *)eventType fromViewProxy:(TiViewProxy *)viewProxy
 {
 	NSMutableDictionary *updatedEventObject = [eventObject mutableCopy];
-	[updatedEventObject setObject:NUMINT(_indexPath.section) forKey:@"sectionIndex"];
-	[updatedEventObject setObject:NUMINT(_indexPath.row) forKey:@"itemIndex"];
+	[updatedEventObject setObject:NUMINTEGER(_indexPath.section) forKey:@"sectionIndex"];
+	[updatedEventObject setObject:NUMINTEGER(_indexPath.row) forKey:@"itemIndex"];
 	[updatedEventObject setObject:[_listViewProxy sectionForIndex:_indexPath.section] forKey:@"section"];
 	id propertiesValue = [_listItem.dataItem objectForKey:@"properties"];
 	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -128,7 +122,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 	if (bindId != nil) {
 		[updatedEventObject setObject:bindId forKey:@"bindId"];
 	}
-	return [updatedEventObject autorelease];
+	return updatedEventObject;
 }
 
 @end

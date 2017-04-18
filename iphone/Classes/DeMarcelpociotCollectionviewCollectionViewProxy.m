@@ -47,12 +47,8 @@
 
 - (void)dealloc
 {
-	[_operationQueue release];
 	pthread_mutex_destroy(&_operationQueueMutex);
 	pthread_rwlock_destroy(&_markerLock);
-	[_sections release];
-	RELEASE_TO_NIL(marker);
-    [super dealloc];
 }
 
 - (DeMarcelpociotCollectionviewCollectionView *)listView
@@ -78,7 +74,7 @@
 	BOOL triggerMainThread;
 	pthread_mutex_lock(&_operationQueueMutex);
 	triggerMainThread = [_operationQueue count] == 0;
-	[_operationQueue addObject:Block_copy(block)];
+	[_operationQueue addObject:(id)block];
     pthread_mutex_unlock(&_operationQueueMutex);
 	if (triggerMainThread) {
 		TiThreadPerformOnMainThread(^{
@@ -109,9 +105,9 @@
 	
 	__block id result = nil;
 	TiThreadPerformOnMainThread(^{
-		result = [block() retain];
+        result = block();
 	}, YES);
-	return [result autorelease];
+    return result;
 }
 
 - (void)processUpdateActions
@@ -131,7 +127,6 @@
 		pthread_mutex_unlock(&_operationQueueMutex);
 		if (block != nil) {
 			block(tableView);
-			Block_release(block);
 		} else {
 			[self.listView updateIndicesForVisibleRows];
 			[self contentsWillChange];
@@ -198,13 +193,12 @@
 	TiThreadPerformOnMainThread(^{
 		[self.listView setDictTemplates_:templates];
 	}, NO);
-	[templates release];
 }
 
 - (NSArray *)sections
 {
 	return [self dispatchBlockWithResult:^() {
-		return [[_sections copy] autorelease];
+		return [_sections copy];
 	}];
 }
 
@@ -230,8 +224,7 @@
 				[self forgetProxy:section];
 			}
 		}];
-		[_sections release];
-		_sections = [insertedSections retain];
+		_sections = insertedSections;
 		[_sections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
 			section.delegate = self;
 			section.sectionIndex = idx;
@@ -239,7 +232,6 @@
 		[tableView reloadData];
 		[self contentsWillChange];
 	}];
-	[insertedSections release];
 }
 
 - (void)appendSection:(id)args
@@ -271,7 +263,6 @@
 		if ([indexSet count] > 0) {
 			[tableView insertSections:indexSet];
 		}
-		[indexSet release];
 	}];
 }
 
@@ -334,7 +325,6 @@
 			section.sectionIndex = idx;
 		}];
 		[tableView insertSections:indexSet];
-		[indexSet release];
 	}];
 }
 
@@ -459,8 +449,7 @@
     pthread_rwlock_wrlock(&_markerLock);
     int section = [TiUtils intValue:[args objectForKey:@"sectionIndex"] def:NSIntegerMax];
     int row = [TiUtils intValue:[args objectForKey:@"itemIndex"] def:NSIntegerMax];
-    RELEASE_TO_NIL(marker);
-    marker = [[NSIndexPath indexPathForRow:row inSection:section] retain];
+    marker = [NSIndexPath indexPathForRow:row inSection:section];
     pthread_rwlock_unlock(&_markerLock);
 }
 
@@ -474,7 +463,6 @@
         }
         if ( (indexPath.section > marker.section) || ( (marker.section == indexPath.section) && (indexPath.row >= marker.row) ) ){
             [self fireEvent:@"marker" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-            RELEASE_TO_NIL(marker);
         }
         pthread_rwlock_unlock(&_markerLock);
     }

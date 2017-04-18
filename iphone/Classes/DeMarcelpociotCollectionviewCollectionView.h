@@ -31,5 +31,6 @@ typedef enum {
 - (void)setDictTemplates_:(id)args;
 - (void)setContentInsets_:(id)value withObject:(id)props;
 - (void)updateIndicesForVisibleRows;
+- (void)updateSearchResults:(id)unused;
 
 @end
