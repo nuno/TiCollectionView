@@ -143,8 +143,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     LayoutType layoutType = [TiUtils intValue:[[self proxy] valueForKey:@"layout"] def:kLayoutTypeGrid];
     if (_collectionView == nil) {
         
-        if( layoutType == kLayoutTypeWaterfall )
-        {
+        if (layoutType == kLayoutTypeWaterfall) {
             CHTCollectionViewWaterfallLayout* layout = [[CHTCollectionViewWaterfallLayout alloc] init];
             layout.columnCount = [TiUtils intValue:[self.proxy valueForUndefinedKey:@"columnCount"] def:2];
             layout.minimumColumnSpacing = [TiUtils intValue:[self.proxy valueForUndefinedKey:@"minimumColumnSpacing"] def:2];
@@ -158,8 +157,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             
             ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
             
-            if( scrollDirection == kScrollVertical )
-            {
+            if (scrollDirection == kScrollVertical) {
                 [(UICollectionViewFlowLayout*) _collectionView.collectionViewLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
                 _collectionView.alwaysBounceVertical = YES;
             } else {
@@ -371,7 +369,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (searchActive) {
         BOOL hasResults = NO;
         //Initialize
-        if(_searchResults == nil) {
+        if (_searchResults == nil) {
             _searchResults = [[NSMutableArray alloc] init];
         }
         //Clear Out
@@ -452,7 +450,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (_searchResults != nil) {
         NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
         
-        if([sectionResults count] > indexPath.row) {
+        if ([sectionResults count] > indexPath.row) {
             return [sectionResults objectAtIndex:indexPath.row];
         }
     }
@@ -636,11 +634,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setHeaderView_:(id)args
 {
-    
     ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
     [self collectionView];
     [_headerWrapper removeAllChildren:nil];
-    if (args!=nil) {
+    
+    if (args != nil) {
         [_headerWrapper add:(TiViewProxy*) args];
         DLog(@"[INFO] setHeaderView_ called: %@", ((TiViewProxy*) args).view);
     }
@@ -648,22 +646,32 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)setScrollIndicatorStyle_:(id)value
 {
-	[self.collectionView setIndicatorStyle:[TiUtils intValue:value def:UIScrollViewIndicatorStyleDefault]];
+	[[self collectionView] setIndicatorStyle:[TiUtils intValue:value def:UIScrollViewIndicatorStyleDefault]];
 }
 
 - (void)setWillScrollOnStatusTap_:(id)value
 {
-	[self.collectionView setScrollsToTop:[TiUtils boolValue:value def:YES]];
+	[[self collectionView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
 }
 
 - (void)setShowVerticalScrollIndicator_:(id)value
 {
-	[self.collectionView setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
+	[[self collectionView] setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
 }
-
--(void)setAllowsSelection_:(id)value
+    
+- (void)setAllowsSelection_:(id)value
 {
     [[self collectionView] setAllowsSelection:[TiUtils boolValue:value]];
+}
+    
+- (void)setAllowsMultipleSelection_:(id)value
+{
+    [[self collectionView] setAllowsMultipleSelection:[TiUtils boolValue:value]];
+}
+
+- (void)setPrefetchingEnabled_:(id)value
+{
+    [[self collectionView] setPrefetchingEnabled:[TiUtils boolValue:value]];
 }
 
 #pragma mark - Search Support
@@ -771,8 +779,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     //DLog(@"[INFO] Loading cell (Identifier: %@) section: %i - item %i", cellIdentifier, indexPath.section, indexPath.item);
     DeMarcelpociotCollectionviewCollectionItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
     
-    if( cell.proxy == nil )
-    {
+    if (cell.proxy == nil) {
         //DLog(@"[INFO] Loading proxy for cell");
         id<TiEvaluator> context = self.listViewProxy.executionContext;
         if (context == nil) {
@@ -813,8 +820,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         
         LayoutType layoutType = [TiUtils intValue:[[self proxy] valueForKey:@"layout"] def:kLayoutTypeGrid];
         ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
-        if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
-        {
+        if (layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal) {
             width = 0.0;
         }
         
@@ -959,8 +965,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     LayoutType layoutType = [TiUtils intValue:[[self proxy] valueForKey:@"layout"] def:kLayoutTypeGrid];
     ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
-    if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
-    {
+    if (layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal) {
         width = 0.0;
     } else {
         width = self.collectionView.bounds.size.width;
@@ -1052,11 +1057,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         return;
     }
     
-    if ( (_pullViewProxy != nil) && ([scrollView isTracking]) ) {
-        if ( (scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO) ) {
+    if ((_pullViewProxy != nil) && ([scrollView isTracking])) {
+        if ((scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO)) {
             pullActive = YES;
             [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
-        } else if ( (scrollView.contentOffset.y > pullThreshhold) && (pullActive == YES) ) {
+        } else if ((scrollView.contentOffset.y > pullThreshhold) && (pullActive == YES)) {
             pullActive = NO;
             [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
         }
@@ -1075,7 +1080,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (![self.proxy _hasListeners:@"pullend"]) {
         return;
     }
-    if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
+    
+    if((_pullViewProxy != nil) && (pullActive == YES)) {
         pullActive = NO;
         
         [self.proxy fireEvent:@"pullend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO
