@@ -61,6 +61,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     BOOL editing;
     BOOL pruneSections;
     
+    BOOL canFireScrollStart;
+    BOOL canFireScrollEnd;
+    
     BOOL caseInsensitiveSearch;
     NSString* _searchString;
     BOOL searchActive;
@@ -77,6 +80,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     self = [super init];
     if (self) {
+        canFireScrollEnd = NO;
+        canFireScrollStart = YES;
+
         _defaultItemTemplate = NUMUINTEGER(UITableViewCellStyleDefault);
         _defaultSeparatorInsets = UIEdgeInsetsZero;
     }
@@ -242,7 +248,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
 	return (DeMarcelpociotCollectionviewCollectionViewProxy *)self.proxy;
 }
-
 
 - (void) updateIndicesForVisibleRows
 {
@@ -465,6 +470,55 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         return thePath.section;
     }
     return section;
+}
+
+// For now, this is fired on `scrollstart` and `scrollend`
+- (void)fireScrollEvent:(NSString *)eventName forCollectionView:(UICollectionView *)collectionVoew
+{
+    if ([(TiViewProxy*)[self proxy] _hasListeners:eventName checkParent:NO]) {
+        NSArray* indexPaths = [collectionVoew indexPathsForVisibleItems];
+        NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
+        DeMarcelpociotCollectionviewCollectionSectionProxy* section;
+        
+        if ([indexPaths count] > 0) {
+            NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+            NSUInteger visibleItemCount = [indexPaths count];
+            section = [[self listViewProxy] sectionForIndex: [indexPath section]];
+            
+            [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+            [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+            [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+            [eventArgs setValue:section forKey:@"firstVisibleSection"];
+            [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+        } else {
+            section = [[self listViewProxy] sectionForIndex: 0];
+            
+            [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItemIndex"];
+            [eventArgs setValue:NUMUINTEGER(0) forKey:@"visibleItemCount"];
+            [eventArgs setValue:NUMINTEGER(0) forKey:@"firstVisibleSectionIndex"];
+            [eventArgs setValue:section forKey:@"firstVisibleSection"];
+            [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
+        }
+        
+        [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
+    }
+}
+    
+- (void)fireScrollEnd:(UICollectionView *)collectionView
+{
+    if (canFireScrollEnd) {
+        canFireScrollEnd = NO;
+        canFireScrollStart = YES;
+        [self fireScrollEvent:@"scrollend" forCollectionView:collectionView];
+    }
+}
+- (void)fireScrollStart:(UICollectionView *)collectionView
+{
+    if(canFireScrollStart) {
+        canFireScrollStart = NO;
+        canFireScrollEnd = YES;
+        [self fireScrollEvent:@"scrollstart" forCollectionView:collectionView];
+    }
 }
 
 #pragma mark - Public API
@@ -1071,9 +1125,42 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    //Events - None (maybe dragstart later)
+//    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] suspend];
+//    }
+    
+    [self fireScrollStart:(UICollectionView*)scrollView];
+    
+    if ([self.proxy _hasListeners:@"dragstart"]) {
+        [self.proxy fireEvent:@"dragstart" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
 }
 
+-(void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
+{
+    if ([[self proxy] _hasListeners:@"scrolling"]) {
+        NSString* direction = nil;
+        
+        if (velocity.y > 0) {
+            direction = @"up";
+        }
+        
+        if (velocity.y < 0) {
+            direction = @"down";
+        }
+        
+        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                     @"targetContentOffset": NUMFLOAT(targetContentOffset->y),
+                                                                                     @"velocity": NUMFLOAT(velocity.y)
+                                                                                     }];
+        if (direction != nil) {
+            [event setValue:direction forKey:@"direction"];
+        }
+        
+        [[self proxy] fireEvent:@"scrolling" withObject:event];
+    }
+}
+    
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     //Events - pullend (maybe dragend later)
