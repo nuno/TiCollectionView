@@ -12,7 +12,7 @@ architectures: armv7 i386 x86_64 arm64
 
 # these should not be edited
 name: TiCollectionView
-moduleid: de.marcelpociot.collectionview
+moduleid: ti.collectionview
 guid: eef8bad5-aef3-49fb-bb8d-7cb781e9e7f5
 platform: iphone
 minsdk: 5.5.1.GA
