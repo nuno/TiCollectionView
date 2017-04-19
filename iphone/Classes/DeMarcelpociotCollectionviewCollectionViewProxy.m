@@ -242,8 +242,8 @@
 	if ([appendedSections count] == 0) {
 		return;
 	}
-	NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
-	[appendedSections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
+
+    [appendedSections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
 		ENSURE_TYPE(section, DeMarcelpociotCollectionviewCollectionSectionProxy);
 		[self rememberProxy:section];
 	}];
@@ -332,7 +332,6 @@
     NSUInteger replaceIndex = [TiUtils intValue:[args objectAtIndex:0]];
     DeMarcelpociotCollectionviewCollectionSectionProxy *section = [args objectAtIndex:1];
     ENSURE_TYPE_OR_NIL(section, DeMarcelpociotCollectionviewCollectionSectionProxy);
-    NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
 
     [self rememberProxy:section];
     [self dispatchUpdateAction:^(UICollectionView *tableView) {

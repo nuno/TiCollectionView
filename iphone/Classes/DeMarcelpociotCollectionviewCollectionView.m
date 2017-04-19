@@ -63,6 +63,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     BOOL canFireScrollStart;
     BOOL canFireScrollEnd;
+    BOOL isScrollingToTop;
     
     BOOL caseInsensitiveSearch;
     NSString* _searchString;
@@ -514,7 +515,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 }
 - (void)fireScrollStart:(UICollectionView *)collectionView
 {
-    if(canFireScrollStart) {
+    if (canFireScrollStart) {
         canFireScrollStart = NO;
         canFireScrollEnd = YES;
         [self fireScrollEvent:@"scrollstart" forCollectionView:collectionView];
@@ -1150,9 +1151,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
         
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
-                                                                                     @"targetContentOffset": NUMFLOAT(targetContentOffset->y),
-                                                                                     @"velocity": NUMFLOAT(velocity.y)
-                                                                                     }];
+            @"targetContentOffset": NUMFLOAT(targetContentOffset->y),
+            @"velocity": NUMFLOAT(velocity.y)
+        }];
+        
         if (direction != nil) {
             [event setValue:direction forKey:@"direction"];
         }
@@ -1171,19 +1173,29 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if((_pullViewProxy != nil) && (pullActive == YES)) {
         pullActive = NO;
         
-        [self.proxy fireEvent:@"pullend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO
-                    errorCode:0 message:nil];
+        [self.proxy fireEvent:@"pullend"];
     }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    //Events - none (maybe scrollend later)
+    if (isScrollingToTop) {
+        isScrollingToTop = NO;
+    } else {
+        [self fireScrollEnd:(UICollectionView *)scrollView];
+    }
+}
+    
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
+{
+    isScrollingToTop = YES;
+    [self fireScrollStart:(UICollectionView*) scrollView];
+    return YES;
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
-    //Events none (maybe scroll later)
+    [self fireScrollEnd:(UICollectionView *)scrollView];
 }
 
 #pragma mark - UISearchBarDelegate Methods
@@ -1393,28 +1405,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)handleTap:(UITapGestureRecognizer *)tapGestureRecognizer
 {
 	// Never called
-}
-
-#pragma mark - Static Methods
-
-+ (TiViewProxy*)titleViewForText:(NSString*)text inTable:(UITableView *)tableView footer:(BOOL)footer
-{
-    TiUILabelProxy* titleProxy = [[TiUILabelProxy alloc] init];
-    [titleProxy setValue:[NSDictionary dictionaryWithObjectsAndKeys:@"17",@"fontSize",@"bold",@"fontWeight", nil] forKey:@"font"];
-    [titleProxy setValue:text forKey:@"text"];
-    [titleProxy setValue:@"black" forKey:@"color"];
-    [titleProxy setValue:@"white" forKey:@"shadowColor"];
-    [titleProxy setValue:[NSDictionary dictionaryWithObjectsAndKeys:@"0",@"x",@"1",@"y", nil] forKey:@"shadowOffset"];
-    
-    LayoutConstraint *viewLayout = [titleProxy layoutProperties];
-    viewLayout->width = TiDimensionAutoFill;
-    viewLayout->height = TiDimensionAutoSize;
-    viewLayout->top = TiDimensionDip(10.0);
-    viewLayout->bottom = TiDimensionDip(10.0);
-    viewLayout->left = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
-    viewLayout->right = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
-
-    return titleProxy;
 }
 
 @end
