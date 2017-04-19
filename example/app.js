@@ -42,6 +42,10 @@ var collectionView = TiCollectionView.createCollectionView({
     horizontalSpacing: 10
 });
 
+collectionView.addEventListener('itemclick', function(e) {
+    alert('Tapped cell at section = ' + e.sectionIndex + ', item = ' + e.itemIndex);
+});
+
 var sections = [];
 
 var fruitSection = TiCollectionView.createCollectionSection({ headerTitle: 'Fruits / Frutas'});
