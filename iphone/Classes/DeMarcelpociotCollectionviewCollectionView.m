@@ -12,7 +12,6 @@
 #import "DeMarcelpociotCollectionviewCollectionItemProxy.h"
 #import "TiUILabelProxy.h"
 #import "TiUISearchBarProxy.h"
-#import "M13ContextMenuItemIOS7.h"
 #import "DeMarcelpociotCollectionviewHeaderFooterReusableView.h"
 #import "ImageLoader.h"
 #ifdef USE_TI_UIREFRESHCONTROL
@@ -49,8 +48,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     UICollectionViewController *collectionController;
     DeMarcelpociotSearchDisplayController *searchController;
     
-    M13ContextMenu * contextMenu;
-    
     NSMutableArray * sectionTitles;
     NSMutableArray * sectionIndices;
     NSMutableArray * filteredTitles;
@@ -64,8 +61,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     BOOL editing;
     BOOL pruneSections;
     
-    BOOL showContextMenu;
-
     BOOL caseInsensitiveSearch;
     NSString* _searchString;
     BOOL searchActive;
@@ -95,8 +90,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [_headerViewProxy setProxyObserver:nil];
     [_footerViewProxy setProxyObserver:nil];
     [_pullViewProxy setProxyObserver:nil];
-
-    contextMenu.delegate = nil;
 }
 
 -(TiViewProxy*)initializeWrapperProxy
@@ -192,36 +185,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [_collectionView addGestureRecognizer:tapGestureRecognizer];
 
         [self configureHeaders];
-        
-        // Create context menu
-        showContextMenu = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"showContextMenu"]];
-        
-        //Create the items
-        NSMutableArray *contextMenuItems = [[NSMutableArray alloc] init];
-        if( showContextMenu  )
-        {
-
-            NSArray *_menuItems = [self.proxy valueForUndefinedKey:@"contextMenuItems"];
-            ENSURE_ARRAY( _menuItems );
-            for( NSDictionary* contextItem in _menuItems )
-            {
-                UIImage* unselectedIcon = [TiUtils image:[contextItem valueForKey:@"unselected"] proxy:self.proxy];
-                UIImage* selectedIcon   = [TiUtils image:[contextItem valueForKey:@"selected"] proxy:self.proxy];
-                M13ContextMenuItemIOS7 *menuItem = [[M13ContextMenuItemIOS7 alloc] initWithUnselectedIcon:unselectedIcon selectedIcon:selectedIcon];
-                menuItem.tintColor  = [[TiUtils colorValue:[contextItem valueForKey:@"tintColor"]] color];
-                [contextMenuItems addObject:menuItem];
-            }
-        }
-        
-        contextMenu = [[M13ContextMenu alloc] initWithMenuItems:contextMenuItems];
-        contextMenu.delegate = self;
-        if( showContextMenu )
-        {
-            contextMenu.originationCircleStrokeColor = [[TiUtils colorValue:[self.proxy valueForKey:@"contextMenuStrokeColor"]] color];
-            //Create the gesture recognizer
-            longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:contextMenu action:@selector(showMenuUponActivationOfGetsure:)];
-            [_collectionView addGestureRecognizer:longPress];
-        }
     }
     
     if ([_collectionView superview] != self) {
@@ -345,29 +308,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     return nil;
 }
-
-#pragma mark - M13ContextMenuDelegate
-
-- (BOOL)shouldShowContextMenu:(M13ContextMenu *)contextMenu atPoint:(CGPoint)point
-{
-    if( showContextMenu == NO )
-    {
-        return NO;
-    }
-    
-    NSIndexPath* indexPath = [self.collectionView indexPathForItemAtPoint:point];
-    UICollectionViewCell* cell = [self.collectionView cellForItemAtIndexPath:indexPath];
-    
-    return cell != nil;
-}
-
-- (void)contextMenu:(M13ContextMenu *)contextMenu atPoint:(CGPoint)point didSelectItemAtIndex:(NSInteger)index
-{
-    NSIndexPath* indexPath = [self.collectionView indexPathForItemAtPoint:point];
-    
-    [self.proxy fireEvent:@"contextMenuClick" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMINTEGER(index),@"index",NUMINTEGER(indexPath.row),@"itemIndex",NUMINTEGER(indexPath.section), @"sectionIndex",nil]];
-}
-
 
 #pragma mark - Helper Methods
 
@@ -636,7 +576,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     while ((key = [enumerator nextObject])) {
         id template = [_templates objectForKey:key];
         if (template != nil) {
-            DeMarcelpociotCollectionviewCollectionItemProxy *theProxy = [[DeMarcelpociotCollectionviewCollectionItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:self.listViewProxy.pageContext];
+//            DeMarcelpociotCollectionviewCollectionItemProxy *theProxy = [[DeMarcelpociotCollectionviewCollectionItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:self.listViewProxy.pageContext];
             
             NSString *cellIdentifier = [key isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUIListView__internal%@", key]: [key description];
             DLog(@"[INFO] Registering class for identifier %@", cellIdentifier);
@@ -814,15 +754,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
     DeMarcelpociotCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
-    NSInteger maxItem = 0;
-    
-    if (_searchResults != nil && [_searchResults count] > indexPath.section) {
-        NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
-        maxItem = [sectionResults count];
-    } else {
-        maxItem = theSection.itemCount;
-    }
-    
+
     NSDictionary *item = [theSection itemAtIndex:realIndexPath.row];
     id templateId = [item objectForKey:@"template"];
     if (templateId == nil) {
@@ -862,8 +794,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     // If we use horizontal scrolling, we don't need "header" or "footer" views
     LayoutType layoutType = [TiUtils intValue:[[self proxy] valueForKey:@"layout"] def:kLayoutTypeGrid];
     ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
-    if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
-    {
+    if (layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal && reusableview != nil) {
         return reusableview;
     }
     
@@ -921,7 +852,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         reusableview = footerview;
     }
     
-    return reusableview;
+    if (reusableview != nil) {
+        return reusableview;
+    }
+    
+    return [UICollectionReusableView new]; // Cannot return nil, returning an empty view?
 }
 
 #pragma mark - UICollectionViewDelegate
@@ -965,7 +900,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
     }
     
-    DeMarcelpociotCollectionviewCollectionSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
     TiUIView *view = [self sectionView:realSection forLocation:@"headerView" section:nil];
     
     CGFloat height = 0.0;
@@ -997,8 +931,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         DLog(@"[INFO] section header size: %@", view);
         
         return CGSizeMake(width, height);
-    }
-    else {
+    } else {
         TiViewProxy* viewProxy = (TiViewProxy*) _headerViewProxy;
         LayoutConstraint *viewLayout = [viewProxy layoutProperties];
         switch (viewLayout->height.type)
@@ -1031,11 +964,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section
 {
     DLog(@"[INFO] referenceSizeForFooterInSection");
-    NSInteger realSection = section;
+    // Not currently used?
+    // NSInteger realSection = section;
     
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-            realSection = [self sectionForSearchSection:section];
+            // realSection = [self sectionForSearchSection:section];
         } else {
             return CGSizeZero;
         }

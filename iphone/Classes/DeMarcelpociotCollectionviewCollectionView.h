@@ -8,7 +8,6 @@
 #import "TiUIView.h"
 #import "DeMarcelpociotCollectionviewCollectionViewProxy.h"
 #import "CHTCollectionViewWaterfallLayout.h"
-#import "M13ContextMenu.h"
 #import "DeMarcelpociotSearchDisplayController.h"
 
 typedef enum {
@@ -21,7 +20,7 @@ typedef enum {
     kScrollVertical
 } ScrollDirection;
 
-@interface DeMarcelpociotCollectionviewCollectionView : TiUIView <UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, DeMarcelpociotSearchDisplayDelegate, TiScrolling, TiProxyObserver, CHTCollectionViewDelegateWaterfallLayout, M13ContextMenuDelegate >
+@interface DeMarcelpociotCollectionviewCollectionView : TiUIView <UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, DeMarcelpociotSearchDisplayDelegate, TiScrolling, TiProxyObserver, CHTCollectionViewDelegateWaterfallLayout>
 
 #pragma mark - Private APIs
 

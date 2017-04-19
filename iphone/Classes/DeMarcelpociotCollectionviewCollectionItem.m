@@ -314,20 +314,10 @@
     
     id selectedBackgroundGradientValue = [properties objectForKey:@"selectedBackgroundGradient"];
     if (IS_NULL_OR_NIL(selectedBackgroundGradientValue)) {
-        backgroundGradientValue = [_proxy valueForKey:@"selectedBackgroundGradient"];
+        selectedBackgroundGradientValue = [_proxy valueForKey:@"selectedBackgroundGradient"];
     }
     [self setSelectedBackgroundGradient_:selectedBackgroundGradientValue];
 	
-    id selectedbackgroundColorValue = [properties objectForKey:@"selectedBackgroundColor"];
-    if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-        selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundColor"];
-    }
-
-    id selectedBackgroundImageValue = [properties objectForKey:@"selectedBackgroundImage"];
-    if (IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
-        selectedBackgroundImageValue = [_proxy valueForKey:@"selectedBackgroundImage"];
-    }
-
 	[_resetKeys enumerateObjectsUsingBlock:^(NSString *keyPath, BOOL *stop) {
 		id value = [_initialValues objectForKey:keyPath];
 		[self setValue:(value != [NSNull null] ? value : nil) forKeyPath:keyPath];

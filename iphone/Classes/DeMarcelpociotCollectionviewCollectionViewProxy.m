@@ -270,7 +270,6 @@
 {
 	ENSURE_ARG_COUNT(args, 1);
 	NSUInteger deleteIndex = [TiUtils intValue:[args objectAtIndex:0]];
-	NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
 	[self dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_sections count] <= deleteIndex) {
 			DLog(@"[WARN] ListView: Delete section index is out of range");
@@ -296,7 +295,6 @@
 	if ([insertSections count] == 0) {
 		return;
 	}
-	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
 	[insertSections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
 		ENSURE_TYPE(section, DeMarcelpociotCollectionviewCollectionSectionProxy);
 		[self rememberProxy:section];
@@ -330,33 +328,35 @@
 
 - (void)replaceSectionAt:(id)args
 {
-	ENSURE_ARG_COUNT(args, 2);
-	NSUInteger replaceIndex = [TiUtils intValue:[args objectAtIndex:0]];
-	DeMarcelpociotCollectionviewCollectionSectionProxy *section = [args objectAtIndex:1];
-	ENSURE_TYPE_OR_NIL(section, DeMarcelpociotCollectionviewCollectionSectionProxy);
-	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
-	
-	[self rememberProxy:section];
-	[self dispatchUpdateAction:^(UICollectionView *tableView) {
-		if ([_sections containsObject:section]) {
-			DLog(@"[WARN] ListView: Attempt to insert exising section");
-			return;
-		}
-		if ([_sections count] <= replaceIndex) {
-			DLog(@"[WARN] ListView: Replace section index is out of range");
-			[self forgetProxy:section];
-			return;
-		}
-		DeMarcelpociotCollectionviewCollectionSectionProxy *prevSection = [_sections objectAtIndex:replaceIndex];
-		prevSection.delegate = nil;
-		[_sections replaceObjectAtIndex:replaceIndex withObject:section];
-		section.delegate = self;
-		section.sectionIndex = replaceIndex;
-		NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:replaceIndex];
-		[tableView deleteSections:indexSet];
-		[tableView insertSections:indexSet];
-		[self forgetProxy:prevSection];
-	}];
+    ENSURE_ARG_COUNT(args, 2);
+    NSUInteger replaceIndex = [TiUtils intValue:[args objectAtIndex:0]];
+    DeMarcelpociotCollectionviewCollectionSectionProxy *section = [args objectAtIndex:1];
+    ENSURE_TYPE_OR_NIL(section, DeMarcelpociotCollectionviewCollectionSectionProxy);
+    NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
+
+    [self rememberProxy:section];
+    [self dispatchUpdateAction:^(UICollectionView *tableView) {
+        if ([_sections containsObject:section]) {
+            DebugLog(@"[WARN] ListView: Attempt to insert exising section");
+            return;
+        }
+        if ([_sections count] <= replaceIndex) {
+            DebugLog(@"[WARN] ListView: Replace section index is out of range");
+            [self forgetProxy:section];
+            return;
+        }
+        DeMarcelpociotCollectionviewCollectionSectionProxy *prevSection = [_sections objectAtIndex:replaceIndex];
+        prevSection.delegate = nil;
+        if (section != nil) {
+            [_sections replaceObjectAtIndex:replaceIndex withObject:section];
+            section.delegate = self;
+            section.sectionIndex = replaceIndex;
+        }
+        NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:replaceIndex];
+        [tableView deleteSections:indexSet];
+        [tableView insertSections:indexSet];
+        [self forgetProxy:prevSection];
+    }];
 }
 
 - (void)scrollToItem:(id)args

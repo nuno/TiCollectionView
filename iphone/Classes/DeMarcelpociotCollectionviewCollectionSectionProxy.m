@@ -160,7 +160,6 @@
 		return;
 	}
 	ENSURE_TYPE_OR_NIL(items,NSArray);
-	NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		NSUInteger insertIndex = [_items count];
 		[_items addObjectsFromArray:items];
@@ -182,7 +181,6 @@
 		return;
 	}
 	ENSURE_TYPE_OR_NIL(items,NSArray);
-	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
 
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] < insertIndex) {
@@ -206,7 +204,6 @@
 	NSUInteger replaceCount = [TiUtils intValue:[args objectAtIndex:1]];
 	NSArray *items = [args objectAtIndex:2];
 	ENSURE_TYPE_OR_NIL(items,NSArray);
-	NSDictionary *properties = [args count] > 3 ? [args objectAtIndex:3] : nil;
 
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] < insertIndex) {
@@ -241,7 +238,6 @@
 	if (deleteCount == 0) {
 		return;
 	}
-	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
 	
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] <= deleteIndex) {
@@ -267,15 +263,18 @@
 	NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *item = [args objectAtIndex:1];
 	ENSURE_TYPE_OR_NIL(item,NSDictionary);
-	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
 	
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] <= itemIndex) {
 			DLog(@"[WARN] ListView: Update item index is out of range");
 			return;
 		}
-		[_items replaceObjectAtIndex:itemIndex withObject:item];
-		NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
+
+        if (item != nil) {
+            [_items replaceObjectAtIndex:itemIndex withObject:item];
+        }
+
+        NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
 		BOOL forceReload = NO;
 		if (!forceReload) {
 			DeMarcelpociotCollectionviewCollectionItem *cell = (DeMarcelpociotCollectionviewCollectionItem *)[tableView cellForItemAtIndexPath:[indexPaths objectAtIndex:0]];
