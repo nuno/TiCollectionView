@@ -513,6 +513,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [self fireScrollEvent:@"scrollend" forCollectionView:collectionView];
     }
 }
+    
 - (void)fireScrollStart:(UICollectionView *)collectionView
 {
     if (canFireScrollStart) {
@@ -520,6 +521,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         canFireScrollEnd = YES;
         [self fireScrollEvent:@"scrollstart" forCollectionView:collectionView];
     }
+}
+    
+- (BOOL)isLazyLoadingEnabled
+{
+    return [TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES];
 }
 
 #pragma mark - Public API
@@ -1126,9 +1132,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-//    if ([self isLazyLoadingEnabled]) {
+    if ([self isLazyLoadingEnabled]) {
         [[ImageLoader sharedLoader] suspend];
-//    }
+    }
     
     [self fireScrollStart:(UICollectionView*)scrollView];
     
@@ -1165,20 +1171,31 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    //Events - pullend (maybe dragend later)
-    if (![self.proxy _hasListeners:@"pullend"]) {
-        return;
+    if (!decelerate) {
+        if ([self isLazyLoadingEnabled]) {
+            [[ImageLoader sharedLoader] resume];
+        }
+        [self fireScrollEnd:(UICollectionView *)scrollView];
     }
     
-    if((_pullViewProxy != nil) && (pullActive == YES)) {
-        pullActive = NO;
-        
-        [self.proxy fireEvent:@"pullend"];
+    if ([[self proxy] _hasListeners:@"dragend"]) {
+        [[self proxy] fireEvent:@"dragend"];
+    }
+    
+    if ([[self proxy] _hasListeners:@"pullend"]) {
+        if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
+            pullActive = NO;
+            [[self proxy] fireEvent:@"pullend"];
+        }
     }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] resume];
+    }
+    
     if (isScrollingToTop) {
         isScrollingToTop = NO;
     } else {
@@ -1188,6 +1205,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] suspend];
+    }
+    
     isScrollingToTop = YES;
     [self fireScrollStart:(UICollectionView*) scrollView];
     return YES;
@@ -1195,6 +1216,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] resume];
+    }
+    
     [self fireScrollEnd:(UICollectionView *)scrollView];
 }
 
