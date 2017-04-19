@@ -1,5 +1,5 @@
 //
-//  DeMarcelpociotSearchDisplayController.m
+//  TiSearchDisplayController.m
 //  TiCollectionView
 //
 //  Created by Ayorinde Adesugba on 1/29/15.
@@ -7,9 +7,9 @@
 //
 
 #import "TiBase.h"
-#import "DeMarcelpociotSearchDisplayController.h"
+#import "TiSearchDisplayController.h"
 
-@implementation DeMarcelpociotSearchDisplayController
+@implementation TiSearchDisplayController
 
 - (id)initWithSearchBar:(UISearchBar *)searchBar contentsController:(UIViewController *)viewController {
     self = [super init];
@@ -74,8 +74,6 @@
         _searchResultsCollectionView.alpha = alpha;
     }
 }
-
-
 
 #pragma mark - UISearchBarDelegate
 

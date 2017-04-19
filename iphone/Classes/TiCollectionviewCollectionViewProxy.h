@@ -6,18 +6,18 @@
  */
 
 #import "TiViewProxy.h"
-#import "DeMarcelpociotCollectionviewCollectionSectionProxy.h"
+#import "TiCollectionviewCollectionSectionProxy.h"
 
-@interface DeMarcelpociotCollectionviewCollectionViewProxy : TiViewProxy < DeMarcelpociotCollectionviewCollectionViewDelegate >
+@interface TiCollectionviewCollectionViewProxy : TiViewProxy < TiCollectionviewCollectionViewDelegate >
 
 @property (nonatomic, readonly) NSArray *sections;
 @property (nonatomic, readonly) NSNumber *sectionCount;
 
-- (DeMarcelpociotCollectionviewCollectionSectionProxy *)sectionForIndex:(NSUInteger)index;
+- (TiCollectionviewCollectionSectionProxy *)sectionForIndex:(NSUInteger)index;
 - (void) deleteSectionAtIndex:(NSUInteger)index;
 - (void) setMarker:(id)args;
 @end
 
-@interface DeMarcelpociotCollectionviewCollectionViewProxy (internal)
+@interface TiCollectionviewCollectionViewProxy (internal)
 -(void)willDisplayCell:(NSIndexPath*)indexPath;
 @end

@@ -5,14 +5,14 @@
  * Copyright (c) 2014 Your Company. All rights reserved.
  */
 
-#import "DeMarcelpociotCollectionviewModule.h"
+#import "TiCollectionviewModule.h"
 #import "TiBase.h"
 #import "TiHost.h"
 #import "TiUtils.h"
-#import "DeMarcelpociotCollectionviewCollectionView.h"
+#import "TiCollectionviewCollectionView.h"
 #import "CHTCollectionViewWaterfallLayout.h"
 
-@implementation DeMarcelpociotCollectionviewModule
+@implementation TiCollectionviewModule
 
 
 #pragma mark Internal
@@ -26,7 +26,7 @@
 // this is generated for your module, please do not change it
 -(NSString*)moduleId
 {
-	return @"de.marcelpociot.collectionview";
+	return @"Ti.collectionview";
 }
 
 MAKE_SYSTEM_PROP(LAYOUT_GRID, kLayoutTypeGrid);

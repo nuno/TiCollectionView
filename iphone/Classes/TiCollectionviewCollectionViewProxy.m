@@ -5,16 +5,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "DeMarcelpociotCollectionviewCollectionViewProxy.h"
-#import "DeMarcelpociotCollectionviewCollectionView.h"
+#import "TiCollectionviewCollectionViewProxy.h"
+#import "TiCollectionviewCollectionView.h"
 #import "TiUtils.h"
 #import "TiViewTemplate.h"
 
-@interface DeMarcelpociotCollectionviewCollectionViewProxy ()
-@property (nonatomic, readwrite) DeMarcelpociotCollectionviewCollectionView *listView;
+@interface TiCollectionviewCollectionViewProxy ()
+@property (nonatomic, readwrite) TiCollectionviewCollectionView *listView;
 @end
 
-@implementation DeMarcelpociotCollectionviewCollectionViewProxy {
+@implementation TiCollectionviewCollectionViewProxy {
 	NSMutableArray *_sections;
 	NSMutableArray *_operationQueue;
 	pthread_mutex_t _operationQueueMutex;
@@ -24,7 +24,7 @@
 
 -(NSString*)apiName
 {
-    return @"de.marcelpociot.CollectionView";
+    return @"Ti.CollectionView";
 }
 
 - (id)init
@@ -51,9 +51,9 @@
 	pthread_rwlock_destroy(&_markerLock);
 }
 
-- (DeMarcelpociotCollectionviewCollectionView *)listView
+- (TiCollectionviewCollectionView *)listView
 {
-	return (DeMarcelpociotCollectionviewCollectionView *)self.view;
+	return (TiCollectionviewCollectionView *)self.view;
 }
 
 - (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block
@@ -135,7 +135,7 @@
 	}
 }
 
-- (DeMarcelpociotCollectionviewCollectionSectionProxy *)sectionForIndex:(NSUInteger)index
+- (TiCollectionviewCollectionSectionProxy *)sectionForIndex:(NSUInteger)index
 {
 	if (index < [_sections count]) {
 		return [_sections objectAtIndex:index];
@@ -149,10 +149,10 @@
         DLog(@"[WARN] ListViewProxy: Delete section index is out of range");
         return;
     }
-    DeMarcelpociotCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:index];
+    TiCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:index];
     [_sections removeObjectAtIndex:index];
     section.delegate = nil;
-    [_sections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
+    [_sections enumerateObjectsUsingBlock:^(TiCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
         section.sectionIndex = idx;
     }];
     [self forgetProxy:section];
@@ -213,19 +213,19 @@
 {
 	ENSURE_TYPE_OR_NIL(args,NSArray);
 	NSMutableArray *insertedSections = [args mutableCopy];
-	[insertedSections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
-		ENSURE_TYPE(section, DeMarcelpociotCollectionviewCollectionSectionProxy);
+	[insertedSections enumerateObjectsUsingBlock:^(TiCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
+		ENSURE_TYPE(section, TiCollectionviewCollectionSectionProxy);
 		[self rememberProxy:section];
 	}];
 	[self dispatchBlock:^(UICollectionView *tableView) {
-		[_sections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
+		[_sections enumerateObjectsUsingBlock:^(TiCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
 			section.delegate = nil;
 			if (![insertedSections containsObject:section]) {
 				[self forgetProxy:section];
 			}
 		}];
 		_sections = insertedSections;
-		[_sections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
+		[_sections enumerateObjectsUsingBlock:^(TiCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
 			section.delegate = self;
 			section.sectionIndex = idx;
 		}];
@@ -243,13 +243,13 @@
 		return;
 	}
 
-    [appendedSections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
-		ENSURE_TYPE(section, DeMarcelpociotCollectionviewCollectionSectionProxy);
+    [appendedSections enumerateObjectsUsingBlock:^(TiCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
+		ENSURE_TYPE(section, TiCollectionviewCollectionSectionProxy);
 		[self rememberProxy:section];
 	}];
 	[self dispatchUpdateAction:^(UICollectionView *tableView) {
 		NSMutableIndexSet *indexSet = [[NSMutableIndexSet alloc] init];
-		[appendedSections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
+		[appendedSections enumerateObjectsUsingBlock:^(TiCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
 			if (![_sections containsObject:section]) {
 				NSUInteger insertIndex = [_sections count];
 				[_sections addObject:section];
@@ -275,10 +275,10 @@
 			DLog(@"[WARN] ListView: Delete section index is out of range");
 			return;
 		}
-		DeMarcelpociotCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:deleteIndex];
+		TiCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:deleteIndex];
 		[_sections removeObjectAtIndex:deleteIndex];
 		section.delegate = nil;
-		[_sections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
+		[_sections enumerateObjectsUsingBlock:^(TiCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
 			section.sectionIndex = idx;
 		}];
 		[tableView deleteSections:[NSIndexSet indexSetWithIndex:deleteIndex]];
@@ -295,21 +295,21 @@
 	if ([insertSections count] == 0) {
 		return;
 	}
-	[insertSections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
-		ENSURE_TYPE(section, DeMarcelpociotCollectionviewCollectionSectionProxy);
+	[insertSections enumerateObjectsUsingBlock:^(TiCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
+		ENSURE_TYPE(section, TiCollectionviewCollectionSectionProxy);
 		[self rememberProxy:section];
 	}];
 	[self dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_sections count] < insertIndex) {
 			DLog(@"[WARN] ListView: Insert section index is out of range");
-			[insertSections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
+			[insertSections enumerateObjectsUsingBlock:^(TiCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
 				[self forgetProxy:section];
 			}];
 			return;
 		}
 		NSMutableIndexSet *indexSet = [[NSMutableIndexSet alloc] init];
 		__block NSUInteger index = insertIndex;
-		[insertSections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
+		[insertSections enumerateObjectsUsingBlock:^(TiCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
 			if (![_sections containsObject:section]) {
 				[_sections insertObject:section atIndex:index];
 				section.delegate = self;
@@ -319,7 +319,7 @@
 				DLog(@"[WARN] ListView: Attempt to insert exising section");
 			}
 		}];
-		[_sections enumerateObjectsUsingBlock:^(DeMarcelpociotCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
+		[_sections enumerateObjectsUsingBlock:^(TiCollectionviewCollectionSectionProxy *section, NSUInteger idx, BOOL *stop) {
 			section.sectionIndex = idx;
 		}];
 		[tableView insertSections:indexSet];
@@ -330,8 +330,8 @@
 {
     ENSURE_ARG_COUNT(args, 2);
     NSUInteger replaceIndex = [TiUtils intValue:[args objectAtIndex:0]];
-    DeMarcelpociotCollectionviewCollectionSectionProxy *section = [args objectAtIndex:1];
-    ENSURE_TYPE_OR_NIL(section, DeMarcelpociotCollectionviewCollectionSectionProxy);
+    TiCollectionviewCollectionSectionProxy *section = [args objectAtIndex:1];
+    ENSURE_TYPE_OR_NIL(section, TiCollectionviewCollectionSectionProxy);
 
     [self rememberProxy:section];
     [self dispatchUpdateAction:^(UICollectionView *tableView) {
@@ -344,7 +344,7 @@
             [self forgetProxy:section];
             return;
         }
-        DeMarcelpociotCollectionviewCollectionSectionProxy *prevSection = [_sections objectAtIndex:replaceIndex];
+        TiCollectionviewCollectionSectionProxy *prevSection = [_sections objectAtIndex:replaceIndex];
         prevSection.delegate = nil;
         if (section != nil) {
             [_sections replaceObjectAtIndex:replaceIndex withObject:section];
@@ -372,7 +372,7 @@
                 DLog(@"[WARN] ListView: Scroll to section index is out of range");
                 return;
             }
-            DeMarcelpociotCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+            TiCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:sectionIndex];
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:MIN(itemIndex, section.itemCount) inSection:sectionIndex];
             [self.listView.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
         }, [NSThread isMainThread]);
@@ -390,7 +390,7 @@
                 DLog(@"[WARN] ListView: Select section index is out of range");
                 return;
             }
-            DeMarcelpociotCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+            TiCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:sectionIndex];
             if (section.itemCount <= itemIndex) {
                 DLog(@"[WARN] ListView: Select item index is out of range");
                 return;
@@ -413,7 +413,7 @@
                 DLog(@"[WARN] ListView: Select section index is out of range");
                 return;
             }
-            DeMarcelpociotCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+            TiCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:sectionIndex];
             if (section.itemCount <= itemIndex) {
                 DLog(@"[WARN] ListView: Select item index is out of range");
                 return;

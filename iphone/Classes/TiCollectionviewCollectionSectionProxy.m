@@ -5,16 +5,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "DeMarcelpociotCollectionviewCollectionSectionProxy.h"
-#import "DeMarcelpociotCollectionviewCollectionViewProxy.h"
-#import "DeMarcelpociotCollectionviewCollectionView.h"
-#import "DeMarcelpociotCollectionviewCollectionItem.h"
+#import "TiCollectionviewCollectionSectionProxy.h"
+#import "TiCollectionviewCollectionViewProxy.h"
+#import "TiCollectionviewCollectionView.h"
+#import "TiCollectionviewCollectionItem.h"
 
-@interface DeMarcelpociotCollectionviewCollectionSectionProxy ()
-@property (nonatomic, readonly) id<DeMarcelpociotCollectionviewCollectionViewDelegate> dispatcher;
+@interface TiCollectionviewCollectionSectionProxy ()
+@property (nonatomic, readonly) id<TiCollectionviewCollectionViewDelegate> dispatcher;
 @end
 
-@implementation DeMarcelpociotCollectionviewCollectionSectionProxy {
+@implementation TiCollectionviewCollectionSectionProxy {
 	NSMutableArray *_items;
 }
 
@@ -25,7 +25,7 @@
 
 -(NSString*)apiName
 {
-    return @"de.marcelpociot.CollectionSection";
+    return @"Ti.CollectionSection";
 }
 
 - (id)init
@@ -37,7 +37,7 @@
     return self;
 }
 
-- (id<DeMarcelpociotCollectionviewCollectionViewDelegate>)dispatcher
+- (id<TiCollectionviewCollectionViewDelegate>)dispatcher
 {
 	return _delegate != nil ? _delegate : self;
 }
@@ -277,7 +277,7 @@
         NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
 		BOOL forceReload = NO;
 		if (!forceReload) {
-			DeMarcelpociotCollectionviewCollectionItem *cell = (DeMarcelpociotCollectionviewCollectionItem *)[tableView cellForItemAtIndexPath:[indexPaths objectAtIndex:0]];
+			TiCollectionviewCollectionItem *cell = (TiCollectionviewCollectionItem *)[tableView cellForItemAtIndexPath:[indexPaths objectAtIndex:0]];
 			if ((cell != nil) && ([cell canApplyDataItem:item])) {
 				cell.dataItem = item;
 			} else {

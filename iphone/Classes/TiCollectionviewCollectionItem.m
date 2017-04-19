@@ -4,14 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "DeMarcelpociotCollectionviewCollectionItem.h"
+#import "TiCollectionviewCollectionItem.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
 
-@implementation DeMarcelpociotCollectionviewCollectionItem {
-	DeMarcelpociotCollectionviewCollectionItemProxy *_proxy;
+@implementation TiCollectionviewCollectionItem {
+	TiCollectionviewCollectionItemProxy *_proxy;
 	NSInteger _templateStyle;
 	NSMutableDictionary *_initialValues;
 	NSMutableDictionary *_currentValues;
@@ -27,7 +27,7 @@
 @synthesize proxy = _proxy;
 @synthesize dataItem = _dataItem;
 
-- (void)initWithProxy:(DeMarcelpociotCollectionviewCollectionItemProxy *)proxy
+- (void)initWithProxy:(TiCollectionviewCollectionItemProxy *)proxy
 {
 		_templateStyle = TiUIListItemTemplateStyleCustom;
 		_initialValues = [[NSMutableDictionary alloc] initWithCapacity:10];

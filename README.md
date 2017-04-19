@@ -1,6 +1,6 @@
-# TiCollectionView
+# Ti.CollectionView
 
-[![gittio](https://img.shields.io/badge/gittio-2.0.0-00B4CC.svg)](http://gitt.io/component/de.marcelpociot.collectionview)
+[![gittio](https://img.shields.io/badge/gittio-2.0.0-00B4CC.svg)](http://gitt.io/component/ti.collectionview)
 [![License](http://img.shields.io/badge/license-MIT-orange.svg)](http://mit-license.org)
 [![Issues](https://img.shields.io/github/issues/nuno/TiCollectionView.svg)](https://github.com/nuno/TiCollectionView/issues)
 
@@ -25,10 +25,10 @@ It uses the Titanium `ItemTemplate` objects for the best performance.
 ![example](documentation/contextmenu.gif)
 
 ## Installation
-### Get it [![gitTio](http://gitt.io/badge.png)](http://gitt.io/component/de.marcelpociot.collectionview)
+### Get it [![gitTio](http://gitt.io/badge.png)](http://gitt.io/component/ti.collectionview)
 Download the latest distribution ZIP-file and consult the [Titanium Documentation](http://docs.appcelerator.com/titanium/latest/#!/guide/Using_a_Module) on how install it, or simply use the [gitTio CLI](http://gitt.io/cli):
 
-`$ gittio install de.marcelpociot.collectionview`
+`$ gittio install ti.collectionview`
 
 ### Important notes for Android
 In order to make this module work for Android, you need to use the provided "[CollectionView.js](lib/CollectionView.js)" CommonJS library.
@@ -90,19 +90,19 @@ Alloy:
 
 </Templates>
 
-<ListSection module="de.marcelpociot.collectionview" method="createCollectionSection">
+<ListSection module="ti.collectionview" method="createCollectionSection">
 
-    <ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" width="150" height="200" info:text="Apple" es_info:text="Manzana" />
-    <ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" width="150" height="200" info:text="Banana" es_info:text="Banana" />
-    <ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" width="150" height="200" info:text="Apple" es_info:text="Manzana" />
-    <ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" width="150" height="200" info:text="Banana" es_info:text="Banana" />
+    <ListItem module="ti.collectionview" method="createCollectionItem" width="150" height="200" info:text="Apple" es_info:text="Manzana" />
+    <ListItem module="ti.collectionview" method="createCollectionItem" width="150" height="200" info:text="Banana" es_info:text="Banana" />
+    <ListItem module="ti.collectionview" method="createCollectionItem" width="150" height="200" info:text="Apple" es_info:text="Manzana" />
+    <ListItem module="ti.collectionview" method="createCollectionItem" width="150" height="200" info:text="Banana" es_info:text="Banana" />
 </ListSection>
 </ListView>
 ```
 
 Vanilla JS:
 ```js
-var collectionView = require("de.marcelpociot.collectionview");
+var collectionView = require("ti.collectionview");
 
 var win = Ti.UI.createWindow({backgroundColor: 'white'});
 
@@ -183,8 +183,14 @@ win.open();
 ```
 	
 ## Changelog
-* v1.4.2
-  * _iOS only_ Move project to ARC, fix all warnings and compile errors, rebuild with 6.0.3.GA
+* v2.0.0
+  * _iOS only_ Move project to ARC, fix all warnings and compile errors
+  * _iOS only_ Fix main-thread execution
+  * _iOS only_ Rebuild with 6.0.3.GA
+  * _iOS only_ Rename project to "Ti.CollectionView"
+  * _iOS only_ Support for the "allowsMultipleSelection" property 
+  * _iOS only_ Support for the "contentOffset" property 
+  * _iOS only_ Support for the "scrollstart" and "scrollend" event 
 * v1.4.1
    * _iOS only_ Fix pull-to-refresh
 * v1.4.0

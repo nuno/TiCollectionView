@@ -2,7 +2,7 @@
  * This is a generated file. Do not edit or your changes will be lost
  */
 
-@interface DeMarcelpociotCollectionviewModuleAssets : NSObject
+@interface TiCollectionviewModuleAssets : NSObject
 {
 }
 - (NSData*) moduleAsset;

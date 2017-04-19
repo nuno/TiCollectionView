@@ -1,11 +1,11 @@
 /**
  * This is a generated file. Do not edit or your changes will be lost
  */
-#import "DeMarcelpociotCollectionviewModuleAssets.h"
+#import "TiCollectionviewModuleAssets.h"
 
 extern NSData* filterDataInRange(NSData* thedata, NSRange range);
 
-@implementation DeMarcelpociotCollectionviewModuleAssets
+@implementation TiCollectionviewModuleAssets
 
 - (NSData*) moduleAsset
 {

@@ -4,15 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "DeMarcelpociotCollectionviewCollectionItemProxy.h"
+#import "TiCollectionviewCollectionItemProxy.h"
 #import "TiUtils.h"
-#import "DeMarcelpociotCollectionviewCollectionItem.h"
-#import "DeMarcelpociotCollectionviewCollectionViewProxy.h"
+#import "TiCollectionviewCollectionItem.h"
+#import "TiCollectionviewCollectionViewProxy.h"
 
 static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventOverrideDelegate> eventOverrideDelegate);
 
-@implementation DeMarcelpociotCollectionviewCollectionItemProxy {
-	DeMarcelpociotCollectionviewCollectionViewProxy *_listViewProxy; // weak
+@implementation TiCollectionviewCollectionItemProxy {
+	TiCollectionviewCollectionViewProxy *_listViewProxy; // weak
 }
 
 @synthesize listItem = _listItem;
@@ -20,10 +20,10 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 -(NSString*)apiName
 {
-    return @"de.marcelpociot.CollectionItem";
+    return @"Ti.CollectionItem";
 }
 
-- (id)initWithListViewProxy:(DeMarcelpociotCollectionviewCollectionViewProxy *)listViewProxy inContext:(id<TiEvaluator>)context
+- (id)initWithListViewProxy:(TiCollectionviewCollectionViewProxy *)listViewProxy inContext:(id<TiEvaluator>)context
 {
     self = [self _initWithPageContext:context];
     if (self) {
