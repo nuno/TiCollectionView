@@ -548,6 +548,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         keepSectionsInSearch = NO;
     }
 }
+    
+-(void)setContentOffset_:(id)args
+{
+    TiThreadPerformOnMainThread(^{
+        [_collectionView setContentOffset:[TiUtils pointValue:args]];
+    }, NO);
+}
 
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
