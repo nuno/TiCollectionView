@@ -60,9 +60,12 @@
         alpha = 0.2;
     }
     
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
     if ([_searchContentsController.view respondsToSelector:@selector(scrollEnabled)]) {
         ((UIScrollView *)_searchContentsController.view).scrollEnabled = !visible;
     }
+#pragma clang diagnostic pop
     
     if (animated) {
         [UIView animateWithDuration:0.2 animations:^{

@@ -446,8 +446,8 @@
 {
     ENSURE_SINGLE_ARG(args, NSDictionary);
     pthread_rwlock_wrlock(&_markerLock);
-    int section = [TiUtils intValue:[args objectForKey:@"sectionIndex"] def:NSIntegerMax];
-    int row = [TiUtils intValue:[args objectForKey:@"itemIndex"] def:NSIntegerMax];
+    int section = [TiUtils intValue:[args objectForKey:@"sectionIndex"] def:-1];
+    int row = [TiUtils intValue:[args objectForKey:@"itemIndex"] def:-1];
     marker = [NSIndexPath indexPathForRow:row inSection:section];
     pthread_rwlock_unlock(&_markerLock);
 }
