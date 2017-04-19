@@ -1,7 +1,8 @@
-#TiCollectionView
-[![gittio](http://img.shields.io/badge/gittio-1.2.0-00B4CC.svg)](http://gitt.io/component/de.marcelpociot.collectionview)
+# TiCollectionView
+
+[![gittio](https://img.shields.io/badge/gittio-2.0.0-00B4CC.svg)](http://gitt.io/component/de.marcelpociot.collectionview)
 [![License](http://img.shields.io/badge/license-MIT-orange.svg)](http://mit-license.org)
-[![issues](http://img.shields.io/github/issues/mpociot/TiCollectionView.svg)](https://github.com/ricardoalcocer/actionbarextras/issues)
+[![Issues](https://img.shields.io/github/issues/nuno/TiCollectionView.svg)](https://github.com/nuno/TiCollectionView/issues)
 
 ## ⚠️ IMPORTANT TO NOTE:
 The original work was done by [Marcel Pociot](https://github.com/mpociot). He passed the module 
