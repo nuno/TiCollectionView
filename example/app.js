@@ -1,4 +1,4 @@
-var collectionView = require("de.marcelpociot.collectionview");
+var TiCollectionView = require("de.marcelpociot.collectionview");
 
 var win = Ti.UI.createWindow({
 	backgroundColor: 'white'
@@ -16,8 +16,7 @@ var myTemplate = {
                 font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
                 left: '60dp', top: 0,
             }
-        },
-        {                            // Subtitle
+        }, {                            // Subtitle
             type: 'Ti.UI.Label',     // Use a label for the subtitle
             bindId: 'es_info',       // Maps to a custom es_info property of the item data
             properties: {            // Sets the label properties
@@ -29,33 +28,13 @@ var myTemplate = {
     ]
 };
 
-var listView = require("CollectionView").createCollectionView({
+var collectionView = TiCollectionView.createCollectionView({
     backgroundColor: "white",
-    top: 0,
-    left: 0,
-    width: Ti.UI.FILL,
-    height: Ti.UI.FILL,
     // Maps myTemplate dictionary to 'template' string
     templates: { 'template': myTemplate },
     // Use 'template', that is, the myTemplate dict created earlier
     // for all items as long as the template property is not defined for an item.
     defaultItemTemplate: 'template',
-
-    // Context menu options
-    showContextMenu : true,
-    contextMenuStrokeColor : "red",
-    contextMenuItems : [
-        {
-            tintColor: "red",
-            selected: "/images/UploadIconSelected.png",
-            unselected:"/images/UploadIcon.png",
-        },
-        {
-            tintColor: "red",
-            selected: "/images/TrashIconSelected.png",
-            unselected:"/images/TrashIcon.png",
-        }
-    ],
 
     // ANDROID ONLY
     columnWidth: 150,
@@ -63,14 +42,9 @@ var listView = require("CollectionView").createCollectionView({
     horizontalSpacing: 10
 });
 
-listView.addEventListener("contextMenuClick", function(e)
-{
-    alert( "You clicked on menu item " + e.index + " - CollectionView item " + e.itemIndex );
-});
-
 var sections = [];
 
-var fruitSection = collectionView.createCollectionSection({ headerTitle: 'Fruits / Frutas'});
+var fruitSection = TiCollectionView.createCollectionSection({ headerTitle: 'Fruits / Frutas'});
 var fruitDataSet = [
     // the text property of info maps to the text property of the title label
     // the text property of es_info maps to text property of the subtitle label
@@ -81,8 +55,7 @@ var fruitDataSet = [
 fruitSection.setItems(fruitDataSet);
 sections.push(fruitSection);
 
-listView.setSections(sections);
-win.add(listView);
+collectionView.setSections(sections);
 
-
+win.add(collectionView);
 win.open();
