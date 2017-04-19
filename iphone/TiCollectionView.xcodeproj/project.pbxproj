@@ -126,24 +126,12 @@
 			isa = PBXGroup;
 			children = (
 				1EA7FA0C1A632C170090A8C4 /* CHTCollectionViewWaterfallLayout */,
-				B63B54F71BF1F9300027F0C7 /* DeMarcelpociotCollectionviewCollectionSectionProxy.h */,
-				B63B54F81BF1F9300027F0C7 /* DeMarcelpociotCollectionviewCollectionSectionProxy.m */,
-				B63B54FB1BF1F9480027F0C7 /* DeMarcelpociotSearchDisplayController.h */,
-				B63B54FC1BF1F9480027F0C7 /* DeMarcelpociotSearchDisplayController.m */,
-				B63B54FF1BF206E30027F0C7 /* DeMarcelpociotCollectionviewHeaderFooterReusableView.h */,
-				B63B55001BF206E30027F0C7 /* DeMarcelpociotCollectionviewHeaderFooterReusableView.m */,
-				1E65CF5E1A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionView.h */,
-				1E65CF5F1A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionView.m */,
-				1E65CF601A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.h */,
-				1E65CF611A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m */,
-				1E65CF5A1A12C0DF00187D0B /* DeMarcelpociotCollectionviewCollectionItemProxy.h */,
-				1E65CF5B1A12C0DF00187D0B /* DeMarcelpociotCollectionviewCollectionItemProxy.m */,
-				1E65CF561A12BDF800187D0B /* DeMarcelpociotCollectionviewCollectionItem.h */,
-				1E65CF571A12BDF800187D0B /* DeMarcelpociotCollectionviewCollectionItem.m */,
-				24DE9E0F11C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.h */,
-				24DE9E1011C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.m */,
-				24DD6CF71134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h */,
-				24DD6CF81134B3F500162E58 /* DeMarcelpociotCollectionviewModule.m */,
+				DBF01E4E1EA75A3400049682 /* Module */,
+				DBF01E4A1EA759DA00049682 /* Search */,
+				DBF01E491EA759D100049682 /* Section */,
+				DBF01E4D1EA759F800049682 /* Item */,
+				DBF01E4B1EA759E000049682 /* Header & Footer */,
+				DBF01E4C1EA759E900049682 /* Collection View */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -165,6 +153,66 @@
 				24DD6D1B1134B66800162E58 /* titanium.xcconfig */,
 			);
 			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		DBF01E491EA759D100049682 /* Section */ = {
+			isa = PBXGroup;
+			children = (
+				B63B54F71BF1F9300027F0C7 /* DeMarcelpociotCollectionviewCollectionSectionProxy.h */,
+				B63B54F81BF1F9300027F0C7 /* DeMarcelpociotCollectionviewCollectionSectionProxy.m */,
+			);
+			name = Section;
+			sourceTree = "<group>";
+		};
+		DBF01E4A1EA759DA00049682 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				B63B54FB1BF1F9480027F0C7 /* DeMarcelpociotSearchDisplayController.h */,
+				B63B54FC1BF1F9480027F0C7 /* DeMarcelpociotSearchDisplayController.m */,
+			);
+			name = Search;
+			sourceTree = "<group>";
+		};
+		DBF01E4B1EA759E000049682 /* Header & Footer */ = {
+			isa = PBXGroup;
+			children = (
+				B63B54FF1BF206E30027F0C7 /* DeMarcelpociotCollectionviewHeaderFooterReusableView.h */,
+				B63B55001BF206E30027F0C7 /* DeMarcelpociotCollectionviewHeaderFooterReusableView.m */,
+			);
+			name = "Header & Footer";
+			sourceTree = "<group>";
+		};
+		DBF01E4C1EA759E900049682 /* Collection View */ = {
+			isa = PBXGroup;
+			children = (
+				1E65CF5E1A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionView.h */,
+				1E65CF5F1A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionView.m */,
+				1E65CF601A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.h */,
+				1E65CF611A12C16000187D0B /* DeMarcelpociotCollectionviewCollectionViewProxy.m */,
+			);
+			name = "Collection View";
+			sourceTree = "<group>";
+		};
+		DBF01E4D1EA759F800049682 /* Item */ = {
+			isa = PBXGroup;
+			children = (
+				1E65CF5A1A12C0DF00187D0B /* DeMarcelpociotCollectionviewCollectionItemProxy.h */,
+				1E65CF5B1A12C0DF00187D0B /* DeMarcelpociotCollectionviewCollectionItemProxy.m */,
+				1E65CF561A12BDF800187D0B /* DeMarcelpociotCollectionviewCollectionItem.h */,
+				1E65CF571A12BDF800187D0B /* DeMarcelpociotCollectionviewCollectionItem.m */,
+			);
+			name = Item;
+			sourceTree = "<group>";
+		};
+		DBF01E4E1EA75A3400049682 /* Module */ = {
+			isa = PBXGroup;
+			children = (
+				24DE9E0F11C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.h */,
+				24DE9E1011C5FE74003F90F6 /* DeMarcelpociotCollectionviewModuleAssets.m */,
+				24DD6CF71134B3F500162E58 /* DeMarcelpociotCollectionviewModule.h */,
+				24DD6CF81134B3F500162E58 /* DeMarcelpociotCollectionviewModule.m */,
+			);
+			name = Module;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
