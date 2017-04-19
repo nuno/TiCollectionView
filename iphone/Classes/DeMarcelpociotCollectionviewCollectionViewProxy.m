@@ -67,7 +67,7 @@
         block(nil);
         TiThreadPerformOnMainThread(^{
             [self.listView updateSearchResults:nil];
-        }, NO);
+        }, [NSThread isMainThread]);
         return;
     }
     
@@ -79,7 +79,7 @@
 	if (triggerMainThread) {
 		TiThreadPerformOnMainThread(^{
 			[self processUpdateActions];
-		}, NO);
+		}, [NSThread isMainThread]);
 	}
 }
 
@@ -192,7 +192,7 @@
 	}];
 	TiThreadPerformOnMainThread(^{
 		[self.listView setDictTemplates_:templates];
-	}, NO);
+	}, [NSThread isMainThread]);
 }
 
 - (NSArray *)sections
@@ -376,7 +376,7 @@
             DeMarcelpociotCollectionviewCollectionSectionProxy *section = [_sections objectAtIndex:sectionIndex];
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:MIN(itemIndex, section.itemCount) inSection:sectionIndex];
             [self.listView.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
-        }, NO);
+        }, [NSThread isMainThread]);
     }
 }
 
@@ -421,7 +421,7 @@
             }
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
             [self.listView.collectionView deselectItemAtIndexPath:indexPath animated:YES];
-        }, NO);
+        }, [NSThread isMainThread]);
     }
 }
 

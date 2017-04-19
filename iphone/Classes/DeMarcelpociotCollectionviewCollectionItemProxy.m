@@ -92,7 +92,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 }
 
-
 - (void)unarchiveFromTemplate:(id)viewTemplate
 {
 	[super unarchiveFromTemplate:viewTemplate];
