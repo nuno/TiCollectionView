@@ -5,16 +5,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "DeMarcelpociotCollectionviewCollectionSectionProxy.h"
-#import "DeMarcelpociotCollectionviewCollectionViewProxy.h"
-#import "DeMarcelpociotCollectionviewCollectionView.h"
-#import "DeMarcelpociotCollectionviewCollectionItem.h"
+#import "TiCollectionviewCollectionSectionProxy.h"
+#import "TiCollectionviewCollectionViewProxy.h"
+#import "TiCollectionviewCollectionView.h"
+#import "TiCollectionviewCollectionItem.h"
 
-@interface DeMarcelpociotCollectionviewCollectionSectionProxy ()
-@property (nonatomic, readonly) id<DeMarcelpociotCollectionviewCollectionViewDelegate> dispatcher;
+@interface TiCollectionviewCollectionSectionProxy ()
+@property (nonatomic, readonly) id<TiCollectionviewCollectionViewDelegate> dispatcher;
 @end
 
-@implementation DeMarcelpociotCollectionviewCollectionSectionProxy {
+@implementation TiCollectionviewCollectionSectionProxy {
 	NSMutableArray *_items;
 }
 
@@ -25,7 +25,7 @@
 
 -(NSString*)apiName
 {
-    return @"de.marcelpociot.CollectionSection";
+    return @"Ti.CollectionSection";
 }
 
 - (id)init
@@ -37,17 +37,7 @@
     return self;
 }
 
-- (void)dealloc
-{
-	_delegate = nil;
-	[_items release];
-	[_headerTitle release];
-	[_footerTitle release];
-	[super dealloc];
-}
-
-
-- (id<DeMarcelpociotCollectionviewCollectionViewDelegate>)dispatcher
+- (id<TiCollectionviewCollectionViewDelegate>)dispatcher
 {
 	return _delegate != nil ? _delegate : self;
 }
@@ -93,7 +83,7 @@
 - (NSArray *)items
 {
 	return [self.dispatcher dispatchBlockWithResult:^() {
-		return [[_items copy] autorelease];
+		return [_items copy];
 	}];
 }
 
@@ -141,7 +131,6 @@
             } else {
                 [tableView deleteItemsAtIndexPaths:indexPaths];
             }
-            [indexPaths release];
         }];
         
         //Dispatch block for common items
@@ -152,7 +141,6 @@
                     [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:_sectionIndex]];
                 }
                 [tableView  reloadItemsAtIndexPaths:indexPaths];
-                [indexPaths release];
             }];
         }
         
@@ -172,7 +160,6 @@
 		return;
 	}
 	ENSURE_TYPE_OR_NIL(items,NSArray);
-	NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		NSUInteger insertIndex = [_items count];
 		[_items addObjectsFromArray:items];
@@ -182,7 +169,6 @@
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
 		[tableView insertItemsAtIndexPaths:indexPaths];
-		[indexPaths release];
 	}];
 }
 
@@ -195,7 +181,6 @@
 		return;
 	}
 	ENSURE_TYPE_OR_NIL(items,NSArray);
-	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
 
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] < insertIndex) {
@@ -209,7 +194,6 @@
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
 		[tableView insertItemsAtIndexPaths:indexPaths];
-		[indexPaths release];
 	}];
 }
 
@@ -220,7 +204,6 @@
 	NSUInteger replaceCount = [TiUtils intValue:[args objectAtIndex:1]];
 	NSArray *items = [args objectAtIndex:2];
 	ENSURE_TYPE_OR_NIL(items,NSArray);
-	NSDictionary *properties = [args count] > 3 ? [args objectAtIndex:3] : nil;
 
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] < insertIndex) {
@@ -244,7 +227,6 @@
 		if (count > 0) {
 			[tableView insertItemsAtIndexPaths:indexPaths];
 		}
-		[indexPaths release];
 	}];
 }
 
@@ -256,7 +238,6 @@
 	if (deleteCount == 0) {
 		return;
 	}
-	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
 	
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] <= deleteIndex) {
@@ -273,7 +254,6 @@
 			[indexPaths addObject:[NSIndexPath indexPathForRow:deleteIndex+i inSection:_sectionIndex]];
 		}
 		[tableView deleteItemsAtIndexPaths:indexPaths];
-		[indexPaths release];
 	}];
 }
 
@@ -283,18 +263,21 @@
 	NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *item = [args objectAtIndex:1];
 	ENSURE_TYPE_OR_NIL(item,NSDictionary);
-	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
 	
 	[self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
 		if ([_items count] <= itemIndex) {
 			DLog(@"[WARN] ListView: Update item index is out of range");
 			return;
 		}
-		[_items replaceObjectAtIndex:itemIndex withObject:item];
-		NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
+
+        if (item != nil) {
+            [_items replaceObjectAtIndex:itemIndex withObject:item];
+        }
+
+        NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
 		BOOL forceReload = NO;
 		if (!forceReload) {
-			DeMarcelpociotCollectionviewCollectionItem *cell = (DeMarcelpociotCollectionviewCollectionItem *)[tableView cellForItemAtIndexPath:[indexPaths objectAtIndex:0]];
+			TiCollectionviewCollectionItem *cell = (TiCollectionviewCollectionItem *)[tableView cellForItemAtIndexPath:[indexPaths objectAtIndex:0]];
 			if ((cell != nil) && ([cell canApplyDataItem:item])) {
 				cell.dataItem = item;
 			} else {
@@ -304,7 +287,6 @@
 		if (forceReload) {
 			[tableView reloadItemsAtIndexPaths:indexPaths];
 		}
-		[indexPaths release];
 	}];
 }
 

@@ -4,15 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "DeMarcelpociotCollectionviewCollectionItemProxy.h"
+#import "TiCollectionviewCollectionItemProxy.h"
 #import "TiUtils.h"
-#import "DeMarcelpociotCollectionviewCollectionItem.h"
-#import "DeMarcelpociotCollectionviewCollectionViewProxy.h"
+#import "TiCollectionviewCollectionItem.h"
+#import "TiCollectionviewCollectionViewProxy.h"
 
 static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventOverrideDelegate> eventOverrideDelegate);
 
-@implementation DeMarcelpociotCollectionviewCollectionItemProxy {
-	DeMarcelpociotCollectionviewCollectionViewProxy *_listViewProxy; // weak
+@implementation TiCollectionviewCollectionItemProxy {
+	TiCollectionviewCollectionViewProxy *_listViewProxy; // weak
 }
 
 @synthesize listItem = _listItem;
@@ -20,10 +20,10 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 -(NSString*)apiName
 {
-    return @"de.marcelpociot.CollectionItem";
+    return @"Ti.CollectionItem";
 }
 
-- (id)initWithListViewProxy:(DeMarcelpociotCollectionviewCollectionViewProxy *)listViewProxy inContext:(id<TiEvaluator>)context
+- (id)initWithListViewProxy:(TiCollectionviewCollectionViewProxy *)listViewProxy inContext:(id<TiEvaluator>)context
 {
     self = [self _initWithPageContext:context];
     if (self) {
@@ -72,12 +72,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     return self;
 }
 
--(void)dealloc
-{
-	[_indexPath release];
-	[super dealloc];
-}
-
 - (TiUIView *)view
 {
 	return nil;
@@ -98,7 +92,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 }
 
-
 - (void)unarchiveFromTemplate:(id)viewTemplate
 {
 	[super unarchiveFromTemplate:viewTemplate];
@@ -115,8 +108,8 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 - (NSDictionary *)overrideEventObject:(NSDictionary *)eventObject forEvent:(NSString *)eventType fromViewProxy:(TiViewProxy *)viewProxy
 {
 	NSMutableDictionary *updatedEventObject = [eventObject mutableCopy];
-	[updatedEventObject setObject:NUMINT(_indexPath.section) forKey:@"sectionIndex"];
-	[updatedEventObject setObject:NUMINT(_indexPath.row) forKey:@"itemIndex"];
+	[updatedEventObject setObject:NUMINTEGER(_indexPath.section) forKey:@"sectionIndex"];
+	[updatedEventObject setObject:NUMINTEGER(_indexPath.row) forKey:@"itemIndex"];
 	[updatedEventObject setObject:[_listViewProxy sectionForIndex:_indexPath.section] forKey:@"section"];
 	id propertiesValue = [_listItem.dataItem objectForKey:@"properties"];
 	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -128,7 +121,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 	if (bindId != nil) {
 		[updatedEventObject setObject:bindId forKey:@"bindId"];
 	}
-	return [updatedEventObject autorelease];
+	return updatedEventObject;
 }
 
 @end

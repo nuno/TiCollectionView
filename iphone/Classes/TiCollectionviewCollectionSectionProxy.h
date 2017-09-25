@@ -8,7 +8,7 @@
 #import "TiBase.h"
 #import "TiProxy.h"
 
-@protocol DeMarcelpociotCollectionviewCollectionViewDelegate <NSObject>
+@protocol TiCollectionviewCollectionViewDelegate <NSObject>
 @required
 
 - (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block;
@@ -16,9 +16,9 @@
 
 @end
 
-@interface DeMarcelpociotCollectionviewCollectionSectionProxy : TiProxy < DeMarcelpociotCollectionviewCollectionViewDelegate >
+@interface TiCollectionviewCollectionSectionProxy : TiProxy < TiCollectionviewCollectionViewDelegate >
 
-@property (nonatomic, readwrite, assign) id<DeMarcelpociotCollectionviewCollectionViewDelegate> delegate;
+@property (nonatomic, readwrite, assign) id<TiCollectionviewCollectionViewDelegate> delegate;
 @property (nonatomic, readwrite, assign) NSUInteger sectionIndex;
 
 // Private API. Used by ListView directly. Not for public comsumption

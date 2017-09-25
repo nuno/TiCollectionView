@@ -2,17 +2,17 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 1.4.1
+version: 2.0.0
 apiversion: 2
 description: TiCollectionView
 author: Marcel Pociot
 license: MIT
-copyright: Copyright (c) 2014-2015 by Marcel Pociot
+copyright: Copyright (c) 2014-2015 by Marcel Pociot, 2015-Present by Nuno Costa
 architectures: armv7 i386 x86_64 arm64
 
 # these should not be edited
 name: TiCollectionView
-moduleid: de.marcelpociot.collectionview
+moduleid: ti.collectionview
 guid: eef8bad5-aef3-49fb-bb8d-7cb781e9e7f5
 platform: iphone
-minsdk: 3.5.1.GA
+minsdk: 5.5.1.GA
