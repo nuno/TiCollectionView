@@ -1,4 +1,4 @@
-var TiCollectionView = require("ti.collectionview");
+var TiCollectionView = require('ti.collectionview');
 
 var win = Ti.UI.createWindow({
 	backgroundColor: 'white'
@@ -28,7 +28,7 @@ var myTemplate = {
 };
 
 var collectionView = TiCollectionView.createCollectionView({
-    backgroundColor: "white",
+    backgroundColor: 'white',
     // Maps myTemplate dictionary to 'template' string
     templates: { 'template': myTemplate },
     // Use 'template', that is, the myTemplate dict created earlier
@@ -43,22 +43,23 @@ var collectionView = TiCollectionView.createCollectionView({
 
 collectionView.addEventListener('itemclick', function(e) {
     alert('Tapped cell at section = ' + e.sectionIndex + ', item = ' + e.itemIndex);
-})
+});
 
 var sections = [];
 
-var fruitSection = TiCollectionView.createCollectionSection({ headerTitle: 'Fruits / Frutas'});
+var fruitSection = TiCollectionView.createCollectionSection({ headerTitle: 'Fruits / Frutas' });
 var fruitDataSet = [
     // the text property of info maps to the text property of the title label
     // the text property of es_info maps to text property of the subtitle label
     // the image property of pic maps to the image property of the image view
-    { info: {text: 'Apple 1'}, es_info: {text: 'Manzana 1'}, properties: {height:150,width:150}},
-    { info: {text: 'Apple 2'}, es_info: {text: 'Manzana 2'}, properties: {height:150,width:150}},
-    { info: {text: 'Apple 3'}, es_info: {text: 'Manzana 3'}, properties: {height:150,width:150}},
-    { info: {text: 'Apple 4'}, es_info: {text: 'Manzana 4'}, properties: {height:150,width:150}},
-    { info: {text: 'Apple 5'}, es_info: {text: 'Manzana 5'}, properties: {height:150,width:150}},
-    { info: {text: 'Apple 6'}, es_info: {text: 'Manzana 6'}, properties: {height:150,width:150}},
+    { info: { text: 'Apple 1' }, es_info: { text: 'Manzana 1' }, properties: { height: 150, width: 150 } },
+    { info: { text: 'Apple 2' }, es_info: { text: 'Manzana 2' }, properties: { height: 150, width: 150 } },
+    { info: { text: 'Apple 3' }, es_info: { text: 'Manzana 3' }, properties: { height: 150, width: 150 } },
+    { info: { text: 'Apple 4' }, es_info: { text: 'Manzana 4' }, properties: { height: 150, width: 150 } },
+    { info: { text: 'Apple 5' }, es_info: { text: 'Manzana 5' }, properties: { height: 150, width: 150 } },
+    { info: { text: 'Apple 6' }, es_info: { text: 'Manzana 6' }, properties: { height: 150, width: 150 } },
 ];
+
 fruitSection.setItems(fruitDataSet);
 sections.push(fruitSection);
 
