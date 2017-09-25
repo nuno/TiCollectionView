@@ -7,7 +7,7 @@
 
 #import "TiModule.h"
 
-@interface DeMarcelpociotCollectionviewModule : TiModule
+@interface TiCollectionviewModule : TiModule
 {
     NSNumber* LAYOUT_GRID;
     NSNumber* LAYOUT_WATERFALL;

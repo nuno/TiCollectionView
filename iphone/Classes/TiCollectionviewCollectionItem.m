@@ -4,14 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "DeMarcelpociotCollectionviewCollectionItem.h"
+#import "TiCollectionviewCollectionItem.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
 
-@implementation DeMarcelpociotCollectionviewCollectionItem {
-	DeMarcelpociotCollectionviewCollectionItemProxy *_proxy;
+@implementation TiCollectionviewCollectionItem {
+	TiCollectionviewCollectionItemProxy *_proxy;
 	NSInteger _templateStyle;
 	NSMutableDictionary *_initialValues;
 	NSMutableDictionary *_currentValues;
@@ -27,32 +27,20 @@
 @synthesize proxy = _proxy;
 @synthesize dataItem = _dataItem;
 
-- (void)initWithProxy:(DeMarcelpociotCollectionviewCollectionItemProxy *)proxy
+- (void)initWithProxy:(TiCollectionviewCollectionItemProxy *)proxy
 {
 		_templateStyle = TiUIListItemTemplateStyleCustom;
 		_initialValues = [[NSMutableDictionary alloc] initWithCapacity:10];
 		_currentValues = [[NSMutableDictionary alloc] initWithCapacity:10];
 		_resetKeys = [[NSMutableSet alloc] initWithCapacity:10];
-		_proxy = [proxy retain];
+		_proxy = proxy;
 		_proxy.listItem = self;
 }
 
 - (void)dealloc
 {
 	_proxy.listItem = nil;
-	[_initialValues release];
-	[_currentValues release];
-	[_resetKeys release];
-	[_dataItem release];
-	[_proxy deregisterProxy:[_proxy pageContext]];
-	[_proxy release];
-	[_bindings release];
-	[gradientLayer release];
-	[backgroundGradient release];
-	[selectedBackgroundGradient release];
     [_bgView removeFromSuperview];
-    [_bgView release];
-	[super dealloc];
 }
 
 - (NSDictionary *)bindings
@@ -61,14 +49,12 @@
 		NSMutableDictionary *dict = [[NSMutableDictionary alloc] initWithCapacity:10];
 		[[self class] buildBindingsForViewProxy:_proxy intoDictionary:dict];
 		_bindings = [dict copy];
-		[dict release];
 	}
 	return _bindings;
 }
 
 - (void)prepareForReuse
 {
-	RELEASE_TO_NIL(_dataItem);
 	[super prepareForReuse];
 }
 
@@ -147,8 +133,7 @@
 	{
 		return;
 	}
-	[backgroundGradient release];
-	backgroundGradient = [newGradient retain];
+	backgroundGradient = newGradient;
 	
 	if(![self selectedOrHighlighted])
 	{
@@ -163,8 +148,7 @@
 	{
 		return;
 	}
-	[selectedBackgroundGradient release];
-	selectedBackgroundGradient = [newGradient retain];
+    selectedBackgroundGradient = newGradient;
 	
 	if([self selectedOrHighlighted])
 	{
@@ -258,7 +242,6 @@
         if (bgImage != nil) {
             if (![_bgView isKindOfClass:[UIImageView class]]) {
                 [_bgView removeFromSuperview];
-                RELEASE_TO_NIL(_bgView);
                 _bgView = [[UIImageView alloc] initWithFrame:CGRectZero];
                 _bgView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
                 [superView addSubview:_bgView];
@@ -267,7 +250,6 @@
             [_bgView setBackgroundColor:[UIColor clearColor]];
         } else {
             [_bgView removeFromSuperview];
-            RELEASE_TO_NIL(_bgView);
         }
     } else {
         if (bgImage != nil) {
@@ -276,7 +258,7 @@
                 [(UIImageView*)self.backgroundView setImage:bgImage];
                 [(UIImageView*)self.backgroundView setBackgroundColor:[UIColor clearColor]];
             } else {
-                UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+                UIImageView *view_ = [[UIImageView alloc] initWithFrame:CGRectZero];
                 [view_ setImage:bgImage];
                 [view_ setBackgroundColor:[UIColor clearColor]];
                 self.backgroundView = view_;
@@ -290,7 +272,7 @@
 
 - (void)setDataItem:(NSDictionary *)dataItem
 {
-	_dataItem = [dataItem retain];
+	_dataItem = dataItem;
 	[_resetKeys addObjectsFromArray:[_currentValues allKeys]];
 	id propertiesValue = [dataItem objectForKey:@"properties"];
 	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -332,20 +314,10 @@
     
     id selectedBackgroundGradientValue = [properties objectForKey:@"selectedBackgroundGradient"];
     if (IS_NULL_OR_NIL(selectedBackgroundGradientValue)) {
-        backgroundGradientValue = [_proxy valueForKey:@"selectedBackgroundGradient"];
+        selectedBackgroundGradientValue = [_proxy valueForKey:@"selectedBackgroundGradient"];
     }
     [self setSelectedBackgroundGradient_:selectedBackgroundGradientValue];
 	
-    id selectedbackgroundColorValue = [properties objectForKey:@"selectedBackgroundColor"];
-    if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-        selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundColor"];
-    }
-
-    id selectedBackgroundImageValue = [properties objectForKey:@"selectedBackgroundImage"];
-    if (IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
-        selectedBackgroundImageValue = [_proxy valueForKey:@"selectedBackgroundImage"];
-    }
-
 	[_resetKeys enumerateObjectsUsingBlock:^(NSString *keyPath, BOOL *stop) {
 		id value = [_initialValues objectForKey:keyPath];
 		[self setValue:(value != [NSNull null] ? value : nil) forKeyPath:keyPath];

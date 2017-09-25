@@ -1,5 +1,5 @@
 //
-//  DeMarcelpociotSearchDisplayController.m
+//  TiSearchDisplayController.m
 //  TiCollectionView
 //
 //  Created by Ayorinde Adesugba on 1/29/15.
@@ -7,9 +7,9 @@
 //
 
 #import "TiBase.h"
-#import "DeMarcelpociotSearchDisplayController.h"
+#import "TiSearchDisplayController.h"
 
-@implementation DeMarcelpociotSearchDisplayController
+@implementation TiSearchDisplayController
 
 - (id)initWithSearchBar:(UISearchBar *)searchBar contentsController:(UIViewController *)viewController {
     self = [super init];
@@ -60,9 +60,12 @@
         alpha = 0.2;
     }
     
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
     if ([_searchContentsController.view respondsToSelector:@selector(scrollEnabled)]) {
         ((UIScrollView *)_searchContentsController.view).scrollEnabled = !visible;
     }
+#pragma clang diagnostic pop
     
     if (animated) {
         [UIView animateWithDuration:0.2 animations:^{
@@ -74,8 +77,6 @@
         _searchResultsCollectionView.alpha = alpha;
     }
 }
-
-
 
 #pragma mark - UISearchBarDelegate
 

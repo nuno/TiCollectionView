@@ -1,5 +1,5 @@
 //
-//  DeMarcelpociotSearchDisplayController.h
+//  TiSearchDisplayController.h
 //  TiCollectionView
 //
 //  Created by Ayorinde Adesugba on 1/29/15.
@@ -9,14 +9,14 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@protocol DeMarcelpociotSearchDisplayDelegate;
+@protocol TiSearchDisplayDelegate;
 
-@interface DeMarcelpociotSearchDisplayController : NSObject<UISearchBarDelegate>
+@interface TiSearchDisplayController : NSObject<UISearchBarDelegate>
 
 - (id)initWithSearchBar:(UISearchBar *)searchBar contentsController:(UIViewController *)viewController;
 - (void)setActive:(BOOL)visible animated:(BOOL)animated;
 
-@property(nonatomic,assign) id<DeMarcelpociotSearchDisplayDelegate> delegate;
+@property(nonatomic,assign) id<TiSearchDisplayDelegate> delegate;
 @property(nonatomic, getter = isActive) BOOL active;
 @property(nonatomic, readonly) UISearchBar *searchBar;
 @property(nonatomic, readonly) UIViewController *searchContentsController;
@@ -28,14 +28,14 @@
 
 
 
-@protocol DeMarcelpociotSearchDisplayDelegate <NSObject>
+@protocol TiSearchDisplayDelegate <NSObject>
 
 @optional
 
-- (void)searchDisplayControllerWillBeginSearch:(DeMarcelpociotSearchDisplayController *)controller;
-- (void)searchDisplayControllerDidBeginSearch:(DeMarcelpociotSearchDisplayController *)controller;
-- (void)searchDisplayControllerWillEndSearch:(DeMarcelpociotSearchDisplayController *)controller;
-- (void)searchDisplayControllerDidEndSearch:(DeMarcelpociotSearchDisplayController *)controller;
+- (void)searchDisplayControllerWillBeginSearch:(TiSearchDisplayController *)controller;
+- (void)searchDisplayControllerDidBeginSearch:(TiSearchDisplayController *)controller;
+- (void)searchDisplayControllerWillEndSearch:(TiSearchDisplayController *)controller;
+- (void)searchDisplayControllerDidEndSearch:(TiSearchDisplayController *)controller;
 - (void)textDidChange:(NSString *)searchText;
 - (void)searchBar:(UISearchBar *)searchBar selectedScopeButtonIndexDidChange:(NSInteger)selectedScope;
 
