@@ -775,7 +775,7 @@ public class CollectionSectionProxy extends TiViewProxy{
 		KrollDict listItemProperties;
 		String itemId = null;
 
-		if (data.containsKey(TiC.PROPERTY_PROPERTIES)) {
+		if (data != null && data.containsKey(TiC.PROPERTY_PROPERTIES)) {
 			listItemProperties = new KrollDict((HashMap)data.get(TiC.PROPERTY_PROPERTIES));
 		} else {
 			listItemProperties = template.getRootItem().getDefaultProperties(); 
@@ -801,7 +801,7 @@ public class CollectionSectionProxy extends TiViewProxy{
 			}
 			//if binding is contain in data given to us, process that data, otherwise
 			//apply default properties.
-			if (data.containsKey(binding) && view != null) {
+			if (data != null && data.containsKey(binding) && view != null) {
 				KrollDict properties = new KrollDict((HashMap)data.get(binding));
 				KrollDict diffProperties = viewItem.generateDiffProperties(properties);
 				if (!diffProperties.isEmpty()) {

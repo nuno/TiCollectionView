@@ -56,6 +56,9 @@ public class CollectionViewProxy extends TiViewProxy {
 	
 	public CollectionViewProxy() {
 		super();
+		defaultValues.put("columnWidth", 0);
+		defaultValues.put("verticalSpacing", 0);
+		defaultValues.put("horizontalSpacing", 0);
 	}
 
 	public TiUIView createView(Activity activity) {
