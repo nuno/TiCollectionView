@@ -16,7 +16,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 
 
-@Kroll.module(name="Androidcollectionview", id="de.marcelpociot.collectionview")
+@Kroll.module(name="Androidcollectionview", id="ti.collectionview")
 public class AndroidcollectionviewModule extends KrollModule
 {
 
@@ -62,4 +62,3 @@ public class AndroidcollectionviewModule extends KrollModule
 	}
 
 }
-

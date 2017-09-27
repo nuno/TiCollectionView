@@ -10,25 +10,25 @@
 						</View>
 					</ItemTemplate>
 				</Templates>
-				<ListSection id="section1" module="de.marcelpociot.collectionview" method="createCollectionSection">
+				<ListSection id="section1" module="ti.collectionview" method="createCollectionSection">
 					<HeaderView>
 						<View backgroundColor="#DDD" height="Ti.UI.SIZE">
 							<Label>GOOD SHIT</Label>
 						</View>
 					</HeaderView>
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="red" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="green" width="150" height="360" info:text="Banana" es_info:text="Banana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="yellow" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="blue" width="150" height="360" info:text="Banana" es_info:text="Banana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="red" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="green" width="150" height="360" info:text="Banana" es_info:text="Banana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="yellow" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="blue" width="150" height="360" info:text="Banana" es_info:text="Banana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="red" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="green" width="150" height="360" info:text="Banana" es_info:text="Banana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="yellow" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="blue" width="150" height="360" info:text="Banana" es_info:text="Banana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="red" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="red" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="green" width="150" height="360" info:text="Banana" es_info:text="Banana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="yellow" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="blue" width="150" height="360" info:text="Banana" es_info:text="Banana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="red" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="green" width="150" height="360" info:text="Banana" es_info:text="Banana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="yellow" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="blue" width="150" height="360" info:text="Banana" es_info:text="Banana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="red" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="green" width="150" height="360" info:text="Banana" es_info:text="Banana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="yellow" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="blue" width="150" height="360" info:text="Banana" es_info:text="Banana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="red" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
 					<FooterView>
 						<View backgroundColor="#EEE" height="Ti.UI.SIZE">
 							<Label>Hello Footer</Label>
@@ -36,10 +36,10 @@
 					</FooterView>
 	
 				</ListSection>
-				<ListSection module="de.marcelpociot.collectionview" method="createCollectionSection">
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="green" width="150" height="360" info:text="Banana" es_info:text="Banana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="yellow" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
-					<ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" backgroundColor="blue" width="150" height="360" info:text="Banana" es_info:text="Banana" />
+				<ListSection module="ti.collectionview" method="createCollectionSection">
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="green" width="150" height="360" info:text="Banana" es_info:text="Banana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="yellow" width="150" height="360" info:text="Apple" es_info:text="Manzana" />
+					<ListItem module="ti.collectionview" method="createCollectionItem" backgroundColor="blue" width="150" height="360" info:text="Banana" es_info:text="Banana" />
 				</ListSection>
 			</ListView>
 		</Widget>

@@ -101,6 +101,7 @@ Alloy:
 ```
 
 Vanilla JS:
+
 ```js
 var collectionView = require("ti.collectionview");
 
@@ -131,7 +132,7 @@ var myTemplate = {
     ]
 };
 
-var listView = require("CollectionView")".createCollectionView({
+var listView = require("CollectionView").createCollectionView({
     backgroundColor: "white",
     top: 0,
     left: 0,
@@ -181,6 +182,7 @@ listView.setSections(sections);
 win.add(listView);
 win.open();
 ```
+
 	
 ## Changelog
 * v2.0.0
