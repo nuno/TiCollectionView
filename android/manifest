@@ -2,7 +2,7 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 1.3.1
+version: 2.0.0
 apiversion: 3
 architectures: armeabi-v7a x86
 description: androidcollectionview
@@ -12,7 +12,7 @@ copyright: Copyright (c) 2015 by Your Company
 
 # these should not be edited
 name: androidcollectionview
-moduleid: de.marcelpociot.collectionview
+moduleid: ti.collectionview
 guid: 304bc7f8-ad6c-4348-9d32-658adf6f61f4
 platform: android
 minsdk: 6.0.0.GA

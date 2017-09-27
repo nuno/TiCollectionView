@@ -136,7 +136,7 @@ Vanilla JS:
 	    ]
 	};
 
-	var listView = require("CollectionView")".createCollectionView({
+	var listView = require("CollectionView").createCollectionView({
 		backgroundColor: "white",
 		top: 0,
 		left: 0,

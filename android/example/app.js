@@ -1,4 +1,4 @@
-var collectionView = require("de.marcelpociot.collectionview");
+var collectionView = require("ti.collectionview");
 
 var win = Ti.UI.createWindow({
 	backgroundColor: 'white'
