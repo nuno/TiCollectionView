@@ -1,14 +1,14 @@
 //
-//  DeMarcelpociotCollectionviewHeaderFooterReusableView.m
+//  TiCollectionviewHeaderFooterReusableView.m
 //  TiCollectionView
 //
 //  Created by Ayorinde Adesugba on 1/28/15.
 //
 //
 
-#import "DeMarcelpociotCollectionviewHeaderFooterReusableView.h"
+#import "TiCollectionviewHeaderFooterReusableView.h"
 
-@implementation DeMarcelpociotCollectionviewHeaderFooterReusableView
+@implementation TiCollectionviewHeaderFooterReusableView
 
 - (id)initWithFrame:(CGRect)frame
 {

@@ -1,13 +1,13 @@
-###IMPORTANT TO NOTE:
-The original work was done by *Marcel [ https://github.com/mpociot] * he passed the module to me for me continue his GREAT work, he  had  not the time to continue!
-####I will need all the help possible to keep that module great!*
----
+# Ti.CollectionView
 
-#TiCollectionView
-[![gittio](http://img.shields.io/badge/gittio-1.2.0-00B4CC.svg)](http://gitt.io/component/de.marcelpociot.collectionview)
+[![gittio](https://img.shields.io/badge/gittio-2.0.0-00B4CC.svg)](http://gitt.io/component/ti.collectionview)
 [![License](http://img.shields.io/badge/license-MIT-orange.svg)](http://mit-license.org)
-[![issues](http://img.shields.io/github/issues/mpociot/TiCollectionView.svg)](https://github.com/ricardoalcocer/actionbarextras/issues)
+[![Issues](https://img.shields.io/github/issues/nuno/TiCollectionView.svg)](https://github.com/nuno/TiCollectionView/issues)
 
+## ⚠️ IMPORTANT TO NOTE:
+The original work was done by [Marcel Pociot](https://github.com/mpociot). He passed the module 
+to me for me continue his GREAT work, he  had  not the time to continue! I will need all the help 
+possible to keep that module great!
 
 ## Overview
 
@@ -24,24 +24,22 @@ It uses the Titanium `ItemTemplate` objects for the best performance.
 ### Context menu
 ![example](documentation/contextmenu.gif)
 
-
 ## Installation
-### Get it [![gitTio](http://gitt.io/badge.png)](http://gitt.io/component/de.marcelpociot.collectionview)
+### Get it [![gitTio](http://gitt.io/badge.png)](http://gitt.io/component/ti.collectionview)
 Download the latest distribution ZIP-file and consult the [Titanium Documentation](http://docs.appcelerator.com/titanium/latest/#!/guide/Using_a_Module) on how install it, or simply use the [gitTio CLI](http://gitt.io/cli):
 
-`$ gittio install de.marcelpociot.collectionview`
+`$ gittio install ti.collectionview`
 
 ### Important notes for Android
 In order to make this module work for Android, you need to use the provided "[CollectionView.js](lib/CollectionView.js)" CommonJS library.
 
 ## API
 
-This module uses the [Ti.UI.ListView API](http://docs.appcelerator.com/titanium/3.0/#!/api/Titanium.UI.ListView).
+This module uses the [Ti.UI.ListView API](http://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ListView).
 
 ## Additional parameters
 
 The ListView API gets extended by these custom parameters:
-
 
 * `layout` _(LAYOUT_WATERFALL | LAYOUT_GRID)_ - sets the layout to use for the collection view. You can select between the waterfall layout (like Pinterest) or the standard grid layout which is the default value.
 
@@ -70,124 +68,133 @@ The ListView API gets extended by these custom parameters:
 
 ---
 
-	
-	
-
 ### Android specific configuration
 
 * `columnWidth` _(Number)_ - Defines the width of each column. The Android module will fit as many columns in a row as possible
 * `verticalSpacing` _(Number)_ - Defines the vertical column spacing
 * `horizontalSpacing` _(Number)_ - Defines the horizontal column spacing
 
-
-
 ## Usage
 
 Alloy:
+```xml
+<ListView id="listView" backgroundColor="white" defaultItemTemplate="template" module="CollectionView" method="createCollectionView">
 
-        <ListView id="listView" backgroundColor="white" defaultItemTemplate="template" module="CollectionView" method="createCollectionView">
+<Templates>
+    <ItemTemplate name="template">
+        <View id="container">
+            <Label bindId="info" id="title" />
+            <Label bindId="es_info" id="subtitle" />
+        </View>
+    </ItemTemplate>
 
-        <Templates>
-            <ItemTemplate name="template">
-                <View id="container">
-                    <Label bindId="info" id="title" />
-                    <Label bindId="es_info" id="subtitle" />
-                </View>
-            </ItemTemplate>
+</Templates>
 
-        </Templates>
+<ListSection module="ti.collectionview" method="createCollectionSection">
 
-        <ListSection module="de.marcelpociot.collectionview" method="createCollectionSection">
+    <ListItem module="ti.collectionview" method="createCollectionItem" width="150" height="200" info:text="Apple" es_info:text="Manzana" />
+    <ListItem module="ti.collectionview" method="createCollectionItem" width="150" height="200" info:text="Banana" es_info:text="Banana" />
+    <ListItem module="ti.collectionview" method="createCollectionItem" width="150" height="200" info:text="Apple" es_info:text="Manzana" />
+    <ListItem module="ti.collectionview" method="createCollectionItem" width="150" height="200" info:text="Banana" es_info:text="Banana" />
+</ListSection>
+</ListView>
+```
 
-            <ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" width="150" height="200" info:text="Apple" es_info:text="Manzana" />
-            <ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" width="150" height="200" info:text="Banana" es_info:text="Banana" />
-            <ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" width="150" height="200" info:text="Apple" es_info:text="Manzana" />
-            <ListItem module="de.marcelpociot.collectionview" method="createCollectionItem" width="150" height="200" info:text="Banana" es_info:text="Banana" />
-        </ListSection>
-    </ListView>
 Vanilla JS:
 
-	var collectionView = require("de.marcelpociot.collectionview");
+```js
+var collectionView = require("ti.collectionview");
 
-	var win = Ti.UI.createWindow({backgroundColor: 'white'});
+var win = Ti.UI.createWindow({backgroundColor: 'white'});
 
-	// Create a custom template that displays an image on the left, 
-	// then a title next to it with a subtitle below it.
-	var myTemplate = {
-    	childTemplates: [
-        	{                            // Title 
-            	type: 'Ti.UI.Label',     // Use a label for the title 
-    	        bindId: 'info',          // Maps to a custom info property of the item data
-	            properties: {            // Sets the label properties
-        	        color: 'black',
-            	    font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
-                	left: '60dp', top: 0,
-            	}
-	        },
-    	    {                            // Subtitle
-        	    type: 'Ti.UI.Label',     // Use a label for the subtitle
-            	bindId: 'es_info',       // Maps to a custom es_info property of the item data
-	            properties: {            // Sets the label properties
-    	            color: 'gray',
-        	        font: { fontFamily:'Arial', fontSize: '14dp' },
-            	    left: '60dp', top: '25dp',
-	            }
-    	    }
-	    ]
-	};
+// Create a custom template that displays an image on the left, 
+// then a title next to it with a subtitle below it.
+var myTemplate = {
+    childTemplates: [
+        {                            // Title 
+            type: 'Ti.UI.Label',     // Use a label for the title 
+            bindId: 'info',          // Maps to a custom info property of the item data
+            properties: {            // Sets the label properties
+                color: 'black',
+                font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
+                left: '60dp', top: 0,
+            }
+        },
+        {                            // Subtitle
+            type: 'Ti.UI.Label',     // Use a label for the subtitle
+            bindId: 'es_info',       // Maps to a custom es_info property of the item data
+            properties: {            // Sets the label properties
+                color: 'gray',
+                font: { fontFamily:'Arial', fontSize: '14dp' },
+                left: '60dp', top: '25dp',
+            }
+        }
+    ]
+};
 
-	var listView = require("CollectionView").createCollectionView({
-		backgroundColor: "white",
-		top: 0,
-		left: 0,
-		width: Ti.UI.FILL,
-		height: Ti.UI.FILL,
-	    // Maps myTemplate dictionary to 'template' string
-	    templates: { 'template': myTemplate },
-	    // Use 'template', that is, the myTemplate dict created earlier
-	    // for all items as long as the template property is not defined for an item.
-	    defaultItemTemplate: 'template',
-	    
-	    // Context menu options
-	    showContextMenu : true,
-		contextMenuStrokeColor : "red",
-		contextMenuItems : [
-			{
-				tintColor: "red",
-				selected: "/images/UploadIconSelected.png",
-				unselected:"/images/UploadIcon.png",
-			},
-			{
-				tintColor: "red",
-				selected: "/images/TrashIconSelected.png",
-				unselected:"/images/TrashIcon.png",
-			}
-		],
-	    
-	    // ANDROID ONLY
-	    columnWidth: 150,
-	    verticalSpacing: 10,
-	    horizontalSpacing: 10
-	});
-	var sections = [];
+var listView = require("CollectionView").createCollectionView({
+    backgroundColor: "white",
+    top: 0,
+    left: 0,
+    width: Ti.UI.FILL,
+    height: Ti.UI.FILL,
+    // Maps myTemplate dictionary to 'template' string
+    templates: { 'template': myTemplate },
+    // Use 'template', that is, the myTemplate dict created earlier
+    // for all items as long as the template property is not defined for an item.
+    defaultItemTemplate: 'template',
+    
+    // Context menu options
+    showContextMenu : true,
+    contextMenuStrokeColor : "red",
+    contextMenuItems : [
+        {
+            tintColor: "red",
+            selected: "/images/UploadIconSelected.png",
+            unselected:"/images/UploadIcon.png",
+        },
+        {
+            tintColor: "red",
+            selected: "/images/TrashIconSelected.png",
+            unselected:"/images/TrashIcon.png",
+        }
+    ],
+    
+    // ANDROID ONLY
+    columnWidth: 150,
+    verticalSpacing: 10,
+    horizontalSpacing: 10
+});
+var sections = [];
 
-	var fruitSection = collectionView.createCollectionSection({ headerTitle: 'Fruits / Frutas'});
-	var fruitDataSet = [
-    	// the text property of info maps to the text property of the title label
-	    // the text property of es_info maps to text property of the subtitle label
-	    // the image property of pic maps to the image property of the image view
-	    { info: {text: 'Apple'}, es_info: {text: 'Manzana'}, properties: {height:150,width:150}},
-	    { info: {text: 'Apple'}, es_info: {text: 'Manzana'}, properties: {height:150,width:150}},
-	];
-	fruitSection.setItems(fruitDataSet);
-	sections.push(fruitSection);
+var fruitSection = collectionView.createCollectionSection({ headerTitle: 'Fruits / Frutas'});
+var fruitDataSet = [
+    // the text property of info maps to the text property of the title label
+    // the text property of es_info maps to text property of the subtitle label
+    // the image property of pic maps to the image property of the image view
+    { info: {text: 'Apple'}, es_info: {text: 'Manzana'}, properties: {height:150,width:150}},
+    { info: {text: 'Apple'}, es_info: {text: 'Manzana'}, properties: {height:150,width:150}},
+];
+fruitSection.setItems(fruitDataSet);
+sections.push(fruitSection);
 
-	listView.setSections(sections);
-	win.add(listView);
-	win.open();
-	
+listView.setSections(sections);
+win.add(listView);
+win.open();
+```
+
 	
 ## Changelog
+* v2.0.0
+  * _iOS only_ Move project to ARC, fix all warnings and compile errors
+  * _iOS only_ Fix main-thread execution
+  * _iOS only_ Rebuild with 6.0.3.GA
+  * _iOS only_ Rename project to "Ti.CollectionView"
+  * _iOS only_ Support for the "allowsMultipleSelection" property 
+  * _iOS only_ Support for the "contentOffset" property 
+  * _iOS only_ Support for the "scrollstart" and "scrollend" event 
+* v1.4.1
+   * _iOS only_ Fix pull-to-refresh
 * v1.4.0
 	* _iOS only_ Added support for horizontal scrolling
 * v1.3.0

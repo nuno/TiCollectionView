@@ -6,15 +6,15 @@
  */
 #import <UIKit/UIKit.h>
 #import "TiGradient.h"
-#import "DeMarcelpociotCollectionviewCollectionView.h"
-#import "DeMarcelpociotCollectionviewCollectionItemProxy.h"
+#import "TiCollectionviewCollectionView.h"
+#import "TiCollectionviewCollectionItemProxy.h"
 #import "TiSelectedCellbackgroundView.h"
 
 enum {
 	TiUIListItemTemplateStyleCustom = -1
 };
 
-@interface DeMarcelpociotCollectionviewCollectionItem : UICollectionViewCell
+@interface TiCollectionviewCollectionItem : UICollectionViewCell
 {
 	TiGradientLayer * gradientLayer;
 	TiGradient * backgroundGradient;
@@ -22,10 +22,10 @@ enum {
 }
 
 @property (nonatomic, readonly) NSInteger templateStyle;
-@property (nonatomic, readonly) DeMarcelpociotCollectionviewCollectionItemProxy *proxy;
+@property (nonatomic, readonly) TiCollectionviewCollectionItemProxy *proxy;
 @property (nonatomic, readwrite, retain) NSDictionary *dataItem;
 
-- (void)initWithProxy:(DeMarcelpociotCollectionviewCollectionItemProxy *)proxy;
+- (void)initWithProxy:(TiCollectionviewCollectionItemProxy *)proxy;
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
 - (void)setPosition:(int)position isGrouped:(BOOL)grouped;

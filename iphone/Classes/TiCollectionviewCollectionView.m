@@ -5,15 +5,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "DeMarcelpociotCollectionviewModule.h"
-#import "DeMarcelpociotCollectionviewCollectionView.h"
+#import "TiCollectionviewModule.h"
+#import "TiCollectionviewCollectionView.h"
 #import "TiUIListSectionProxy.h"
-#import "DeMarcelpociotCollectionviewCollectionItem.h"
-#import "DeMarcelpociotCollectionviewCollectionItemProxy.h"
+#import "TiCollectionviewCollectionItem.h"
+#import "TiCollectionviewCollectionItemProxy.h"
 #import "TiUILabelProxy.h"
 #import "TiUISearchBarProxy.h"
-#import "M13ContextMenuItemIOS7.h"
-#import "DeMarcelpociotCollectionviewHeaderFooterReusableView.h"
+#import "TiCollectionviewHeaderFooterReusableView.h"
 #import "ImageLoader.h"
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
@@ -22,14 +21,14 @@
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 40.0
 
-@interface DeMarcelpociotCollectionviewCollectionView ()
-@property (nonatomic, readonly) DeMarcelpociotCollectionviewCollectionViewProxy *listViewProxy;
+@interface TiCollectionviewCollectionView ()
+@property (nonatomic, readonly) TiCollectionviewCollectionViewProxy *listViewProxy;
 @property (nonatomic,copy,readwrite) NSString * searchString;
 @end
 
 static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint point);
 
-@implementation DeMarcelpociotCollectionviewCollectionView {
+@implementation TiCollectionviewCollectionView {
     UICollectionView *_collectionView;
     NSDictionary *_templates;
     id _defaultItemTemplate;
@@ -47,9 +46,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
     TiUISearchBarProxy *searchViewProxy;
     UICollectionViewController *collectionController;
-    DeMarcelpociotSearchDisplayController *searchController;
-    
-    M13ContextMenu * contextMenu;
+    TiSearchDisplayController *searchController;
     
     NSMutableArray * sectionTitles;
     NSMutableArray * sectionIndices;
@@ -64,8 +61,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     BOOL editing;
     BOOL pruneSections;
     
-    BOOL showContextMenu;
-
+    BOOL canFireScrollStart;
+    BOOL canFireScrollEnd;
+    BOOL isScrollingToTop;
+    
     BOOL caseInsensitiveSearch;
     NSString* _searchString;
     BOOL searchActive;
@@ -82,7 +81,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     self = [super init];
     if (self) {
-        _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleDefault] retain];
+        canFireScrollEnd = NO;
+        canFireScrollStart = YES;
+
+        _defaultItemTemplate = NUMUINTEGER(UITableViewCellStyleDefault);
         _defaultSeparatorInsets = UIEdgeInsetsZero;
     }
     return self;
@@ -92,40 +94,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     _collectionView.delegate = nil;
     _collectionView.dataSource = nil;
-    [_collectionView release];
-    [_templates release];
-    [_defaultItemTemplate release];
     [_headerViewProxy setProxyObserver:nil];
     [_footerViewProxy setProxyObserver:nil];
     [_pullViewProxy setProxyObserver:nil];
-    RELEASE_TO_NIL(_searchString);
-    RELEASE_TO_NIL(_searchResults);
-    RELEASE_TO_NIL(_pullViewWrapper);
-    RELEASE_TO_NIL(_pullViewProxy);
-    RELEASE_TO_NIL(_headerViewProxy);
-    RELEASE_TO_NIL(_searchWrapper);
-    RELEASE_TO_NIL(_headerWrapper)
-    RELEASE_TO_NIL(_footerViewProxy);
-    RELEASE_TO_NIL(searchViewProxy);
-    RELEASE_TO_NIL(collectionController);
-    RELEASE_TO_NIL(searchController);
-    RELEASE_TO_NIL(sectionTitles);
-    RELEASE_TO_NIL(sectionIndices);
-    RELEASE_TO_NIL(filteredTitles);
-    RELEASE_TO_NIL(filteredIndices);
-    RELEASE_TO_NIL(_measureProxies);
-#ifdef USE_TI_UIREFRESHCONTROL
-    RELEASE_TO_NIL(_refreshControlProxy);
-#endif
-    
-    contextMenu.delegate = nil;
-    RELEASE_TO_NIL(contextMenu);
-    
-    RELEASE_TO_NIL(longPress);
-    [super dealloc];
 }
 
--(TiViewProxy*)initWrapperProxy
+-(TiViewProxy*)initializeWrapperProxy
 {
     TiViewProxy* theProxy = [[TiViewProxy alloc] init];
     LayoutConstraint* viewLayout = [theProxy layoutProperties];
@@ -148,7 +122,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)configureFooter
 {
     if (_footerViewProxy == nil) {
-        _footerViewProxy = [self initWrapperProxy];
+        _footerViewProxy = [self initializeWrapperProxy];
         [self setHeaderFooter:_footerViewProxy isHeader:NO];
     }
     
@@ -158,13 +132,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     DLog(@"[INFO] configureHeaders called");
 
-    _headerViewProxy = [self initWrapperProxy];
+    _headerViewProxy = [self initializeWrapperProxy];
     LayoutConstraint* viewLayout = [_headerViewProxy layoutProperties];
     viewLayout->layoutStyle = TiLayoutRuleVertical;
     [self setHeaderFooter:_headerViewProxy isHeader:YES];
     
-    _searchWrapper = [self initWrapperProxy];
-    _headerWrapper = [self initWrapperProxy];
+    _searchWrapper = [self initializeWrapperProxy];
+    _headerWrapper = [self initializeWrapperProxy];
 
     [_headerViewProxy add:_searchWrapper];
     [_headerViewProxy add:_headerWrapper];
@@ -176,8 +150,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     LayoutType layoutType = [TiUtils intValue:[[self proxy] valueForKey:@"layout"] def:kLayoutTypeGrid];
     if (_collectionView == nil) {
         
-        if( layoutType == kLayoutTypeWaterfall )
-        {
+        if (layoutType == kLayoutTypeWaterfall) {
             CHTCollectionViewWaterfallLayout* layout = [[CHTCollectionViewWaterfallLayout alloc] init];
             layout.columnCount = [TiUtils intValue:[self.proxy valueForUndefinedKey:@"columnCount"] def:2];
             layout.minimumColumnSpacing = [TiUtils intValue:[self.proxy valueForUndefinedKey:@"minimumColumnSpacing"] def:2];
@@ -191,8 +164,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             
             ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
             
-            if( scrollDirection == kScrollVertical )
-            {
+            if (scrollDirection == kScrollVertical) {
                 [(UICollectionViewFlowLayout*) _collectionView.collectionViewLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
                 _collectionView.alwaysBounceVertical = YES;
             } else {
@@ -206,9 +178,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         _collectionView.delegate = self;
         _collectionView.dataSource = self;
         
-        [_collectionView registerClass:[DeMarcelpociotCollectionviewHeaderFooterReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView"];
+        [_collectionView registerClass:[TiCollectionviewHeaderFooterReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView"];
         
-        [_collectionView registerClass:[DeMarcelpociotCollectionviewHeaderFooterReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView"];
+        [_collectionView registerClass:[TiCollectionviewHeaderFooterReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView"];
 
         id backgroundColor = [self.proxy valueForKey:@"backgroundColor"];
         _collectionView.backgroundColor = [[TiUtils colorValue:backgroundColor] color];
@@ -216,39 +188,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
         tapGestureRecognizer.delegate = self;
         [_collectionView addGestureRecognizer:tapGestureRecognizer];
-        [tapGestureRecognizer release];
 
         [self configureHeaders];
-        
-        // Create context menu
-        showContextMenu = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"showContextMenu"]];
-        
-        //Create the items
-        NSMutableArray *contextMenuItems = [[NSMutableArray alloc] init];
-        if( showContextMenu  )
-        {
-
-            NSArray *_menuItems = [self.proxy valueForUndefinedKey:@"contextMenuItems"];
-            ENSURE_ARRAY( _menuItems );
-            for( NSDictionary* contextItem in _menuItems )
-            {
-                UIImage* unselectedIcon = [TiUtils image:[contextItem valueForKey:@"unselected"] proxy:self.proxy];
-                UIImage* selectedIcon   = [TiUtils image:[contextItem valueForKey:@"selected"] proxy:self.proxy];
-                M13ContextMenuItemIOS7 *menuItem = [[M13ContextMenuItemIOS7 alloc] initWithUnselectedIcon:unselectedIcon selectedIcon:selectedIcon];
-                menuItem.tintColor  = [[TiUtils colorValue:[contextItem valueForKey:@"tintColor"]] color];
-                [contextMenuItems addObject:menuItem];
-            }
-        }
-        
-        contextMenu = [[M13ContextMenu alloc] initWithMenuItems:contextMenuItems];
-        contextMenu.delegate = self;
-        if( showContextMenu )
-        {
-            contextMenu.originationCircleStrokeColor = [[TiUtils colorValue:[self.proxy valueForKey:@"contextMenuStrokeColor"]] color];
-            //Create the gesture recognizer
-            longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:contextMenu action:@selector(showMenuUponActivationOfGetsure:)];
-            [_collectionView addGestureRecognizer:longPress];
-        }
     }
     
     if ([_collectionView superview] != self) {
@@ -304,11 +245,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	return self.collectionView;
 }
 
-- (DeMarcelpociotCollectionviewCollectionViewProxy *)listViewProxy
+- (TiCollectionviewCollectionViewProxy *)listViewProxy
 {
-	return (DeMarcelpociotCollectionviewCollectionViewProxy *)self.proxy;
+	return (TiCollectionviewCollectionViewProxy *)self.proxy;
 }
-
 
 - (void) updateIndicesForVisibleRows
 {
@@ -320,8 +260,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     NSArray* visibleRows = [_collectionView indexPathsForVisibleItems];
     [visibleRows enumerateObjectsUsingBlock:^(NSIndexPath *vIndexPath, NSUInteger idx, BOOL *stop) {
         UICollectionViewCell* theCell = [_collectionView cellForItemAtIndexPath:vIndexPath];
-        if ([theCell isKindOfClass:[DeMarcelpociotCollectionviewCollectionItem class]]) {
-            ((DeMarcelpociotCollectionviewCollectionItem*)theCell).proxy.indexPath = vIndexPath;
+        if ([theCell isKindOfClass:[TiCollectionviewCollectionItem class]]) {
+            ((TiCollectionviewCollectionItem*)theCell).proxy.indexPath = vIndexPath;
         }
     }];
 }
@@ -333,13 +273,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             //UIView* headerView = [[self tableView] tableHeaderView];
             //[headerView setFrame:[headerView bounds]];
             //[[self tableView] setTableHeaderView:headerView];
-            [((DeMarcelpociotCollectionviewCollectionViewProxy*)[self proxy]) contentsWillChange];
+            [((TiCollectionviewCollectionViewProxy*)[self proxy]) contentsWillChange];
         }
         else if (sender == _footerViewProxy) {
             //UIView *footerView = [[self tableView] tableFooterView];
             //[footerView setFrame:[footerView bounds]];
             //[[self tableView] setTableFooterView:footerView];
-            [((DeMarcelpociotCollectionviewCollectionViewProxy*)[self proxy]) contentsWillChange];
+            [((TiCollectionviewCollectionViewProxy*)[self proxy]) contentsWillChange];
         }
         else if (sender == _pullViewProxy) {
             pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
@@ -347,9 +287,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     },NO);
 }
 
--(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(DeMarcelpociotCollectionviewCollectionSectionProxy**)sectionResult
+-(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(TiCollectionviewCollectionSectionProxy**)sectionResult
 {
-    DeMarcelpociotCollectionviewCollectionSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
+    TiCollectionviewCollectionSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
     //In the event that proxy is nil, this all flows out to returning nil safely anyways.
     if (sectionResult!=nil) {
         *sectionResult = proxy;
@@ -372,29 +312,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     return nil;
 }
-
-#pragma mark - M13ContextMenuDelegate
-
-- (BOOL)shouldShowContextMenu:(M13ContextMenu *)contextMenu atPoint:(CGPoint)point
-{
-    if( showContextMenu == NO )
-    {
-        return NO;
-    }
-    
-    NSIndexPath* indexPath = [self.collectionView indexPathForItemAtPoint:point];
-    UICollectionViewCell* cell = [self.collectionView cellForItemAtIndexPath:indexPath];
-    
-    return cell != nil;
-}
-
-- (void)contextMenu:(M13ContextMenu *)contextMenu atPoint:(CGPoint)point didSelectItemAtIndex:(NSInteger)index
-{
-    NSIndexPath* indexPath = [self.collectionView indexPathForItemAtPoint:point];
-    
-    [self.proxy fireEvent:@"contextMenuClick" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMINT(index),@"index",NUMINT(indexPath.row),@"itemIndex",NUMINT(indexPath.section), @"sectionIndex",nil]];
-}
-
 
 #pragma mark - Helper Methods
 
@@ -454,12 +371,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     DLog(@"[INFO] buildResultsForSearchText");
     searchActive = ([self.searchString length] > 0);
-    RELEASE_TO_NIL(filteredIndices);
-    RELEASE_TO_NIL(filteredTitles);
+
     if (searchActive) {
         BOOL hasResults = NO;
         //Initialize
-        if(_searchResults == nil) {
+        if (_searchResults == nil) {
             _searchResults = [[NSMutableArray alloc] init];
         }
         //Clear Out
@@ -500,14 +416,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                         }
                     }
                 }
-                [thisSection release];
             }
         }
         if (singleSection != nil) {
             if ([singleSection count] > 0) {
                 [_searchResults addObject:singleSection];
             }
-            [singleSection release];
         }
         if (!hasResults) {
             if ([(TiViewProxy*)self.proxy _hasListeners:@"noresults" checkParent:NO]) {
@@ -517,7 +431,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         NSString* res = hasResults ? @"YES" : @"FALSE";
         DLog(@"[INFO] buildResultsForSearchText:Results -> %@", res);
     } else {
-        RELEASE_TO_NIL(_searchResults);
+        _searchResults = nil;
     }
 }
 
@@ -533,7 +447,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     [_collectionView reloadData];
     if ([searchController isActive]) {
-        [[searchController searchResultsTableView] reloadData];
+        [[searchController searchResultsCollectionView] reloadData];
     }
 }
 
@@ -542,7 +456,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (_searchResults != nil) {
         NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
         
-        if([sectionResults count] > indexPath.row) {
+        if ([sectionResults count] > indexPath.row) {
             return [sectionResults objectAtIndex:indexPath.row];
         }
     }
@@ -559,6 +473,61 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     return section;
 }
 
+// For now, this is fired on `scrollstart` and `scrollend`
+- (void)fireScrollEvent:(NSString *)eventName forCollectionView:(UICollectionView *)collectionVoew
+{
+    if ([(TiViewProxy*)[self proxy] _hasListeners:eventName checkParent:NO]) {
+        NSArray* indexPaths = [collectionVoew indexPathsForVisibleItems];
+        NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
+        TiCollectionviewCollectionSectionProxy* section;
+        
+        if ([indexPaths count] > 0) {
+            NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+            NSUInteger visibleItemCount = [indexPaths count];
+            section = [[self listViewProxy] sectionForIndex: [indexPath section]];
+            
+            [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+            [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+            [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+            [eventArgs setValue:section forKey:@"firstVisibleSection"];
+            [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+        } else {
+            section = [[self listViewProxy] sectionForIndex: 0];
+            
+            [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItemIndex"];
+            [eventArgs setValue:NUMUINTEGER(0) forKey:@"visibleItemCount"];
+            [eventArgs setValue:NUMINTEGER(0) forKey:@"firstVisibleSectionIndex"];
+            [eventArgs setValue:section forKey:@"firstVisibleSection"];
+            [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
+        }
+        
+        [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
+    }
+}
+    
+- (void)fireScrollEnd:(UICollectionView *)collectionView
+{
+    if (canFireScrollEnd) {
+        canFireScrollEnd = NO;
+        canFireScrollStart = YES;
+        [self fireScrollEvent:@"scrollend" forCollectionView:collectionView];
+    }
+}
+    
+- (void)fireScrollStart:(UICollectionView *)collectionView
+{
+    if (canFireScrollStart) {
+        canFireScrollStart = NO;
+        canFireScrollEnd = YES;
+        [self fireScrollEvent:@"scrollstart" forCollectionView:collectionView];
+    }
+}
+    
+- (BOOL)isLazyLoadingEnabled
+{
+    return [TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES];
+}
+
 #pragma mark - Public API
 
 -(void)setRefreshControl_:(id)args
@@ -566,10 +535,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 #ifdef USE_TI_UIREFRESHCONTROL
     ENSURE_SINGLE_ARG_OR_NIL(args,TiUIRefreshControlProxy);
     [[_refreshControlProxy control] removeFromSuperview];
-    RELEASE_TO_NIL(_refreshControlProxy);
     [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
     if (args != nil) {
-        _refreshControlProxy = [args retain];
+        _refreshControlProxy = args;
         [[self collectionView] addSubview:[_refreshControlProxy control]];
     }
 #endif
@@ -583,8 +551,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [_pullViewProxy windowWillClose];
         [_pullViewWrapper removeFromSuperview];
         [_pullViewProxy windowDidClose];
-        RELEASE_TO_NIL(_pullViewWrapper);
-        RELEASE_TO_NIL(_pullViewProxy);
     } else {
         if ([self collectionView].bounds.size.width==0)
         {
@@ -595,7 +561,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [_pullViewProxy setProxyObserver:nil];
             [_pullViewProxy windowWillClose];
             [_pullViewProxy windowDidClose];
-            RELEASE_TO_NIL(_pullViewProxy);
         }
         if (_pullViewWrapper == nil) {
             _pullViewWrapper = [[UIView alloc] init];
@@ -603,7 +568,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
         CGSize refSize = _collectionView.bounds.size;
         [_pullViewWrapper setFrame:CGRectMake(0.0, 0.0 - refSize.height, refSize.width, refSize.height)];
-        _pullViewProxy = [args retain];
+        _pullViewProxy = args;
         TiColor* pullBgColor = [TiUtils colorValue:[_pullViewProxy valueForUndefinedKey:@"pullBackgroundColor"]];
         _pullViewWrapper.backgroundColor = ((pullBgColor == nil) ? [UIColor lightGrayColor] : [pullBgColor color]);
         LayoutConstraint *viewLayout = [_pullViewProxy layoutProperties];
@@ -642,6 +607,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         keepSectionsInSearch = NO;
     }
 }
+    
+-(void)setContentOffset_:(id)args
+{
+    TiThreadPerformOnMainThread(^{
+        [_collectionView setContentOffset:[TiUtils pointValue:args]];
+    }, NO);
+}
 
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
@@ -663,22 +635,20 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     ENSURE_TYPE_OR_NIL(args,NSDictionary);
     [[self proxy] replaceValue:args forKey:@"dictTemplates" notification:NO];
-    [_templates release];
     _templates = [args copy];
-    RELEASE_TO_NIL(_measureProxies);
     _measureProxies = [[NSMutableDictionary alloc] init];
     NSEnumerator *enumerator = [_templates keyEnumerator];
     id key;
     while ((key = [enumerator nextObject])) {
         id template = [_templates objectForKey:key];
         if (template != nil) {
-            DeMarcelpociotCollectionviewCollectionItemProxy *theProxy = [[DeMarcelpociotCollectionviewCollectionItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:self.listViewProxy.pageContext];
+//            TiCollectionviewCollectionItemProxy *theProxy = [[TiCollectionviewCollectionItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:self.listViewProxy.pageContext];
             
             NSString *cellIdentifier = [key isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUIListView__internal%@", key]: [key description];
             DLog(@"[INFO] Registering class for identifier %@", cellIdentifier);
-            [_collectionView registerClass:[DeMarcelpociotCollectionviewCollectionItem class] forCellWithReuseIdentifier:cellIdentifier];
+            [_collectionView registerClass:[TiCollectionviewCollectionItem class] forCellWithReuseIdentifier:cellIdentifier];
             /**
-             DeMarcelpociotCollectionviewCollectionItem* cell = [[DeMarcelpociotCollectionviewCollectionItem alloc] initWithProxy:theProxy reuseIdentifier:@"__measurementCell__"];
+             TiCollectionviewCollectionItem* cell = [[TiCollectionviewCollectionItem alloc] initWithProxy:theProxy reuseIdentifier:@"__measurementCell__"];
              [theProxy unarchiveFromTemplate:template];
              [_measureProxies setObject:cell forKey:key];
              [theProxy setIndexPath:[NSIndexPath indexPathForRow:-1 inSection:-1]];
@@ -709,7 +679,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	if (![args isKindOfClass:[NSString class]] && ![args isKindOfClass:[NSNumber class]]) {
 		ENSURE_TYPE_OR_NIL(args,NSString);
 	}
-	[_defaultItemTemplate release];
 	_defaultItemTemplate = [args copy];
 	if (_collectionView != nil) {
 		[_collectionView reloadData];
@@ -726,11 +695,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setHeaderView_:(id)args
 {
-    
     ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
     [self collectionView];
     [_headerWrapper removeAllChildren:nil];
-    if (args!=nil) {
+    
+    if (args != nil) {
         [_headerWrapper add:(TiViewProxy*) args];
         DLog(@"[INFO] setHeaderView_ called: %@", ((TiViewProxy*) args).view);
     }
@@ -738,22 +707,32 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)setScrollIndicatorStyle_:(id)value
 {
-	[self.collectionView setIndicatorStyle:[TiUtils intValue:value def:UIScrollViewIndicatorStyleDefault]];
+	[[self collectionView] setIndicatorStyle:[TiUtils intValue:value def:UIScrollViewIndicatorStyleDefault]];
 }
 
 - (void)setWillScrollOnStatusTap_:(id)value
 {
-	[self.collectionView setScrollsToTop:[TiUtils boolValue:value def:YES]];
+	[[self collectionView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
 }
 
 - (void)setShowVerticalScrollIndicator_:(id)value
 {
-	[self.collectionView setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
+	[[self collectionView] setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
 }
-
--(void)setAllowsSelection_:(id)value
+    
+- (void)setAllowsSelection_:(id)value
 {
     [[self collectionView] setAllowsSelection:[TiUtils boolValue:value]];
+}
+    
+- (void)setAllowsMultipleSelection_:(id)value
+{
+    [[self collectionView] setAllowsMultipleSelection:[TiUtils boolValue:value]];
+}
+
+- (void)setPrefetchingEnabled_:(id)value
+{
+    [[self collectionView] setPrefetchingEnabled:[TiUtils boolValue:value]];
 }
 
 #pragma mark - Search Support
@@ -787,13 +766,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     ENSURE_TYPE_OR_NIL(args,TiUISearchBarProxy);
     [self collectionView];
     [searchViewProxy setDelegate:nil];
-    RELEASE_TO_NIL(searchViewProxy);
-    RELEASE_TO_NIL(collectionController);
-    RELEASE_TO_NIL(searchController);
     [_searchWrapper removeAllChildren:nil];
     
     if (args != nil) {
-        searchViewProxy = [args retain];
+        searchViewProxy = args;
         [searchViewProxy setDelegate:self];
         [_searchWrapper add:searchViewProxy];
         DLog(@"[INFO] setSearchView_ called: %@", searchViewProxy.view);
@@ -840,7 +816,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         
     }
     else {
-        DeMarcelpociotCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
+        TiCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
         if (theSection != nil) {
             DLog(@"[INFO] Item count: %i", theSection.itemCount);
             return theSection.itemCount;
@@ -853,16 +829,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
-    DeMarcelpociotCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
-    NSInteger maxItem = 0;
-    
-    if (_searchResults != nil && [_searchResults count] > indexPath.section) {
-        NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
-        maxItem = [sectionResults count];
-    } else {
-        maxItem = theSection.itemCount;
-    }
-    
+    TiCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
+
     NSDictionary *item = [theSection itemAtIndex:realIndexPath.row];
     id templateId = [item objectForKey:@"template"];
     if (templateId == nil) {
@@ -870,16 +838,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     NSString *cellIdentifier = [templateId isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUIListView__internal%@", templateId]: [templateId description];
     //DLog(@"[INFO] Loading cell (Identifier: %@) section: %i - item %i", cellIdentifier, indexPath.section, indexPath.item);
-    DeMarcelpociotCollectionviewCollectionItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
+    TiCollectionviewCollectionItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
     
-    if( cell.proxy == nil )
-    {
+    if (cell.proxy == nil) {
         //DLog(@"[INFO] Loading proxy for cell");
         id<TiEvaluator> context = self.listViewProxy.executionContext;
         if (context == nil) {
             context = self.listViewProxy.pageContext;
         }
-        DeMarcelpociotCollectionviewCollectionItemProxy *cellProxy = [[DeMarcelpociotCollectionviewCollectionItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:context];
+        TiCollectionviewCollectionItemProxy *cellProxy = [[TiCollectionviewCollectionItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:context];
         [cell initWithProxy:cellProxy];
 
         id template = [_templates objectForKey:templateId];
@@ -887,7 +854,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 //DLog(@"[INFO] Template found");
                 [cellProxy unarchiveFromTemplate:template];
         }
-        [cellProxy release];
     }
         //cellProxy = nil;
     cell.dataItem = item;
@@ -903,21 +869,19 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     // If we use horizontal scrolling, we don't need "header" or "footer" views
     LayoutType layoutType = [TiUtils intValue:[[self proxy] valueForKey:@"layout"] def:kLayoutTypeGrid];
     ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
-    if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
-    {
+    if (layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal && reusableview != nil) {
         return reusableview;
     }
     
     if ([kind isEqualToString:UICollectionElementKindSectionHeader]) {
-        DeMarcelpociotCollectionviewHeaderFooterReusableView* headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView" forIndexPath:indexPath];
+        TiCollectionviewHeaderFooterReusableView* headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView" forIndexPath:indexPath];
         
         CGFloat height = 0.0;
         CGFloat width = [self.collectionView bounds].size.width;
         
         LayoutType layoutType = [TiUtils intValue:[[self proxy] valueForKey:@"layout"] def:kLayoutTypeGrid];
         ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
-        if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
-        {
+        if (layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal) {
             width = 0.0;
         }
         
@@ -956,13 +920,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     
     if ([kind isEqualToString:UICollectionElementKindSectionFooter]) {
-        DeMarcelpociotCollectionviewHeaderFooterReusableView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView" forIndexPath:indexPath];
+        TiCollectionviewHeaderFooterReusableView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView" forIndexPath:indexPath];
         
         [reusableview addSubview:_footerViewProxy.view];
         reusableview = footerview;
     }
     
-    return reusableview;
+    if (reusableview != nil) {
+        return reusableview;
+    }
+    
+    return [UICollectionReusableView new]; // Cannot return nil, returning an empty view?
 }
 
 #pragma mark - UICollectionViewDelegate
@@ -970,7 +938,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
     //Let the cell configure its background
-    [(DeMarcelpociotCollectionviewCollectionItem*)cell configureCellBackground];
+    [(TiCollectionviewCollectionItem*)cell configureCellBackground];
     
     if ([TiUtils isIOS7OrGreater]) {
         NSIndexPath* realPath = [self pathForSearchPath:indexPath];
@@ -1006,7 +974,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
     }
     
-    DeMarcelpociotCollectionviewCollectionSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
     TiUIView *view = [self sectionView:realSection forLocation:@"headerView" section:nil];
     
     CGFloat height = 0.0;
@@ -1038,8 +1005,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         DLog(@"[INFO] section header size: %@", view);
         
         return CGSizeMake(width, height);
-    }
-    else {
+    } else {
         TiViewProxy* viewProxy = (TiViewProxy*) _headerViewProxy;
         LayoutConstraint *viewLayout = [viewProxy layoutProperties];
         switch (viewLayout->height.type)
@@ -1060,8 +1026,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     LayoutType layoutType = [TiUtils intValue:[[self proxy] valueForKey:@"layout"] def:kLayoutTypeGrid];
     ScrollDirection scrollDirection = [TiUtils intValue:[[self proxy] valueForKey:@"scrollDirection"] def:kScrollVertical];
-    if( layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal)
-    {
+    if (layoutType == kLayoutTypeGrid && scrollDirection == kScrollHorizontal) {
         width = 0.0;
     } else {
         width = self.collectionView.bounds.size.width;
@@ -1072,11 +1037,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section
 {
     DLog(@"[INFO] referenceSizeForFooterInSection");
-    NSInteger realSection = section;
+    // Not currently used?
+    // NSInteger realSection = section;
     
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-            realSection = [self sectionForSearchSection:section];
+            // realSection = [self sectionForSearchSection:section];
         } else {
             return CGSizeZero;
         }
@@ -1105,12 +1071,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
-    DeMarcelpociotCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
+    TiCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
     return [TiUtils floatValue:[theSection valueForKey:@"itemSpacing"] def:2.0];
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
-    DeMarcelpociotCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
+    TiCollectionviewCollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
     return [TiUtils floatValue:[theSection valueForKey:@"lineSpacing"] def:2.0];
 }
 
@@ -1152,11 +1118,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         return;
     }
     
-    if ( (_pullViewProxy != nil) && ([scrollView isTracking]) ) {
-        if ( (scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO) ) {
+    if ((_pullViewProxy != nil) && ([scrollView isTracking])) {
+        if ((scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO)) {
             pullActive = YES;
             [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
-        } else if ( (scrollView.contentOffset.y > pullThreshhold) && (pullActive == YES) ) {
+        } else if ((scrollView.contentOffset.y > pullThreshhold) && (pullActive == YES)) {
             pullActive = NO;
             [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
         }
@@ -1166,31 +1132,95 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    //Events - None (maybe dragstart later)
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] suspend];
+    }
+    
+    [self fireScrollStart:(UICollectionView*)scrollView];
+    
+    if ([self.proxy _hasListeners:@"dragstart"]) {
+        [self.proxy fireEvent:@"dragstart" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
 }
 
+-(void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
+{
+    if ([[self proxy] _hasListeners:@"scrolling"]) {
+        NSString* direction = nil;
+        
+        if (velocity.y > 0) {
+            direction = @"up";
+        }
+        
+        if (velocity.y < 0) {
+            direction = @"down";
+        }
+        
+        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"targetContentOffset": NUMFLOAT(targetContentOffset->y),
+            @"velocity": NUMFLOAT(velocity.y)
+        }];
+        
+        if (direction != nil) {
+            [event setValue:direction forKey:@"direction"];
+        }
+        
+        [[self proxy] fireEvent:@"scrolling" withObject:event];
+    }
+}
+    
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    //Events - pullend (maybe dragend later)
-    if (![self.proxy _hasListeners:@"pullend"]) {
-        return;
+    if (!decelerate) {
+        if ([self isLazyLoadingEnabled]) {
+            [[ImageLoader sharedLoader] resume];
+        }
+        [self fireScrollEnd:(UICollectionView *)scrollView];
     }
-    if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
-        pullActive = NO;
-        
-        [self.proxy fireEvent:@"pullend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO
-                    errorCode:0 message:nil];
+    
+    if ([[self proxy] _hasListeners:@"dragend"]) {
+        [[self proxy] fireEvent:@"dragend"];
+    }
+    
+    if ([[self proxy] _hasListeners:@"pullend"]) {
+        if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
+            pullActive = NO;
+            [[self proxy] fireEvent:@"pullend"];
+        }
     }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    //Events - none (maybe scrollend later)
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] resume];
+    }
+    
+    if (isScrollingToTop) {
+        isScrollingToTop = NO;
+    } else {
+        [self fireScrollEnd:(UICollectionView *)scrollView];
+    }
+}
+    
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
+{
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] suspend];
+    }
+    
+    isScrollingToTop = YES;
+    [self fireScrollStart:(UICollectionView*) scrollView];
+    return YES;
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
-    //Events none (maybe scroll later)
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] resume];
+    }
+    
+    [self fireScrollEnd:(UICollectionView *)scrollView];
 }
 
 #pragma mark - UISearchBarDelegate Methods
@@ -1255,23 +1285,23 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     DLog(@"[INFO] textDidChange");
 }
 
-- (void)searchDisplayControllerWillBeginSearch:(DeMarcelpociotSearchDisplayController *)controller
+- (void)searchDisplayControllerWillBeginSearch:(TiSearchDisplayController *)controller
 {
     DLog(@"[INFO] searchDisplayControllerWillBeginSearch");
     
 }
 
-- (void)searchDisplayControllerDidBeginSearch:(DeMarcelpociotSearchDisplayController *)controller
+- (void)searchDisplayControllerDidBeginSearch:(TiSearchDisplayController *)controller
 {
     DLog(@"[INFO] searchDisplayControllerDidBeginSearch");
 }
 
-- (void)searchDisplayControllerWillEndSearch:(DeMarcelpociotSearchDisplayController *)controller
+- (void)searchDisplayControllerWillEndSearch:(TiSearchDisplayController *)controller
 {
     DLog(@"[INFO] searchDisplayControllerWillEndSearch");
 }
 
-- (void) searchDisplayControllerDidEndSearch:(DeMarcelpociotSearchDisplayController *)controller
+- (void) searchDisplayControllerDidEndSearch:(TiSearchDisplayController *)controller
 {
     DLog(@"[INFO] searchDisplayControllerDidEndSearch");
     self.searchString = @"";
@@ -1304,12 +1334,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (![self.proxy _hasListeners:eventName]) {
 		return;
 	}
-	DeMarcelpociotCollectionviewCollectionSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
+	TiCollectionviewCollectionSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
 	NSDictionary *item = [section itemAtIndex:indexPath.row];
 	NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 										section, @"section",
-										NUMINT(indexPath.section), @"sectionIndex",
-										NUMINT(indexPath.row), @"itemIndex",
+										NUMINTEGER(indexPath.section), @"sectionIndex",
+										NUMINTEGER(indexPath.row), @"itemIndex",
 										NUMBOOL(accessoryButtonTapped), @"accessoryClicked",
 										nil];
 	id propertiesValue = [item objectForKey:@"properties"];
@@ -1318,7 +1348,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 	if (itemId != nil) {
 		[eventObject setObject:itemId forKey:@"itemId"];
 	}
-	DeMarcelpociotCollectionviewCollectionItem *cell = (DeMarcelpociotCollectionviewCollectionItem *)[tableView cellForItemAtIndexPath:indexPath];
+	TiCollectionviewCollectionItem *cell = (TiCollectionviewCollectionItem *)[tableView cellForItemAtIndexPath:indexPath];
 	if (cell.templateStyle == TiUIListItemTemplateStyleCustom) {
 		UIView *contentView = cell.contentView;
 		TiViewProxy *tapViewProxy = FindViewProxyWithBindIdContainingPoint(contentView, [tableView convertPoint:tapPoint toView:contentView]);
@@ -1327,7 +1357,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		}
 	}
 	[self.proxy fireEvent:eventName withObject:eventObject];
-	[eventObject release];	
 }
 
 -(CGFloat)contentWidthForWidth:(CGFloat)width
@@ -1370,8 +1399,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)clearSearchController:(id)sender
 {
     if (sender == self) {
-        RELEASE_TO_NIL(collectionController);
-        RELEASE_TO_NIL(searchController);
         [searchViewProxy ensureSearchBarHeirarchy];
     }
 }
@@ -1384,7 +1411,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         collectionController = [[UICollectionViewController alloc] init];
         [TiUtils configureController:collectionController withObject:nil];
         collectionController.collectionView = [self collectionView];
-        searchController = [[DeMarcelpociotSearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:collectionController];
+        searchController = [[TiSearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:collectionController];
         searchController.searchResultsDataSource = self;
         searchController.searchResultsDelegate = self;
         searchController.delegate = self;
@@ -1403,28 +1430,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)handleTap:(UITapGestureRecognizer *)tapGestureRecognizer
 {
 	// Never called
-}
-
-#pragma mark - Static Methods
-
-+ (TiViewProxy*)titleViewForText:(NSString*)text inTable:(UITableView *)tableView footer:(BOOL)footer
-{
-    TiUILabelProxy* titleProxy = [[TiUILabelProxy alloc] init];
-    [titleProxy setValue:[NSDictionary dictionaryWithObjectsAndKeys:@"17",@"fontSize",@"bold",@"fontWeight", nil] forKey:@"font"];
-    [titleProxy setValue:text forKey:@"text"];
-    [titleProxy setValue:@"black" forKey:@"color"];
-    [titleProxy setValue:@"white" forKey:@"shadowColor"];
-    [titleProxy setValue:[NSDictionary dictionaryWithObjectsAndKeys:@"0",@"x",@"1",@"y", nil] forKey:@"shadowOffset"];
-    
-    LayoutConstraint *viewLayout = [titleProxy layoutProperties];
-    viewLayout->width = TiDimensionAutoFill;
-    viewLayout->height = TiDimensionAutoSize;
-    viewLayout->top = TiDimensionDip(10.0);
-    viewLayout->bottom = TiDimensionDip(10.0);
-    viewLayout->left = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
-    viewLayout->right = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
-
-    return [titleProxy autorelease];
 }
 
 @end
