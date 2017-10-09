@@ -5,6 +5,9 @@
 [![Issues](https://img.shields.io/github/issues/nuno/TiCollectionView.svg)](https://github.com/nuno/TiCollectionView/issues)
 
 ## ⚠️ IMPORTANT TO NOTE:
+Since version 2.0 the module id is  ```ti.collectionview```
+and NOT ```de.marcelpociot.CollectionView```
+
 The original work was done by [Marcel Pociot](https://github.com/mpociot). He passed the module 
 to me for me continue his GREAT work, he  had  not the time to continue! I will need all the help 
 possible to keep that module great!
