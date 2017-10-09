@@ -982,6 +982,6 @@ public class CollectionSectionProxy extends TiViewProxy{
 	@Override
 	public String getApiName()
 	{
-		return "de.marcelpociot.CollectionSection";
+		return "ti.CollectionSection";
 	}
 }
