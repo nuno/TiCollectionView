@@ -1,7 +1,12 @@
+// The two following statements are required so Titanium can detect the 
+// use of ListView and RefreshControl at compile time. 
+Ti.UI.createListView();
+Ti.UI.createRefreshControl();
+
 function createCollectionView(options) {
 	if( OS_IOS )
 	{
-		return require("de.marcelpociot.collectionview").createCollectionView(options);
+		return require("ti.collectionview").createCollectionView(options);
 	}
 	var templates = options.templates;
 	for (var binding in templates) {
@@ -12,14 +17,14 @@ function createCollectionView(options) {
 		processChildTemplates(currentTemplate);
 	}
 	Ti.API.info( JSON.stringify(options) );
-	var listView = require("de.marcelpociot.collectionview").createCollectionView(options);
+	var listView = require("ti.collectionview").createCollectionView(options);
 	
 	return listView;
 }
 
 //Create ListItemProxy, add events, then store it in 'tiProxy' property
 function processTemplate(properties) {
-   	var cellProxy = require("de.marcelpociot.collectionview").createCollectionItem();
+   	var cellProxy = require("ti.collectionview").createCollectionItem();
 	properties.tiProxy = cellProxy;
 	var events = properties.events;
 	addEventListeners(events, cellProxy);
