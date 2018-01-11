@@ -81,7 +81,7 @@ The ListView API gets extended by these custom parameters:
 
 Alloy:
 ```xml
-<ListView id="listView" backgroundColor="white" defaultItemTemplate="template" module="CollectionView" method="createCollectionView">
+<ListView id="listView" backgroundColor="white" defaultItemTemplate="template" module="ti.collectionview" method="createCollectionView">
 
 <Templates>
     <ItemTemplate name="template">
@@ -135,7 +135,7 @@ var myTemplate = {
     ]
 };
 
-var listView = require("CollectionView").createCollectionView({
+var listView = require("ti.collectionview").createCollectionView({
     backgroundColor: "white",
     top: 0,
     left: 0,
