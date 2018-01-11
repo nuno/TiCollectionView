@@ -206,7 +206,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     if (![searchController isActive]) {
-        [searchViewProxy ensureSearchBarHeirarchy];
+        [searchViewProxy ensureSearchBarHierarchy];
         if (_searchWrapper != nil) {
             CGFloat rowWidth = [self computeRowWidth:_collectionView];
             if (rowWidth > 0) {
@@ -1399,7 +1399,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)clearSearchController:(id)sender
 {
     if (sender == self) {
-        [searchViewProxy ensureSearchBarHeirarchy];
+        [searchViewProxy ensureSearchBarHierarchy];
     }
 }
 

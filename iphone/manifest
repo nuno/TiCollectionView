@@ -3,7 +3,7 @@
 # during compilation, packaging, distribution, etc.
 #
 version: 2.0.0
-apiversion: 2
+apiversion: 3
 description: TiCollectionView
 author: Marcel Pociot
 license: MIT
@@ -15,4 +15,4 @@ name: TiCollectionView
 moduleid: ti.collectionview
 guid: eef8bad5-aef3-49fb-bb8d-7cb781e9e7f5
 platform: iphone
-minsdk: 5.5.1.GA
+minsdk: 6.0.0.GA
