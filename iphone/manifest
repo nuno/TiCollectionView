@@ -3,7 +3,7 @@
 # during compilation, packaging, distribution, etc.
 #
 version: 2.0.0
-apiversion: 3
+apiversion: 2
 description: TiCollectionView
 author: Marcel Pociot
 license: MIT
