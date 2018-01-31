@@ -189,7 +189,7 @@ win.open();
 	
 ## Changelog
 
-All Releases are located in the DIST folder: https://github.com/nuno/TiCollectionView/tree/master/dist
+All Releases are located in the **"/dist/*"** folder: https://github.com/nuno/TiCollectionView/tree/master/dist
 
 * v2.0.0
   * _iOS only_ Move project to ARC, fix all warnings and compile errors
