@@ -4,7 +4,7 @@ build
 *.class
 *.pyo
 .DS_Store
-
+Index
 # Xcode
 *.pbxuser
 *.mode1v3
@@ -21,13 +21,13 @@ xcshareddata
 
 
 #Python modules
-MANIFEST
+#MANIFEST
 build/
 
 # Backup files
 *~.nib
 
-*/titanium.xcconfig
+#*/titanium.xcconfig
 */build.py
 android/dist/
 android/build.properties
