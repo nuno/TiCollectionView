@@ -20,8 +20,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -35,6 +33,8 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.widget.AbsListView;
+
+import androidx.core.view.ViewCompat;
 
 
 /**
@@ -385,7 +385,7 @@ public class SwipeRefreshLayout extends ViewGroup {
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         ensureTarget();
 
-        final int action = MotionEventCompat.getActionMasked(ev);
+        final int action = ev.getAction();
 
         if (mReturningToStart && action == MotionEvent.ACTION_DOWN) {
             mReturningToStart = false;
@@ -399,7 +399,7 @@ public class SwipeRefreshLayout extends ViewGroup {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mLastMotionY = mInitialMotionY = ev.getY();
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                mActivePointerId = ev.getPointerId(0);
                 mIsBeingDragged = false;
                 mCurrPercentage = 0;
                 break;
@@ -410,13 +410,13 @@ public class SwipeRefreshLayout extends ViewGroup {
                     return false;
                 }
 
-                final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                final int pointerIndex = ev.findPointerIndex(mActivePointerId);
                 if (pointerIndex < 0) {
                     Log.e(LOG_TAG, "Got ACTION_MOVE event but have an invalid active pointer id.");
                     return false;
                 }
 
-                final float y = MotionEventCompat.getY(ev, pointerIndex);
+                final float y = ev.getY(pointerIndex);
                 final float yDiff = y - mInitialMotionY;
                 if (yDiff > mTouchSlop) {
                     mLastMotionY = y;
@@ -424,7 +424,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                 }
                 break;
 
-            case MotionEventCompat.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_POINTER_UP:
                 onSecondaryPointerUp(ev);
                 break;
 
@@ -446,7 +446,7 @@ public class SwipeRefreshLayout extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        final int action = MotionEventCompat.getActionMasked(ev);
+        final int action = ev.getAction();
 
         if (mReturningToStart && action == MotionEvent.ACTION_DOWN) {
             mReturningToStart = false;
@@ -460,19 +460,19 @@ public class SwipeRefreshLayout extends ViewGroup {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mLastMotionY = mInitialMotionY = ev.getY();
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                mActivePointerId = ev.getPointerId(0);
                 mIsBeingDragged = false;
                 mCurrPercentage = 0;
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                final int pointerIndex = ev.findPointerIndex(mActivePointerId);
                 if (pointerIndex < 0) {
                     Log.e(LOG_TAG, "Got ACTION_MOVE event but have an invalid active pointer id.");
                     return false;
                 }
 
-                final float y = MotionEventCompat.getY(ev, pointerIndex);
+                final float y = ev.getY(pointerIndex);
                 final float yDiff = y - mInitialMotionY;
 
                 if (!mIsBeingDragged && yDiff > mTouchSlop) {
@@ -503,14 +503,14 @@ public class SwipeRefreshLayout extends ViewGroup {
                 }
                 break;
 
-            case MotionEventCompat.ACTION_POINTER_DOWN: {
-                final int index = MotionEventCompat.getActionIndex(ev);
-                mLastMotionY = MotionEventCompat.getY(ev, index);
-                mActivePointerId = MotionEventCompat.getPointerId(ev, index);
+            case MotionEvent.ACTION_POINTER_DOWN: {
+                final int index = ev.getActionIndex();
+                mLastMotionY = ev.getY(index);
+                mActivePointerId = ev.getPointerId(index);
                 break;
             }
 
-            case MotionEventCompat.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_POINTER_UP:
                 onSecondaryPointerUp(ev);
                 break;
 
@@ -553,14 +553,14 @@ public class SwipeRefreshLayout extends ViewGroup {
     }
 
     private void onSecondaryPointerUp(MotionEvent ev) {
-        final int pointerIndex = MotionEventCompat.getActionIndex(ev);
-        final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
+        final int pointerIndex = ev.getActionIndex();
+        final int pointerId = ev.getPointerId(pointerIndex);
         if (pointerId == mActivePointerId) {
             // This was our active pointer going up. Choose a new
             // active pointer and adjust accordingly.
             final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-            mLastMotionY = MotionEventCompat.getY(ev, newPointerIndex);
-            mActivePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex);
+            mLastMotionY = ev.getY(newPointerIndex);
+            mActivePointerId = ev.getPointerId(newPointerIndex);
         }
     }
 
@@ -590,4 +590,3 @@ public class SwipeRefreshLayout extends ViewGroup {
         }
     }
 }
-

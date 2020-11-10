@@ -2,9 +2,9 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 3.0.0
+version: 4.0.0
 apiversion: 4
-architectures: arm64-v8a armeabi-v7a x86
+architectures: arm64-v8a armeabi-v7a x86 x86_64
 description: androidcollectionview
 author: Marcel Pociot
 license: MIT
@@ -15,4 +15,4 @@ name: androidcollectionview
 moduleid: ti.collectionview
 guid: 304bc7f8-ad6c-4348-9d32-658adf6f61f4
 platform: android
-minsdk: 7.0.0
+minsdk: 9.0.0

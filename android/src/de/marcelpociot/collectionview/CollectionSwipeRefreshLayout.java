@@ -1,12 +1,13 @@
 package de.marcelpociot.collectionview;
 
 import android.content.Context;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ScrollView;
+
+import androidx.core.view.ViewCompat;
 
 /**
  * MySwipeRefreshLayout is a modified SwipeRefreshLayout so that Titanium views
